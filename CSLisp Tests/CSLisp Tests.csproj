@@ -5,7 +5,7 @@
     <RootNamespace>CSLisp</RootNamespace>
     <IsPackable>false</IsPackable>
     <AssemblyTitle>CSLisp Tests</AssemblyTitle>
-    <Copyright>Copyright (C) Robert Zubek</Copyright>
+    <Copyright>Copyright (C) 2019-2021 Robert Zubek, 2024 Simen Endsjø</Copyright>
     <Version>0.8.0</Version>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
