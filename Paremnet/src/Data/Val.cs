@@ -54,7 +54,7 @@ public readonly struct Val : IEquatable<Val>
     }
 
     // value types need to live at a separate offset from reference types
-    [FieldOffset(0)] public readonly ulong rawvalue;
+    [FieldOffset(0)] public readonly Int128 rawvalue;
     [FieldOffset(0)] public readonly Boolean vboolean;
     [FieldOffset(0)] public readonly sbyte vint8;
     [FieldOffset(0)] public readonly byte vuint8;
