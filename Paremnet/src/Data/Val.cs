@@ -26,6 +26,8 @@ public readonly struct Val : IEquatable<Val>
         // value types
         Nil,
         Boolean,
+        Int8,
+        UInt8,
         Int16,
         UInt16,
         Int32,
@@ -45,6 +47,8 @@ public readonly struct Val : IEquatable<Val>
     // value types need to live at a separate offset from reference types
     [FieldOffset(0)] public readonly ulong rawvalue;
     [FieldOffset(0)] public readonly Boolean vboolean;
+    [FieldOffset(0)] public readonly sbyte vint8;
+    [FieldOffset(0)] public readonly byte vuint8;
     [FieldOffset(0)] public readonly Int16 vint16;
     [FieldOffset(0)] public readonly UInt16 vuint16;
     [FieldOffset(0)] public readonly Int32 vint32;
@@ -72,6 +76,18 @@ public readonly struct Val : IEquatable<Val>
     {
         type = Type.Boolean;
         vboolean = value;
+    }
+
+    public Val(sbyte value) : this()
+    {
+        type = Type.Int8;
+        vint8 = value;
+    }
+
+    public Val(byte value) : this()
+    {
+        type = Type.UInt8;
+        vuint8 = value;
     }
 
     public Val(Int16 value) : this()
@@ -151,13 +167,17 @@ public readonly struct Val : IEquatable<Val>
     public bool IsAtom => type != Type.Cons;
 
     public bool IsNumber =>
-        type is Type.Int16
-        or Type.UInt16
-        or Type.Int32
-        or Type.UInt32
-        or Type.Single;
+        type is Type.Int8
+            or Type.UInt8
+            or Type.Int16
+            or Type.UInt16
+            or Type.Int32
+            or Type.UInt32
+            or Type.Single;
 
     public bool IsBool => type == Type.Boolean;
+    public bool IsUInt8 => type == Type.UInt8;
+    public bool IsInt8 => type == Type.Int8;
     public bool IsUInt16 => type == Type.UInt16;
     public bool IsInt16 => type == Type.Int16;
     public bool IsInt32 => type == Type.Int32;
@@ -172,6 +192,8 @@ public readonly struct Val : IEquatable<Val>
     public bool IsObject => type == Type.Object;
 
     public Boolean AsBoolean => type == Type.Boolean ? vboolean : throw new CompilerError("Value type was expected to be Boolean");
+    public sbyte AsInt8 => type == Type.Int8 ? vint8 : throw new CompilerError("Value type was expected to be Int8");
+    public byte AsUInt8 => type == Type.UInt8 ? vuint8 : throw new CompilerError("Value type was expected to be Int8");
     public Int16 AsInt16 => type == Type.Int16 ? vint16 : throw new CompilerError("Value type was expected to be Int16");
     public UInt16 AsUInt16 => type == Type.UInt16 ? vuint16 : throw new CompilerError("Value type was expected to be Int16");
     public Int32 AsInt32 => type == Type.Int32 ? vint32 : throw new CompilerError("Value type was expected to be Int32");
@@ -199,6 +221,8 @@ public readonly struct Val : IEquatable<Val>
         {
             Type.Nil => null,
             Type.Boolean => vboolean,
+            Type.Int8 => vint8,
+            Type.UInt8 => vuint8,
             Type.Int16 => vint16,
             Type.UInt16 => vuint16,
             Type.Int32 => vint32,
@@ -218,6 +242,8 @@ public readonly struct Val : IEquatable<Val>
         {
             null => NIL,
             Boolean boolean => boolean,
+            sbyte int8 => int8,
+            byte uint8 => uint8,
             Int16 int16 => int16,
             UInt16 uint16 => uint16,
             Int32 int32 => int32,
@@ -272,6 +298,8 @@ public readonly struct Val : IEquatable<Val>
     public static bool operator !=(Val a, Val b) => !Equals(a, b);
 
     public static implicit operator Val(bool val) => new(val);
+    public static implicit operator Val(sbyte val) => new(val);
+    public static implicit operator Val(byte val) => new(val);
     public static implicit operator Val(Int16 val) => new(val);
     public static implicit operator Val(UInt16 val) => new(val);
     public static implicit operator Val(Int32 val) => new(val);
@@ -299,6 +327,10 @@ public readonly struct Val : IEquatable<Val>
                 return "()";
             case Type.Boolean:
                 return val.vboolean ? "#t" : "#f";
+            case Type.Int8:
+                return val.vint8.ToString(CultureInfo.InvariantCulture);
+            case Type.UInt8:
+                return val.vuint8.ToString(CultureInfo.InvariantCulture);
             case Type.Int16:
                 return val.vint16.ToString(CultureInfo.InvariantCulture);
             case Type.UInt16:
