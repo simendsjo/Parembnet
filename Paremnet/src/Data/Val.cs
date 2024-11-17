@@ -139,9 +139,12 @@ public readonly struct Val : IEquatable<Val>
 
     public bool CastToBool => (type == Type.Bool) ? vbool : (type != Type.Nil);
     public float CastToFloat =>
-        (type == Type.Int) ? vint :
-        (type == Type.Float) ? vfloat :
-        throw new CompilerError("Float cast applied to not a number");
+        type switch
+        {
+            Type.Int => vint,
+            Type.Float => vfloat,
+            _ => throw new CompilerError("Float cast applied to not a number")
+        };
 
     private bool IsValueType => type is Type.Bool or Type.Int or Type.Float;
 
