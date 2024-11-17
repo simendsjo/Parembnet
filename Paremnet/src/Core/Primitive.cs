@@ -127,7 +127,7 @@ public class Function
 /// <summary>
 /// Describes whether a primitive function has constant or variable number of arguments
 /// </summary>
-public enum FnType { ConstArgs, VarArgs };
+public enum FnType { ConstArgs, VarArgs }
 
 /// <summary>
 /// Describes whether a primitive function may cause side effects, or whether it's a pure function.

@@ -44,7 +44,7 @@ namespace Paremnet
 
     public class UnitTests
     {
-        public enum LogType { None, Console, TempFile };
+        public enum LogType { None, Console, TempFile }
 
         /// <summary> Failures count during the last test run. </summary>
         private int _failures = 0;
