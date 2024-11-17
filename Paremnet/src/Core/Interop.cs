@@ -121,7 +121,7 @@ public static class Interop
 
         if (current.IsSymbol)
         { // this should only happen on the very first element?!
-            Namespace result = new Namespace() { ns = current.AsSymbol.name };
+            Namespace result = new() { ns = current.AsSymbol.name };
             return TryNamespaceLookup(result, nextSymbol, nonSymbols);
         }
 

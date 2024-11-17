@@ -47,14 +47,14 @@ public class CodeBlock
 public class Code
 {
     // block storage as a list to ensure fast lookup
-    private readonly List<CodeBlock> _blocks = new List<CodeBlock>() { null }; // make sure index starts at 1
+    private readonly List<CodeBlock> _blocks = new() { null }; // make sure index starts at 1
 
-    public CodeHandle LastHandle => new CodeHandle(_blocks.Count - 1);
+    public CodeHandle LastHandle => new(_blocks.Count - 1);
 
     /// <summary> Registers a new code block and returns its handle </summary>
     public CodeHandle AddBlock(List<Instruction> instructions, string debug)
     {
-        CodeHandle handle = new CodeHandle { index = _blocks.Count };
+        CodeHandle handle = new() { index = _blocks.Count };
         _blocks.Add(new CodeBlock(handle, instructions, debug));
         return handle;
     }
@@ -96,7 +96,7 @@ public class Code
     private string DebugPrint(CodeHandle handle, int indentLevel)
     {
         CodeBlock block = Get(handle);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.Append('\t', indentLevel);
         //sb.AppendLine($"CODE BLOCK # {block.handle.index} ; {block.debug}");
@@ -125,7 +125,7 @@ public class Code
     /// <summary> Converts all sets of instructions to a string </summary>
     public string DebugPrintAll()
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine("\n\n*** ALL CODE BLOCKS\n");
 
         for (int i = 0; i < _blocks.Count; i++)

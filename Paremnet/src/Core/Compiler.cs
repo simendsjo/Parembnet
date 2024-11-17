@@ -49,9 +49,9 @@ public class Compiler
         public bool IsUnused => !_val;
         public bool IsFinal => !_more;
 
-        public static readonly State UsedFinal = new State { _val = true, _more = false };
-        public static readonly State UsedNonFinal = new State { _val = true, _more = true };
-        public static readonly State NotUsedNonFinal = new State { _val = false, _more = true };
+        public static readonly State UsedFinal = new() { _val = true, _more = false };
+        public static readonly State UsedNonFinal = new() { _val = true, _more = true };
+        public static readonly State NotUsedNonFinal = new() { _val = false, _more = true };
     }
 
     /// <summary> Label counter for each separate compilation block </summary>
@@ -97,7 +97,7 @@ public class Compiler
         Closure closure = CompileLambda(Val.NIL, new Cons(x, Val.NIL), null);
         CodeHandle after = _ctx.code.LastHandle;
 
-        List<CodeHandle> blocks = new List<CodeHandle>();
+        List<CodeHandle> blocks = new();
         for (int i = before.index + 1; i <= after.index; i++) { blocks.Add(new CodeHandle(i)); }
 
         return new CompilationResults(closure, blocks);
@@ -462,7 +462,7 @@ public class Compiler
         Cons args = cons.second.AsCons;
         Cons bodylist = cons.afterSecond.AsConsOrNull;
         Closure body = CompileLambda(new Val(args), bodylist, env);
-        Macro macro = new Macro(name, args, body);
+        Macro macro = new(name, args, body);
 
         // install it in the package
         name.pkg.SetMacro(name, macro);
@@ -537,15 +537,15 @@ public class Compiler
 
     /// <summary> Generates a sequence containing a single instruction </summary>
     private static List<Instruction> Emit(Opcode type, Val first, Val second, string debug = null) =>
-        new List<Instruction>() { new Instruction(type, first, second, debug) };
+        new() { new Instruction(type, first, second, debug) };
 
     /// <summary> Generates a sequence containing a single instruction </summary>
     private static List<Instruction> Emit(Opcode type, Val first, string debug = null) =>
-        new List<Instruction>() { new Instruction(type, first, debug) };
+        new() { new Instruction(type, first, debug) };
 
     /// <summary> Generates a sequence containing a single instruction with no arguments </summary>
     private static List<Instruction> Emit(Opcode type) =>
-        new List<Instruction>() { new Instruction(type) };
+        new() { new Instruction(type) };
 
 
     /// <summary> Creates a new unique label </summary>
@@ -584,7 +584,7 @@ public class Compiler
     /// </summary>
     private static List<Instruction> Assemble(List<Instruction> code)
     {
-        LabelPositions positions = new LabelPositions(code);
+        LabelPositions positions = new(code);
 
         for (int i = 0; i < code.Count; i++)
         {

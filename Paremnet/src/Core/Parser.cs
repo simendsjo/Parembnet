@@ -15,13 +15,13 @@ public class Parser
 {
     /// <summary> Full list of reserved keywords - no symbol can be named as one of these </summary>
     public static readonly List<string> RESERVED
-        = new List<string>() { "quote", "begin", "set!", "if", "if*", "while", "lambda", "defmacro", "." };
+        = new() { "quote", "begin", "set!", "if", "if*", "while", "lambda", "defmacro", "." };
 
     /// <summary> Special "end of stream" constant </summary>
-    public static readonly Val EOF = new Val("!eof");
+    public static readonly Val EOF = new("!eof");
 
     /// <summary> Internal stream </summary>
-    private readonly InputStream _stream = new InputStream();
+    private readonly InputStream _stream = new();
 
     /// <summary> Reference to the global packages manager </summary>
     private readonly Packages _packages;
@@ -45,7 +45,7 @@ public class Parser
     /// <summary> Parses and returns all the elements it can from the stream </summary>
     public List<Val> ParseAll()
     {
-        List<Val> results = new List<Val>();
+        List<Val> results = new();
         Val result = ParseNext();
         while (!Val.Equals(result, EOF))
         {
@@ -185,7 +185,7 @@ public class Parser
         }
     }
 
-    private readonly List<char> SPECIAL_ELEMENTS = new List<char>() { '(', ')', '\"', '\'', '`' };
+    private readonly List<char> SPECIAL_ELEMENTS = new() { '(', ')', '\"', '\'', '`' };
 
     /// <summary> Special elements are like whitespace - they interrupt tokenizing </summary>
     private bool IsSpecialElement(char elt, bool insideBackquote) => SPECIAL_ELEMENTS.Contains(elt) || (insideBackquote && elt == ',');
@@ -203,7 +203,7 @@ public class Parser
     {
 
         // tokenizer loop
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         char ch;
         while ((ch = stream.Peek()) != (char)0)
         {
@@ -312,7 +312,7 @@ public class Parser
     private static Val ParseString(InputStream stream)
     {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         stream.Read(); // consume the opening quote
 
@@ -340,7 +340,7 @@ public class Parser
     private Val ParseList(InputStream stream, bool backquote)
     {
 
-        List<Val> results = new List<Val>();
+        List<Val> results = new();
         stream.Read(); // consume opening paren
         ConsumeWhitespace(stream);
 
@@ -392,7 +392,7 @@ public class Parser
 
         // we didn't match any special forms, just do a list match
         // (` (a ...)) => (append [a] ...)
-        List<Val> forms = new List<Val>();
+        List<Val> forms = new();
         Cons c = body;
         while (c != null)
         {
@@ -400,7 +400,7 @@ public class Parser
             c = c.rest.AsConsOrNull;
         }
 
-        Cons result = new Cons(_global.Intern("append"), Cons.MakeList(forms));
+        Cons result = new(_global.Intern("append"), Cons.MakeList(forms));
 
         // now do a quick optimization: if the result is of the form:
         // (append (list ...) (list ...) ...) where all entries are known to be lists,
@@ -443,14 +443,14 @@ public class Parser
     /// </summary>
     private Val TryOptimizeAppend(Cons value)
     {
-        Val original = new Val(value);
+        Val original = new(value);
 
         if (!IsSymbolWithName(value.first, "append"))
         {
             return original;
         }
 
-        List<Val> results = new List<Val>();
+        List<Val> results = new();
         Val rest = value.rest;
         while (rest.IsNotNil)
         {

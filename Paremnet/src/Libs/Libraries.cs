@@ -12,7 +12,7 @@ public class Libraries
 {
     /// <summary> All libraries as a list </summary>
     private static List<byte[]> GetAllBuiltInLibraries() =>
-        new List<byte[]>() { Resources.Core, Resources.Record, Resources.User };
+        new() { Resources.Core, Resources.Record, Resources.User };
 
     /// <summary> Loads all standard libraries into an initialized machine instance </summary>
     public static void LoadStandardLibraries(Context ctx)
@@ -20,8 +20,8 @@ public class Libraries
         List<byte[]> allLibs = GetAllBuiltInLibraries();
         foreach (byte[] libBytes in allLibs)
         {
-            using MemoryStream stream = new MemoryStream(libBytes);
-            using StreamReader reader = new StreamReader(stream);
+            using MemoryStream stream = new(libBytes);
+            using StreamReader reader = new(stream);
             string libText = reader.ReadToEnd();
             LoadLibrary(ctx, libText);
         }

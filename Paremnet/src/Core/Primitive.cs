@@ -21,7 +21,7 @@ public struct VarArgs
 
     public List<Val> ToNativeList() => Cons.ToNativeList(AsVal);
 
-    public static implicit operator VarArgs(Cons c) => new VarArgs(c);
+    public static implicit operator VarArgs(Cons c) => new(c);
 }
 
 public delegate Val FnThunk(Context ctx);

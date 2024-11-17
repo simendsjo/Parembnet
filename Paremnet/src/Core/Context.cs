@@ -64,7 +64,7 @@ public class Context
     public List<CompileAndExecuteResult> CompileAndExecute(string input)
     {
 
-        List<CompileAndExecuteResult> outputs = new List<CompileAndExecuteResult>();
+        List<CompileAndExecuteResult> outputs = new();
 
         parser.AddString(input);
         List<Val> parseResults = parser.ParseAll();

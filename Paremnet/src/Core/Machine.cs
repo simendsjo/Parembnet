@@ -24,7 +24,7 @@ public class Machine
     /// <summary> Runs the given piece of code, and returns the value left at the top of the stack. </summary>
     public Val Execute(Closure fn, params Val[] args)
     {
-        State st = new State(fn, args);
+        State st = new(fn, args);
         CodeHandle code = default;
         List<Instruction> instructions = null;
 
@@ -72,7 +72,7 @@ public class Machine
 
                 case Opcode.LOCAL_GET:
                     {
-                        VarPos pos = new VarPos(instr.first, instr.second);
+                        VarPos pos = new(instr.first, instr.second);
                         Val value = Environment.GetValueAt(pos, st.env);
                         st.Push(value);
                     }
@@ -80,7 +80,7 @@ public class Machine
 
                 case Opcode.LOCAL_SET:
                     {
-                        VarPos pos = new VarPos(instr.first, instr.second);
+                        VarPos pos = new(instr.first, instr.second);
                         Val value = st.Peek();
                         Environment.SetValueAt(pos, value, st.env);
                     }

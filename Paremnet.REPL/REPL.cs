@@ -45,7 +45,7 @@ namespace Paremnet
             }
         }
 
-        private static readonly List<Command> _commands = new List<Command>() {
+        private static readonly List<Command> _commands = new() {
             new Command(",exit", "Quits the REPL", () => _runRepl = false),
             new Command(",help", "Shows this help menu",
                 () => Console.WriteLine("Valid repl commands:\n" + string.Join("\n", _commands.Select(p => p.Message)))),
@@ -67,7 +67,7 @@ namespace Paremnet
         public static void Run()
         {
 
-            Context ctx = new Context(logger: new Logger());
+            Context ctx = new(logger: new Logger());
             Console.WriteLine(GetInfo(ctx));
 
             IEnumerable<Val> selfTest = ctx.CompileAndExecute("(+ 1 2)").Select(r => r.output);

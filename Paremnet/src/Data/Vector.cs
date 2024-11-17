@@ -42,7 +42,7 @@ public class Vector : List<Val>
     /// Converts this Vector into a .NET ArrayList
     /// </summary>
     public ArrayList ToArrayList() =>
-        new ArrayList(ToList());
+        new(ToList());
 
     /// <summary>
     /// Prints vector contents as a string with specified separator

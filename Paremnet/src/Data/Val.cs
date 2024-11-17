@@ -52,7 +52,7 @@ public readonly struct Val : IEquatable<Val>
 
     [FieldOffset(16)] public readonly Type type;
 
-    public static readonly Val NIL = new Val(Type.Nil);
+    public static readonly Val NIL = new(Type.Nil);
 
     private Val(Type type) : this() { this.type = type; }
 
@@ -167,14 +167,14 @@ public readonly struct Val : IEquatable<Val>
     public static bool operator ==(Val a, Val b) => Equals(a, b);
     public static bool operator !=(Val a, Val b) => !Equals(a, b);
 
-    public static implicit operator Val(bool val) => new Val(val);
-    public static implicit operator Val(int val) => new Val(val);
-    public static implicit operator Val(float val) => new Val(val);
-    public static implicit operator Val(string val) => new Val(val);
-    public static implicit operator Val(Symbol val) => new Val(val);
-    public static implicit operator Val(Cons val) => new Val(val);
-    public static implicit operator Val(Vector val) => new Val(val);
-    public static implicit operator Val(Closure val) => new Val(val);
+    public static implicit operator Val(bool val) => new(val);
+    public static implicit operator Val(int val) => new(val);
+    public static implicit operator Val(float val) => new(val);
+    public static implicit operator Val(string val) => new(val);
+    public static implicit operator Val(Symbol val) => new(val);
+    public static implicit operator Val(Cons val) => new(val);
+    public static implicit operator Val(Vector val) => new(val);
+    public static implicit operator Val(Closure val) => new(val);
 
     public override bool Equals(object obj) => (obj is Val val) && Equals(val, this);
     public override int GetHashCode() => (int)type ^ (rawobject != null ? rawobject.GetHashCode() : ((int)rawvalue));
@@ -225,10 +225,10 @@ public readonly struct Val : IEquatable<Val>
     /// <summary> Helper function for cons cells </summary>
     private static string StringifyCons(Cons cell, bool fullName)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.Append('(');
 
-        Val val = new Val(cell);
+        Val val = new(cell);
         while (val.IsNotNil)
         {
             Cons cons = val.AsConsOrNull;

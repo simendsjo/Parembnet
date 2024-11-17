@@ -93,7 +93,7 @@ public class Cons
         Cons first = null, last = null;
         foreach (T value in values)
         {
-            Cons newcell = new Cons(new Val(value), Val.NIL);
+            Cons newcell = new(new Val(value), Val.NIL);
             if (first == null)
             {
                 first = newcell;
@@ -109,18 +109,18 @@ public class Cons
     }
 
     /// <summary> Helper function: converts a single value to a cons list. </summary>
-    public static Cons MakeList(Val first) => new Cons(first, Val.NIL);
+    public static Cons MakeList(Val first) => new(first, Val.NIL);
 
     /// <summary> Helper function: converts two values to a cons list. </summary>
-    public static Cons MakeList(Val first, Val second) => new Cons(first, new Cons(second, Val.NIL));
+    public static Cons MakeList(Val first, Val second) => new(first, new Cons(second, Val.NIL));
 
     /// <summary> Helper function: converts three values to a cons list. </summary>
-    public static Cons MakeList(Val first, Val second, Val third) => new Cons(first, new Cons(second, new Cons(third, Val.NIL)));
+    public static Cons MakeList(Val first, Val second, Val third) => new(first, new Cons(second, new Cons(third, Val.NIL)));
 
     /// <summary> Helper function: converts a cons list into a native list </summary>
     public static List<Val> ToNativeList(Val element)
     {
-        List<Val> results = new List<Val>();
+        List<Val> results = new();
         while (element.IsNotNil)
         {
             if (element.IsAtom)

@@ -10,7 +10,7 @@ namespace Paremnet.Data;
 /// </summary>
 public struct VarPos
 {
-    public static readonly VarPos INVALID = new VarPos(-1, -1);
+    public static readonly VarPos INVALID = new(-1, -1);
 
     public readonly int frameIndex, symbolIndex;
 
@@ -57,7 +57,7 @@ public class Environment
     public static Environment Make(Cons args, Environment parent)
     {
         int count = Cons.Length(args);
-        Environment env = new Environment(count, parent);
+        Environment env = new(count, parent);
 
         for (int i = 0; i < count; i++)
         {

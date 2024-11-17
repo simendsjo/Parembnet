@@ -101,7 +101,7 @@ namespace Paremnet
         }
 
         /// <summary> Logger implementation </summary>
-        private readonly Logger _logger = new Logger();
+        private readonly Logger _logger = new();
 
         /// <summary> Simple logger wrapper </summary>
         private void Log(params object[] args)
@@ -171,7 +171,7 @@ namespace Paremnet
             Check(new Val(new Cons(new Val(1), new Val(2))).IsCons);
 
             {
-                Cons list1 = new Cons("foo", new Cons("bar", Val.NIL));
+                Cons list1 = new("foo", new Cons("bar", Val.NIL));
                 Check(Cons.IsCons(list1));
                 Check(Cons.IsList(list1));
                 Check(Cons.Length(list1), 2);
@@ -203,7 +203,7 @@ namespace Paremnet
             }
 
             {
-                Cons nonlist = new Cons("foo", "bar");
+                Cons nonlist = new("foo", "bar");
                 Check(Cons.IsCons(nonlist));
                 Check(!Cons.IsList(nonlist));
                 Check(nonlist.first, "foo");
@@ -218,7 +218,7 @@ namespace Paremnet
         /// <summary> Test packages and symbols </summary>
         public void TestPackagesAndSymbols()
         {
-            Packages packages = new Packages();
+            Packages packages = new();
             Package p = packages.global;   // global package
 
             Symbol foo = p.Intern("foo");
@@ -230,7 +230,7 @@ namespace Paremnet
             Check(!p.Unintern(foo.name));      // but second time there is nothing to remove
             Check(p.Intern("foo") != foo); // since we uninterned, second interning will return a different one
 
-            Package p2 = new Package("fancy"); // some fancy package
+            Package p2 = new("fancy"); // some fancy package
             Symbol foo2 = p2.Intern("foo");
             Check(foo2.name, "foo");
             Check(foo2.pkg, p2);
@@ -255,7 +255,7 @@ namespace Paremnet
         {
             // test environments
 
-            Package p = new Package("temp");
+            Package p = new("temp");
             Environment e2 = Environment.Make(Cons.MakeList(p.Intern("env2symbol0")), null);
             // e2.setAt(0, p.intern("env2symbol0"));
             Environment e1 = Environment.Make(Cons.MakeList(p.Intern("env1symbol0"), p.Intern("env1symbol1")), e2);
@@ -283,7 +283,7 @@ namespace Paremnet
         public void TestCharStream()
         {
             // first, test the stream wrapper
-            InputStream stream = new InputStream();
+            InputStream stream = new();
             stream.Add("foo");
             stream.Save();
             Check(!stream.IsEmpty);
@@ -302,8 +302,8 @@ namespace Paremnet
         /// <summary> Tests the parser part of the system </summary>
         public void TestParser()
         {
-            Packages packages = new Packages();
-            Parser p = new Parser(packages, _logger);
+            Packages packages = new();
+            Parser p = new(packages, _logger);
 
             // test parsing simple atoms, check their internal form
             CheckParseRaw(p, "1", 1);
@@ -363,7 +363,7 @@ namespace Paremnet
         /// <summary> Compiles some sample scripts and prints them out, without validation. </summary>
         public void PrintSampleCompilations()
         {
-            Context ctx = new Context(false, _logger);
+            Context ctx = new(false, _logger);
 
             CompileAndPrint(ctx, "5");
             CompileAndPrint(ctx, "\"foo\"");
@@ -416,7 +416,7 @@ namespace Paremnet
         public void TestVMNoCoreLib()
         {
             // first without the standard library
-            Context ctx = new Context(false, _logger);
+            Context ctx = new(false, _logger);
 
             // test reserved keywords
             CompileAndRun(ctx, "5", "5");
@@ -449,7 +449,7 @@ namespace Paremnet
         public void TestVMPrimitives()
         {
             // first without the standard library
-            Context ctx = new Context(false, _logger);
+            Context ctx = new(false, _logger);
 
             // test primitives
             CompileAndRun(ctx, "(+ 1 2)", "3");
@@ -499,7 +499,7 @@ namespace Paremnet
         public void TestDotNetInterop()
         {
             // load the standard library so we get access to (let ...) and macros in general
-            Context ctx = new Context(true, _logger);
+            Context ctx = new(true, _logger);
 
             // test dot net interop
 
@@ -578,7 +578,7 @@ namespace Paremnet
         public void TestPackages()
         {
             // without the standard library
-            Context ctx = new Context(false, _logger);
+            Context ctx = new(false, _logger);
 
             // test packages
             CompileAndRun(ctx, "(package-set \"foo\") (package-get)", "\"foo\"", "\"foo\"");
@@ -603,7 +603,7 @@ namespace Paremnet
         public void TestStandardLibs()
         {
             // now initialize the standard library
-            Context ctx = new Context(true, _logger);
+            Context ctx = new(true, _logger);
 
             // test some basic functions
             CompileAndRun(ctx, "(map number? '(a 2 \"foo\"))", "(#f #t #f)");
@@ -663,7 +663,7 @@ namespace Paremnet
 
         public void TestRecords()
         {
-            Context ctx = new Context(true, _logger);
+            Context ctx = new(true, _logger);
 
             // make a new point record with fields x and y (x has a getter and setter, y has a getter only)
             CompileAndRun(ctx, "(define-record-type point (make-point x y) point? (x getx setx!) (y gety))", "()");
@@ -685,7 +685,7 @@ namespace Paremnet
 
         public void PrintAllStandardLibraries()
         {
-            Context ctx = new Context(true, _logger);
+            Context ctx = new(true, _logger);
             DumpCodeBlocks(ctx);
         }
 

@@ -117,7 +117,7 @@ public class Instruction
     private static readonly string[] _NAMES = Enum.GetNames(typeof(Opcode));
 
     /// <summary> Names of all jump instructions that need to be fixed up at assembly time </summary>
-    private static readonly List<Opcode> JUMP_TYPES = new List<Opcode>() {
+    private static readonly List<Opcode> JUMP_TYPES = new() {
         Opcode.JMP_TO_LABEL,
         Opcode.JMP_IF_FALSE,
         Opcode.JMP_IF_TRUE,
@@ -161,7 +161,7 @@ public class Instruction
     /// <summary> Converts an instruction to a string </summary>
     public string DebugPrint(string sep = "\t")
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.Append(_NAMES[(int)type]);
 
         if (first.IsNotNil || type == Opcode.PUSH_CONST)

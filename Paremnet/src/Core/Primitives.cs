@@ -11,9 +11,9 @@ public class Primitives
 {
     private static int _gensymIndex = 1;
 
-    private static Dictionary<string, List<Primitive>> ALL_PRIMITIVES_DICT = new Dictionary<string, List<Primitive>>();
+    private static Dictionary<string, List<Primitive>> ALL_PRIMITIVES_DICT = new();
 
-    private static readonly List<Primitive> ALL_PRIMITIVES_VECTOR = new List<Primitive>() {
+    private static readonly List<Primitive> ALL_PRIMITIVES_VECTOR = new() {
         new Primitive("+", 2, new Function((Context ctx, Val a, Val b) => ValAdd(a, b))),
         new Primitive("-", 2, new Function((Context ctx, Val a, Val b) => ValSub(a, b))),
         new Primitive("*", 2, new Function((Context ctx, Val a, Val b) => ValMul(a, b))),
@@ -261,7 +261,7 @@ public class Primitives
             {
                 Symbol name = pkg.Intern(p.name);
                 name.exported = true;
-                List<Instruction> instructions = new List<Instruction>() {
+                List<Instruction> instructions = new() {
                     new Instruction(Opcode.CALL_PRIMOP, p.name),
                     new Instruction(Opcode.RETURN_VAL)};
 
@@ -327,7 +327,7 @@ public class Primitives
         {
             Val input = list.first;
             Val output = ctx.vm.Execute(fn, input);
-            Cons current = new Cons(output, Val.NIL);
+            Cons current = new(output, Val.NIL);
             if (head == null) { head = current; }
             if (previous != null) { previous.rest = current; }
             previous = current;
