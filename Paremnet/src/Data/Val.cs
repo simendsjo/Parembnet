@@ -59,25 +59,85 @@ public readonly struct Val : IEquatable<Val>
 
     public static readonly Val NIL = new(Type.Nil);
 
-    private Val(Type type) : this() { this.type = type; }
+    private Val(Type type) : this()
+    {
+        this.type = type;
+    }
 
-    public Val(Boolean value) : this() { type = Type.Boolean; vboolean = value; }
-    public Val(Int16 value) : this() { type = Type.Int16; vint16 = value; }
-    public Val(Int32 value) : this() { type = Type.Int32; vint32 = value; }
-    public Val(Single value) : this() { type = Type.Single; vsingle = value; }
-    public Val(string value) : this() { type = Type.String; vstring = value; }
-    public Val(Symbol value) : this() { type = Type.Symbol; vsymbol = value; }
-    public Val(Cons value) : this() { type = Type.Cons; vcons = value; }
-    public Val(Vector value) : this() { type = Type.Vector; vvector = value; }
-    public Val(Closure value) : this() { type = Type.Closure; vclosure = value; }
-    public Val(ReturnAddress value) : this() { type = Type.ReturnAddress; vreturn = value; }
-    public Val(object value) : this() { type = Type.Object; rawobject = value; }
+    public Val(Boolean value) : this()
+    {
+        type = Type.Boolean;
+        vboolean = value;
+    }
+
+    public Val(Int16 value) : this()
+    {
+        type = Type.Int16;
+        vint16 = value;
+    }
+
+    public Val(Int32 value) : this()
+    {
+        type = Type.Int32;
+        vint32 = value;
+    }
+
+    public Val(Single value) : this()
+    {
+        type = Type.Single;
+        vsingle = value;
+    }
+
+    public Val(string value) : this()
+    {
+        type = Type.String;
+        vstring = value;
+    }
+
+    public Val(Symbol value) : this()
+    {
+        type = Type.Symbol;
+        vsymbol = value;
+    }
+
+    public Val(Cons value) : this()
+    {
+        type = Type.Cons;
+        vcons = value;
+    }
+
+    public Val(Vector value) : this()
+    {
+        type = Type.Vector;
+        vvector = value;
+    }
+
+    public Val(Closure value) : this()
+    {
+        type = Type.Closure;
+        vclosure = value;
+    }
+
+    public Val(ReturnAddress value) : this()
+    {
+        type = Type.ReturnAddress;
+        vreturn = value;
+    }
+
+    public Val(object value) : this()
+    {
+        type = Type.Object;
+        rawobject = value;
+    }
 
     public bool IsNil => type == Type.Nil;
     public bool IsNotNil => type != Type.Nil;
     public bool IsAtom => type != Type.Cons;
 
-    public bool IsNumber => type is Type.Int16 or Type.Int32 or Type.Single;
+    public bool IsNumber =>
+        type is Type.Int16
+        or Type.Int32
+        or Type.Single;
 
     public bool IsBool => type == Type.Boolean;
     public bool IsInt16 => type == Type.Int16;
@@ -147,6 +207,7 @@ public readonly struct Val : IEquatable<Val>
         };
 
     public bool CastToBool => (type == Type.Boolean) ? vboolean : (type != Type.Nil);
+
     public float CastToSingle =>
         type switch
         {
@@ -156,7 +217,11 @@ public readonly struct Val : IEquatable<Val>
             _ => throw new CompilerError("Single cast applied to not a number")
         };
 
-    private bool IsValueType => type is Type.Boolean or Type.Int16 or Type.Int32 or Type.Single;
+    private bool IsValueType =>
+        type is Type.Boolean
+            or Type.Int16
+            or Type.Int32
+            or Type.Single;
 
     public static bool Equals(Val a, Val b)
     {
@@ -268,5 +333,4 @@ public readonly struct Val : IEquatable<Val>
         sb.Append(')');
         return sb.ToString();
     }
-
 }
