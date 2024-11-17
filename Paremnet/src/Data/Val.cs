@@ -56,7 +56,7 @@ public readonly struct Val : IEquatable<Val>
 
     private Val(Type type) : this() { this.type = type; }
 
-    public Val(bool value) : this() { type = Type.Boolean; vboolean = value; }
+    public Val(Boolean value) : this() { type = Type.Boolean; vboolean = value; }
     public Val(Int32 value) : this() { type = Type.Int32; vint32 = value; }
     public Val(float value) : this() { type = Type.Single; vsingle = value; }
     public Val(string value) : this() { type = Type.String; vstring = value; }
