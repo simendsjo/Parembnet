@@ -10,6 +10,12 @@ namespace Paremnet.Data;
 public enum Opcode
 {
     /// <summary>
+    /// An illegal instruction triggering an error.
+    /// Important that this has value 0 to catch more bugs.
+    /// </summary>
+    Illegal = 0,
+
+    /// <summary>
     /// Just a label, doesn't do anything, only used during compilation
     /// </summary>
     Label,

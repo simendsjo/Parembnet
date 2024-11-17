@@ -239,6 +239,9 @@ public class Machine
                     }
                     break;
 
+                case Opcode.Illegal:
+                    throw new LanguageError("Encountered illegal instruction: " + instr.Type);
+
                 default:
                     throw new LanguageError("Unknown instruction type: " + instr.Type);
             }
