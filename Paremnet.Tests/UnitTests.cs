@@ -66,7 +66,7 @@ namespace Paremnet
                 switch (LOG_TARGET)
                 {
                     case LogType.TempFile:
-                        string testDir = Path.Combine("..", "..", "..", "Test Results");
+                        string testDir = Path.Combine("..", "..", "..", "TestResults");
                         Directory.CreateDirectory(testDir);
                         string filePath = Path.Combine(testDir, $"{name}.txt");
                         _writer = new StreamWriter(new FileStream(filePath, FileMode.Create));
