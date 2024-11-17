@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Paremnet", "Paremnet\Paremnet.csproj", "{01FB5D05-8391-4F21-9E77-9515CABE599E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Paremnet Tests", "Paremnet Tests\Paremnet Tests.csproj", "{4D0B92EB-13CF-453F-BA3A-A5BE8817C5E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Paremnet.Tests", "Paremnet.Tests\Paremnet.Tests.csproj", "{4D0B92EB-13CF-453F-BA3A-A5BE8817C5E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A34E6CC-8AA4-45BE-85FD-51327A4277EB}"
 	ProjectSection(SolutionItems) = preProject
