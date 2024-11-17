@@ -134,7 +134,7 @@ public class Machine
 
                 case Opcode.MakeEnv:
                     {
-                        int argcount = instr.First.AsInt;
+                        int argcount = instr.First.AsInt32;
                         if (st.Argcount != argcount) { throw new LanguageError($"Argument count error, expected {argcount}, got {st.Argcount}"); }
 
                         // make an environment for the given number of named args
@@ -150,7 +150,7 @@ public class Machine
 
                 case Opcode.MakeEnvdot:
                     {
-                        int argcount = instr.First.AsInt;
+                        int argcount = instr.First.AsInt32;
                         if (st.Argcount < argcount) { throw new LanguageError($"Argument count error, expected {argcount} or more, got {st.Argcount}"); }
 
                         // make an environment for all named args, +1 for the list of remaining varargs
@@ -189,7 +189,7 @@ public class Machine
                         st.Fn = closure ?? throw new LanguageError($"Unknown function during function call around: {DebugRecentInstructions(st, instructions)}");
                         st.Env = closure.Env;
                         st.Pc = 0;
-                        st.Argcount = instr.First.AsInt;
+                        st.Argcount = instr.First.AsInt32;
                     }
                     break;
 
@@ -229,7 +229,7 @@ public class Machine
                 case Opcode.CallPrimop:
                     {
                         string name = instr.First.AsString;
-                        int argn = (instr.Second.IsInt) ? instr.Second.AsInt : st.Argcount;
+                        int argn = (instr.Second.IsInt32) ? instr.Second.AsInt32 : st.Argcount;
 
                         Primitive prim = Primitives.FindNary(name, argn);
                         if (prim == null) { throw new LanguageError($"Invalid argument count to primitive {name}, count of {argn}"); }
@@ -266,9 +266,9 @@ public class Machine
     /// <summary> Very naive helper function, finds the position of a given label in the instruction set </summary>
     private static int GetLabelPosition(Instruction inst)
     {
-        if (inst.Second.IsInt)
+        if (inst.Second.IsInt32)
         {
-            return inst.Second.AsInt;
+            return inst.Second.AsInt32;
         }
         else
         {

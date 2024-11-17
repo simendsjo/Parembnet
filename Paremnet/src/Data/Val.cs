@@ -23,7 +23,7 @@ public readonly struct Val : IEquatable<Val>
         // value types
         Nil,
         Bool,
-        Int,
+        Int32,
         Float,
 
         // reference types
@@ -39,7 +39,7 @@ public readonly struct Val : IEquatable<Val>
     // value types need to live at a separate offset from reference types
     [FieldOffset(0)] public readonly ulong rawvalue;
     [FieldOffset(0)] public readonly bool vbool;
-    [FieldOffset(0)] public readonly int vint;
+    [FieldOffset(0)] public readonly Int32 vint32;
     [FieldOffset(0)] public readonly float vfloat;
 
     [FieldOffset(8)] public readonly object rawobject;
@@ -57,7 +57,7 @@ public readonly struct Val : IEquatable<Val>
     private Val(Type type) : this() { this.type = type; }
 
     public Val(bool value) : this() { type = Type.Bool; vbool = value; }
-    public Val(int value) : this() { type = Type.Int; vint = value; }
+    public Val(Int32 value) : this() { type = Type.Int32; vint32 = value; }
     public Val(float value) : this() { type = Type.Float; vfloat = value; }
     public Val(string value) : this() { type = Type.String; vstring = value; }
     public Val(Symbol value) : this() { type = Type.Symbol; vsymbol = value; }
@@ -71,10 +71,10 @@ public readonly struct Val : IEquatable<Val>
     public bool IsNotNil => type != Type.Nil;
     public bool IsAtom => type != Type.Cons;
 
-    public bool IsNumber => type is Type.Int or Type.Float;
+    public bool IsNumber => type is Type.Int32 or Type.Float;
 
     public bool IsBool => type == Type.Bool;
-    public bool IsInt => type == Type.Int;
+    public bool IsInt32 => type == Type.Int32;
     public bool IsFloat => type == Type.Float;
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
@@ -85,8 +85,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsObject => type == Type.Object;
 
     public bool AsBool => type == Type.Bool ? vbool : throw new CompilerError("Value type was expected to be bool");
-    public int AsInt => type == Type.Int ? vint : throw new CompilerError("Value type was expected to be int");
-    public float AsFloat => type == Type.Float ? vfloat : throw new CompilerError("Value type was expected to be float");
+    public int AsInt32 => type == Type.Int32 ? vint32 : throw new CompilerError("Value type was expected to be Int32");
     public string AsString => type == Type.String ? vstring : throw new CompilerError("Value type was expected to be string");
     public Symbol AsSymbol => type == Type.Symbol ? vsymbol : throw new CompilerError("Value type was expected to be symbol");
     public Cons AsCons => type == Type.Cons ? vcons : throw new CompilerError("Value type was expected to be cons");
@@ -110,7 +109,7 @@ public readonly struct Val : IEquatable<Val>
         {
             Type.Nil => null,
             Type.Bool => vbool,
-            Type.Int => vint,
+            Type.Int32 => vint32,
             Type.Float => vfloat,
             Type.String => vstring,
             Type.Symbol => vsymbol,
@@ -141,12 +140,12 @@ public readonly struct Val : IEquatable<Val>
     public float CastToFloat =>
         type switch
         {
-            Type.Int => vint,
+            Type.Int32 => vint32,
             Type.Float => vfloat,
             _ => throw new CompilerError("Float cast applied to not a number")
         };
 
-    private bool IsValueType => type is Type.Bool or Type.Int or Type.Float;
+    private bool IsValueType => type is Type.Bool or Type.Int32 or Type.Float;
 
     public static bool Equals(Val a, Val b)
     {
@@ -196,8 +195,8 @@ public readonly struct Val : IEquatable<Val>
                 return "()";
             case Type.Bool:
                 return val.vbool ? "#t" : "#f";
-            case Type.Int:
-                return val.vint.ToString(CultureInfo.InvariantCulture);
+            case Type.Int32:
+                return val.vint32.ToString(CultureInfo.InvariantCulture);
             case Type.Float:
                 return val.vfloat.ToString(CultureInfo.InvariantCulture);
             case Type.String:

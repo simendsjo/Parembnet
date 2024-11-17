@@ -16,8 +16,8 @@ public struct VarPos
 
     public VarPos(Val frameIndex, Val symbolIndex)
     {
-        this.FrameIndex = frameIndex.AsInt;
-        this.SymbolIndex = symbolIndex.AsInt;
+        this.FrameIndex = frameIndex.AsInt32;
+        this.SymbolIndex = symbolIndex.AsInt32;
     }
 
     public VarPos(int frameIndex, int symbolIndex)

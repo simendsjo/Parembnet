@@ -62,9 +62,9 @@ public class Primitives
         new("caddr", 1, new Function((Context ctx, Val a) => a.AsCons.Third)),
         new("cdddr", 1, new Function((Context ctx, Val a) => a.AsCons.AfterThird)),
 
-        new("nth", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNth(n.AsInt))),
-        new("nth-tail", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthTail(n.AsInt))),
-        new("nth-cons", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthCons(n.AsInt))),
+        new("nth", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNth(n.AsInt32))),
+        new("nth-tail", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthTail(n.AsInt32))),
+        new("nth-cons", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthCons(n.AsInt32))),
 
         new("map", 2, new Function((Context ctx, Val a, Val b) =>
         {
@@ -216,7 +216,7 @@ public class Primitives
 
         new("make-vector", 1, new Function((Context ctx, Val arg) =>
         {
-            if (arg.IsInt) { return new Val(new Vector(Enumerable.Repeat(Val.NIL, arg.AsInt))); }
+            if (arg.IsInt32) { return new Val(new Vector(Enumerable.Repeat(Val.NIL, arg.AsInt32))); }
 
             if (arg.IsCons) { return new Val(new Vector(arg.AsCons)); }
 
@@ -227,7 +227,7 @@ public class Primitives
 
         new("make-vector", 2, new Function((Context ctx, Val count, Val val) =>
         {
-            if (count.IsInt) { return new Val(new Vector(Enumerable.Repeat(val, count.AsInt))); }
+            if (count.IsInt32) { return new Val(new Vector(Enumerable.Repeat(val, count.AsInt32))); }
 
             throw new LanguageError("Invalid parameter, expected size, got: " + count.ToString());
         })),
@@ -251,7 +251,7 @@ public class Primitives
         new("vector-get", 2, new Function((Context ctx, Val v, Val i) =>
         {
             Vector vector = v.AsVectorOrNull;
-            int index = i.AsInt;
+            int index = i.AsInt32;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
 
             if (index < 0 || index >= vector.Count) { throw new LanguageError($"Index value {index} out of bounds"); }
@@ -263,7 +263,7 @@ public class Primitives
         new("vector-set!", 3, new Function((Context ctx, Val v, Val i, Val value) =>
         {
             Vector vector = v.AsVectorOrNull;
-            int index = i.AsInt;
+            int index = i.AsInt32;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
 
             if (index < 0 || index >= vector.Count) { throw new LanguageError($"Index value {index} out of bounds"); }
@@ -424,28 +424,28 @@ public class Primitives
 
     private static Val ValAdd(Val a, Val b)
     {
-        if (a.IsInt && b.IsInt) { return new Val(a.AsInt + b.AsInt); }
+        if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 + b.AsInt32); }
         if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat + b.CastToFloat); }
         throw new LanguageError("Add applied to non-numbers");
     }
 
     private static Val ValSub(Val a, Val b)
     {
-        if (a.IsInt && b.IsInt) { return new Val(a.AsInt - b.AsInt); }
+        if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 - b.AsInt32); }
         if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat - b.CastToFloat); }
         throw new LanguageError("Add applied to non-numbers");
     }
 
     private static Val ValMul(Val a, Val b)
     {
-        if (a.IsInt && b.IsInt) { return new Val(a.AsInt * b.AsInt); }
+        if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 * b.AsInt32); }
         if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat * b.CastToFloat); }
         throw new LanguageError("Add applied to non-numbers");
     }
 
     private static Val ValDiv(Val a, Val b)
     {
-        if (a.IsInt && b.IsInt) { return new Val(a.AsInt / b.AsInt); }
+        if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 / b.AsInt32); }
         if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat / b.CastToFloat); }
         throw new LanguageError("Add applied to non-numbers");
     }
