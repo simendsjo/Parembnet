@@ -21,6 +21,11 @@ public enum Opcode
     NoOp,
 
     /// <summary>
+    /// Break into debugger.
+    /// </summary>
+    Break,
+
+    /// <summary>
     /// Just a label, doesn't do anything, only used during compilation
     /// </summary>
     Label,

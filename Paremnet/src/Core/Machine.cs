@@ -245,6 +245,10 @@ public class Machine
                 case Opcode.NoOp:
                     break;
 
+                case Opcode.Break:
+                    System.Diagnostics.Debugger.Break();
+                    break;
+
                 default:
                     throw new LanguageError("Unknown instruction type: " + instr.Type);
             }
