@@ -27,6 +27,7 @@ public readonly struct Val : IEquatable<Val>
         Nil,
         Boolean,
         Int16,
+        UInt16,
         Int32,
         Single,
 
@@ -44,6 +45,7 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(0)] public readonly ulong rawvalue;
     [FieldOffset(0)] public readonly Boolean vboolean;
     [FieldOffset(0)] public readonly Int16 vint16;
+    [FieldOffset(0)] public readonly UInt16 vuint16;
     [FieldOffset(0)] public readonly Int32 vint32;
     [FieldOffset(0)] public readonly Single vsingle;
 
@@ -74,6 +76,12 @@ public readonly struct Val : IEquatable<Val>
     {
         type = Type.Int16;
         vint16 = value;
+    }
+
+    public Val(UInt16 value) : this()
+    {
+        type = Type.UInt16;
+        vuint16 = value;
     }
 
     public Val(Int32 value) : this()
@@ -136,10 +144,12 @@ public readonly struct Val : IEquatable<Val>
 
     public bool IsNumber =>
         type is Type.Int16
+        or Type.UInt16
         or Type.Int32
         or Type.Single;
 
     public bool IsBool => type == Type.Boolean;
+    public bool IsUInt16 => type == Type.UInt16;
     public bool IsInt16 => type == Type.Int16;
     public bool IsInt32 => type == Type.Int32;
     public bool IsSingle => type == Type.Single;
@@ -153,6 +163,7 @@ public readonly struct Val : IEquatable<Val>
 
     public bool AsBoolean => type == Type.Boolean ? vboolean : throw new CompilerError("Value type was expected to be Boolean");
     public int AsInt16 => type == Type.Int16 ? vint16 : throw new CompilerError("Value type was expected to be Int16");
+    public int AsUInt16 => type == Type.UInt16 ? vuint16 : throw new CompilerError("Value type was expected to be Int16");
     public int AsInt32 => type == Type.Int32 ? vint32 : throw new CompilerError("Value type was expected to be Int32");
     public string AsString => type == Type.String ? vstring : throw new CompilerError("Value type was expected to be string");
     public Symbol AsSymbol => type == Type.Symbol ? vsymbol : throw new CompilerError("Value type was expected to be symbol");
@@ -178,6 +189,7 @@ public readonly struct Val : IEquatable<Val>
             Type.Nil => null,
             Type.Boolean => vboolean,
             Type.Int16 => vint16,
+            Type.UInt16 => vuint16,
             Type.Int32 => vint32,
             Type.Single => vsingle,
             Type.String => vstring,
@@ -196,6 +208,7 @@ public readonly struct Val : IEquatable<Val>
             null => NIL,
             Boolean boolean => boolean,
             Int16 int16 => int16,
+            UInt16 uint16 => uint16,
             Int32 int32 => int32,
             Single single => single,
             string str => str,
@@ -212,6 +225,7 @@ public readonly struct Val : IEquatable<Val>
         type switch
         {
             Type.Int16 => vint16,
+            Type.UInt16 => vuint16,
             Type.Int32 => vint32,
             Type.Single => vsingle,
             _ => throw new CompilerError("Single cast applied to not a number")
@@ -220,6 +234,7 @@ public readonly struct Val : IEquatable<Val>
     private bool IsValueType =>
         type is Type.Boolean
             or Type.Int16
+            or Type.UInt16
             or Type.Int32
             or Type.Single;
 
@@ -247,7 +262,8 @@ public readonly struct Val : IEquatable<Val>
 
     public static implicit operator Val(bool val) => new(val);
     public static implicit operator Val(Int16 val) => new(val);
-    public static implicit operator Val(int val) => new(val);
+    public static implicit operator Val(UInt16 val) => new(val);
+    public static implicit operator Val(Int32 val) => new(val);
     public static implicit operator Val(Single val) => new(val);
     public static implicit operator Val(string val) => new(val);
     public static implicit operator Val(Symbol val) => new(val);
@@ -274,6 +290,8 @@ public readonly struct Val : IEquatable<Val>
                 return val.vboolean ? "#t" : "#f";
             case Type.Int16:
                 return val.vint16.ToString(CultureInfo.InvariantCulture);
+            case Type.UInt16:
+                return val.vuint16.ToString(CultureInfo.InvariantCulture);
             case Type.Int32:
                 return val.vint32.ToString(CultureInfo.InvariantCulture);
             case Type.Single:
