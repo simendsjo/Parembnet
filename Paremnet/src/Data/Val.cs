@@ -6,6 +6,9 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
+// ReSharper disable BuiltInTypeReferenceStyle
+// We want to use explicit type names as they map directly into the CLI rather than using C# specific names.
+
 namespace Paremnet.Data;
 
 /// <summary>
