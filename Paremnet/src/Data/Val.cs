@@ -127,7 +127,7 @@ public readonly struct Val : IEquatable<Val>
             null => NIL,
             bool bval => bval,
             int ival => ival,
-            float fval => fval,
+            Single fval => fval,
             string sval => sval,
             Symbol symval => symval,
             Cons cval => cval,
