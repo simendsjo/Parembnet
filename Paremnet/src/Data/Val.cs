@@ -33,6 +33,7 @@ public readonly struct Val : IEquatable<Val>
         Int32,
         UInt32,
         Float32,
+        Float64,
 
         // reference types
         String,
@@ -54,6 +55,7 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(0)] public readonly Int32 vint32;
     [FieldOffset(0)] public readonly UInt32 vuint32;
     [FieldOffset(0)] public readonly Single vfloat32;
+    [FieldOffset(0)] public readonly double vfloat64;
 
     [FieldOffset(8)] public readonly object rawobject;
     [FieldOffset(8)] public readonly string vstring;
@@ -112,6 +114,12 @@ public readonly struct Val : IEquatable<Val>
     {
         type = Type.UInt32;
         vuint32 = value;
+    }
+
+    public Val(Double value) : this()
+    {
+        type = Type.Float64;
+        vfloat64 = value;
     }
 
     public Val(Single value) : this()
@@ -173,7 +181,8 @@ public readonly struct Val : IEquatable<Val>
             or Type.UInt16
             or Type.Int32
             or Type.UInt32
-            or Type.Float32;
+            or Type.Float32
+            or Type.Float64;
 
     public bool IsBool => type == Type.Boolean;
     public bool IsUInt8 => type == Type.UInt8;
@@ -183,6 +192,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsInt32 => type == Type.Int32;
     public bool IsUInt32 => type == Type.UInt32;
     public bool IsFloat32 => type == Type.Float32;
+    public bool IsFloat64 => type == Type.Float64;
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
     public bool IsCons => type == Type.Cons;
@@ -227,6 +237,7 @@ public readonly struct Val : IEquatable<Val>
             Type.UInt16 => vuint16,
             Type.Int32 => vint32,
             Type.Float32 => vfloat32,
+            Type.Float64 => vfloat64,
             Type.String => vstring,
             Type.Symbol => vsymbol,
             Type.Cons => vcons,
@@ -248,6 +259,7 @@ public readonly struct Val : IEquatable<Val>
             UInt16 uint16 => uint16,
             Int32 int32 => int32,
             Single float32 => float32,
+            Double float64 => float64,
             string str => str,
             Symbol symbol => symbol,
             Cons cons => cons,
@@ -265,6 +277,7 @@ public readonly struct Val : IEquatable<Val>
             Type.UInt16 => vuint16,
             Type.Int32 => vint32,
             Type.Float32 => vfloat32,
+            Type.Float64 => throw new CompilerError("Cannot cast Float64 to Float32"),
             _ => throw new CompilerError("Float32 cast applied to not a number")
         };
 
@@ -273,7 +286,8 @@ public readonly struct Val : IEquatable<Val>
             or Type.Int16
             or Type.UInt16
             or Type.Int32
-            or Type.Float32;
+            or Type.Float32
+            or Type.Float64;
 
     public static bool Equals(Val a, Val b)
     {
@@ -304,6 +318,7 @@ public readonly struct Val : IEquatable<Val>
     public static implicit operator Val(UInt16 val) => new(val);
     public static implicit operator Val(Int32 val) => new(val);
     public static implicit operator Val(Single val) => new(val);
+    public static implicit operator Val(Double val) => new(val);
     public static implicit operator Val(string val) => new(val);
     public static implicit operator Val(Symbol val) => new(val);
     public static implicit operator Val(Cons val) => new(val);
@@ -339,6 +354,8 @@ public readonly struct Val : IEquatable<Val>
                 return val.vint32.ToString(CultureInfo.InvariantCulture);
             case Type.Float32:
                 return val.vfloat32.ToString(CultureInfo.InvariantCulture);
+            case Type.Float64:
+                return val.vfloat64.ToString(CultureInfo.InvariantCulture);
             case Type.String:
                 return "\"" + val.vstring + "\"";
             case Type.Symbol:
