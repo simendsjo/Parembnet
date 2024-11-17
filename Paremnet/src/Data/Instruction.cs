@@ -12,99 +12,99 @@ public enum Opcode
     /// <summary>
     /// Just a label, doesn't do anything, only used during compilation
     /// </summary>
-    Label = 0,
+    Label,
 
     /// <summary>
     /// PUSH_CONST x - pushes x onto the stack
     /// </summary>
-    PushConst = 1,
+    PushConst,
 
     /// <summary>
     /// LOCAL_GET i j -  push local variable onto the stack, where <b>i</b> is the frame index relative
     ///                  to current frame and <b>j</b> is the symbol index
     /// </summary>
-    LocalGet = 2,
+    LocalGet,
 
     /// <summary>
     /// LOCAL_SET i, j - set local variable from what's on top of the stack, without popping from the stack,
     ///                  where <b>i</b> is the frame index relative to current frame and <b>j</b> is the symbol index
     /// </summary>
-    LocalSet = 3,
+    LocalSet,
 
     /// <summary>
     /// GLOBAL_GET name - push global variable onto the stack
     /// </summary>
-    GlobalGet = 4,
+    GlobalGet,
 
     /// <summary>
     /// GLOBAL_SET name - set global variable from what's on top of the stack, without popping the stack
     /// </summary>
-    GlobalSet = 5,
+    GlobalSet,
 
     /// <summary>
     /// STACK_POP - pops the top value from the stack, discarding it
     /// </summary>
-    StackPop = 6,
+    StackPop,
 
     /// <summary>
     /// DUPLICATE - duplicates (pushes a second copy of) the topmost value on the stack
     /// </summary>
-    Duplicate = 7,
+    Duplicate,
 
     /// <summary>
     /// JMP_IF_TRUE label - pop the stack, and jump to label if the value is true
     /// </summary>
-    JmpIfTrue = 8,
+    JmpIfTrue,
 
     /// <summary>
     /// JMP_IF_FALSE label - pop the stack, and jump to label if the value is not true
     /// </summary>
-    JmpIfFalse = 9,
+    JmpIfFalse,
 
     /// <summary>
     /// JMP_TO_LABEL label - jump to label without modifying or looking up the stack
     /// </summary>
-    JmpToLabel = 10,
+    JmpToLabel,
 
     /// <summary>
     /// SAVE - save continuation point on the stack, as a combo of specific function, program counter,
     ///        and environment
     /// </summary>
-    SaveReturn = 11,
+    SaveReturn,
 
     /// <summary>
     /// JMP_CLOSURE n - jump to the start of the function on top of the stack; n is arg count
     /// </summary>
-    JmpClosure = 12,
+    JmpClosure,
 
     /// <summary>
     /// RETURN - return to a previous execution point (second on the stack) but preserving
     ///          the return value (top of the stack)
     /// </summary>
-    ReturnVal = 13,
+    ReturnVal,
 
     /// <summary>
     /// MAKE_ENV n - make a new environment frame, pop n values from stack onto it,
     ///              and push it on the environment stack
     /// </summary>
-    MakeEnv = 14,
+    MakeEnv,
 
     /// <summary>
     /// MAKE_ENVDOT n - make a new environment frame with n-1 named args and one for varargs,
     ///                 pop values from stack onto it, and push on the environment stack
     /// </summary>
-    MakeEnvdot = 15,
+    MakeEnvdot,
 
     /// <summary>
     /// MAKE_CLOSURE fn - create a closure fn from arguments and current environment, and push onto the stack
     /// </summary>
-    MakeClosure = 16,
+    MakeClosure,
 
     /// <summary>
     /// CALL_PRIMOP name - performs a primitive function call right off of the stack, where callee performs
     ///             stack maintenance (i.e. the primitive will pop its args, and push a return value)
     /// </summary>
-    CallPrimop = 17,
+    CallPrimop,
 }
 
 /// <summary>
