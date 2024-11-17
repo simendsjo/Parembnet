@@ -580,10 +580,8 @@ public class Compiler
     {
         LabelPositions positions = new(code);
 
-        for (int i = 0; i < code.Count; i++)
+        foreach (var inst in code)
         {
-            Instruction inst = code[i];
-
             if (inst.IsJump)
             {
                 int pos = positions.FindPosition(inst.First);

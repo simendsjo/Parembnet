@@ -80,14 +80,15 @@ public class Packages
     /// <summary> Gets a package by name, if it exists, but does not intern it </summary>
     public Package Find(string name)
     {
-        for (int i = 0; i < _packages.Count; i++)
+        foreach (Entry pkg in _packages)
         {
-            Entry pkg = _packages[i];
             if (pkg.Name == name)
             {
-                return pkg.Package;
+                Package package = pkg.Package;
+                return package;
             }
         }
+
         return null;
     }
 

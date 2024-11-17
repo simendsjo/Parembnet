@@ -119,9 +119,8 @@ public class Code
         StringBuilder sb = new();
         sb.AppendLine("\n\n*** ALL CODE BLOCKS\n");
 
-        for (int i = 0; i < _blocks.Count; i++)
+        foreach (var block in _blocks)
         {
-            CodeBlock block = _blocks[i];
             if (block != null)
             {
                 sb.AppendLine(DebugPrint(block.Handle, 1));
