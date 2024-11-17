@@ -173,6 +173,23 @@ public readonly struct Val : IEquatable<Val>
         rawobject = value;
     }
 
+    public static implicit operator Val(bool val) => new(val);
+
+    public static implicit operator Val(sbyte val) => new(val);
+    public static implicit operator Val(byte val) => new(val);
+    public static implicit operator Val(Int16 val) => new(val);
+    public static implicit operator Val(UInt16 val) => new(val);
+    public static implicit operator Val(Int32 val) => new(val);
+
+    public static implicit operator Val(Single val) => new(val);
+    public static implicit operator Val(Double val) => new(val);
+
+    public static implicit operator Val(string val) => new(val);
+    public static implicit operator Val(Symbol val) => new(val);
+    public static implicit operator Val(Cons val) => new(val);
+    public static implicit operator Val(Vector val) => new(val);
+    public static implicit operator Val(Closure val) => new(val);
+
     public bool IsNil => type == Type.Nil;
     public bool IsNotNil => type != Type.Nil;
     public bool IsAtom => type != Type.Cons;
@@ -299,20 +316,6 @@ public readonly struct Val : IEquatable<Val>
 
     public static bool operator ==(Val a, Val b) => Equals(a, b);
     public static bool operator !=(Val a, Val b) => !Equals(a, b);
-
-    public static implicit operator Val(bool val) => new(val);
-    public static implicit operator Val(sbyte val) => new(val);
-    public static implicit operator Val(byte val) => new(val);
-    public static implicit operator Val(Int16 val) => new(val);
-    public static implicit operator Val(UInt16 val) => new(val);
-    public static implicit operator Val(Int32 val) => new(val);
-    public static implicit operator Val(Single val) => new(val);
-    public static implicit operator Val(Double val) => new(val);
-    public static implicit operator Val(string val) => new(val);
-    public static implicit operator Val(Symbol val) => new(val);
-    public static implicit operator Val(Cons val) => new(val);
-    public static implicit operator Val(Vector val) => new(val);
-    public static implicit operator Val(Closure val) => new(val);
 
     public override bool Equals(object obj) => (obj is Val val) && Equals(val, this);
     public override int GetHashCode() => (int)type ^ (rawobject != null ? rawobject.GetHashCode() : ((int)rawvalue));
