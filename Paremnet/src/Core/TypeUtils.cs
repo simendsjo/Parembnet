@@ -72,7 +72,7 @@ public static class TypeUtils
     /// </summary>
     public static object Instantiate(string fullname, params object[] args)
     {
-        var t = GetType(fullname);
+        Type t = GetType(fullname);
         return t != null ? Instantiate(t, args) : null;
     }
 
@@ -131,7 +131,7 @@ public static class TypeUtils
     /// </summary>
     public static IEnumerable<MemberInfo> GetInstanceMembers(Type t)
     {
-        var found = InstanceMemberCache.TryGetValue(t, out List<MemberInfo> result);
+        bool found = InstanceMemberCache.TryGetValue(t, out List<MemberInfo> result);
         if (!found)
         {
             result = InstanceMemberCache[t] =
@@ -146,7 +146,7 @@ public static class TypeUtils
     /// </summary>
     public static IEnumerable<MemberInfo> GetStaticMembers(Type t)
     {
-        var found = StaticMemberCache.TryGetValue(t, out List<MemberInfo> result);
+        bool found = StaticMemberCache.TryGetValue(t, out List<MemberInfo> result);
         if (!found)
         {
             result = StaticMemberCache[t] =
@@ -161,12 +161,12 @@ public static class TypeUtils
     /// </summary>
     public static MethodBase GetMethodByArgs(Type type, string name, bool instanced, object[] varargs)
     {
-        var varargTypes = varargs.Select(a => a?.GetType() ?? typeof(object)).ToArray();
-        var elements = instanced ? GetInstanceMembers(type) : GetStaticMembers(type);
-        var methods = elements.OfType<MethodInfo>().Where(m => m.Name == name).ToArray();
+        Type[] varargTypes = varargs.Select(a => a?.GetType() ?? typeof(object)).ToArray();
+        IEnumerable<MemberInfo> elements = instanced ? GetInstanceMembers(type) : GetStaticMembers(type);
+        MethodInfo[] methods = elements.OfType<MethodInfo>().Where(m => m.Name == name).ToArray();
 
-        var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.CreateInstance;
-        var result = Type.DefaultBinder.SelectMethod(flags, methods, varargTypes, null);
+        BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.CreateInstance;
+        MethodBase result = Type.DefaultBinder.SelectMethod(flags, methods, varargTypes, null);
 
         return result;
     }
@@ -177,13 +177,13 @@ public static class TypeUtils
     /// <returns></returns>
     public static MemberInfo GetFieldOrProp(Type type, string member, bool instanced)
     {
-        var elements = instanced ? GetInstanceMembers(type) : GetStaticMembers(type);
-        var fields = elements
+        IEnumerable<MemberInfo> elements = instanced ? GetInstanceMembers(type) : GetStaticMembers(type);
+        MemberInfo[] fields = elements
             .Where(m => m.Name == member)
             .Where(m => m is FieldInfo || m is PropertyInfo)
             .ToArray(); // there should be at most one
 
-        var result = fields.Length > 0 ? fields[0] : null;
+        MemberInfo result = fields.Length > 0 ? fields[0] : null;
         return result;
     }
 }

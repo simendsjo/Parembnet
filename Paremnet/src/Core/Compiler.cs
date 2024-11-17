@@ -72,7 +72,7 @@ public class Compiler
 
     public Compiler(Context ctx)
     {
-        var global = ctx.packages.global;
+        Package global = ctx.packages.global;
         _quote = global.Intern("quote");
         _begin = global.Intern("begin");
         _set = global.Intern("set!");
@@ -92,10 +92,10 @@ public class Compiler
     /// </summary>
     public CompilationResults Compile(Val x)
     {
-        var before = _ctx.code.LastHandle;
+        CodeHandle before = _ctx.code.LastHandle;
         _labelNum = 0;
-        var closure = CompileLambda(Val.NIL, new Cons(x, Val.NIL), null);
-        var after = _ctx.code.LastHandle;
+        Closure closure = CompileLambda(Val.NIL, new Cons(x, Val.NIL), null);
+        CodeHandle after = _ctx.code.LastHandle;
 
         List<CodeHandle> blocks = new List<CodeHandle>();
         for (int i = before.index + 1; i <= after.index; i++) { blocks.Add(new CodeHandle(i)); }
@@ -220,7 +220,7 @@ public class Compiler
     /// <summary> Returns true if the given value is a macro </summary>
     private static bool IsMacroApplication(Val x)
     {
-        var cons = x.AsConsOrNull;
+        Cons cons = x.AsConsOrNull;
         return
             cons != null &&
             cons.first.IsSymbol &&
@@ -269,7 +269,7 @@ public class Compiler
     {
         if (st.IsUnused) { return null; }
 
-        var pos = Environment.GetVariable(x, env);
+        VarPos pos = Environment.GetVariable(x, env);
         bool isLocal = pos.IsValid;
         return Merge(
             (isLocal ?
@@ -314,7 +314,7 @@ public class Compiler
     /// <summary> Compiles a variable set </summary>
     private List<Instruction> CompileVarSet(Symbol x, Val value, Environment env, State st)
     {
-        var pos = Environment.GetVariable(x, env);
+        VarPos pos = Environment.GetVariable(x, env);
         bool isLocal = pos.IsValid;
         return Merge(
             Compile(value, env, State.UsedNonFinal),
@@ -392,7 +392,7 @@ public class Compiler
 
         List<Instruction> PredCode = Compile(pred, env, State.UsedNonFinal);
 
-        var elseState = st.IsFinal ? State.UsedFinal : State.UsedNonFinal;
+        State elseState = st.IsFinal ? State.UsedFinal : State.UsedNonFinal;
         List<Instruction> ElseCode = els.IsNotNil ? Compile(els, env, elseState) : null;
 
         // (if* p x) => p (DUPE) (TJUMP L1) (POP) x L1: (POP?)
@@ -437,7 +437,7 @@ public class Compiler
             EmitArgs(args, newEnv.DebugPrintSymbols()),
             CompileBegin(new Val(body), newEnv, State.UsedFinal));
 
-        var debug = newEnv.DebugPrintSymbols() + " => " + Val.DebugPrint(body);
+        string debug = newEnv.DebugPrintSymbols() + " => " + Val.DebugPrint(body);
         CodeHandle handle = _ctx.code.AddBlock(Assemble(instructions), debug);
         return new Closure(handle, env, args.AsConsOrNull, "");
     }
@@ -474,7 +474,7 @@ public class Compiler
     {
         if (f.IsCons)
         {
-            var fcons = f.AsCons;
+            Cons fcons = f.AsCons;
             if (fcons.first.IsSymbol && fcons.first.AsSymbol.fullName == "lambda" && fcons.second.IsNil)
             {
                 // ((lambda () body)) => (begin body)
@@ -515,7 +515,7 @@ public class Compiler
         if (args.IsSymbol) { return Emit(Opcode.MAKE_ENVDOT, nSoFar, debug); }  // (lambda (a b . c) ...)
 
         // if not at the end, recurse
-        var cons = args.AsConsOrNull;
+        Cons cons = args.AsConsOrNull;
         if (cons != null && cons.first.IsSymbol) { return EmitArgs(cons.rest, debug, nSoFar + 1); }
 
         throw new CompilerError("Invalid argument list");           // (lambda (a b 5 #t) ...) or some other nonsense
@@ -531,7 +531,7 @@ public class Compiler
         // we reached a terminating cdr in a dotted pair - convert it
         if (dottedList.IsAtom) { return new Cons(dottedList, Val.NIL); }
 
-        var cons = dottedList.AsCons;
+        Cons cons = dottedList.AsCons;
         return new Cons(cons.first, MakeTrueList(cons.rest)); // keep recursing
     }
 
@@ -584,7 +584,7 @@ public class Compiler
     /// </summary>
     private static List<Instruction> Assemble(List<Instruction> code)
     {
-        var positions = new LabelPositions(code);
+        LabelPositions positions = new LabelPositions(code);
 
         for (int i = 0; i < code.Count; i++)
         {

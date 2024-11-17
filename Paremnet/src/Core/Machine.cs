@@ -221,7 +221,7 @@ public class Machine
 
                 case Opcode.MAKE_CLOSURE:
                     {
-                        var cl = instr.first.AsClosure;
+                        Closure cl = instr.first.AsClosure;
                         st.Push(new Closure(cl.code, st.env, null, cl.name));
                     }
                     break;

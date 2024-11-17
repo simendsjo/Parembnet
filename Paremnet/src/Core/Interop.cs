@@ -27,8 +27,8 @@ public static class Interop
 
         public (Type type, Namespace ns) FindTypeOrNamespace(string name)
         {
-            var combined = ns + NS_SEPARATOR + name;
-            var type = TypeUtils.GetType(combined);
+            string combined = ns + NS_SEPARATOR + name;
+            Type type = TypeUtils.GetType(combined);
             Namespace newns = type == null ? new Namespace { ns = combined } : null;
             return (type, newns);
         }
@@ -44,18 +44,18 @@ public static class Interop
     public static Val DotDot(Context _, VarArgs args)
     {
 
-        var arglist = args.ToNativeList().SelectMany(SplitSymbol).ToList();
+        List<Val> arglist = args.ToNativeList().SelectMany(SplitSymbol).ToList();
 
-        var gotone = arglist.Count > 0;
+        bool gotone = arglist.Count > 0;
         if (!gotone) { return Val.NIL; }
 
         int i = 0;
-        var current = arglist[i++];
+        Val current = arglist[i++];
 
         do
         {
-            var nextSymbol = TakeNextSymbolOrNull();
-            var nonSymbols = TakeNonSymbols().ToList();
+            Symbol nextSymbol = TakeNextSymbolOrNull();
+            List<Val> nonSymbols = TakeNonSymbols().ToList();
             current = TryReflectionStep(current, nextSymbol, nonSymbols);
         } while (i < arglist.Count);
 
@@ -63,7 +63,7 @@ public static class Interop
 
         Symbol TakeNextSymbolOrNull()
         {
-            var results = TakeSymbols(true).Take(1);
+            IEnumerable<Val> results = TakeSymbols(true).Take(1);
             return results.FirstOrDefault().AsSymbolOrNull;
         }
 
@@ -76,7 +76,7 @@ public static class Interop
         {
             while (i < arglist.Count)
             {
-                var next = arglist[i];
+                Val next = arglist[i];
                 if (next.IsSymbol == expected)
                 {
                     i++;
@@ -95,12 +95,12 @@ public static class Interop
 
         if (!val.IsSymbol) { return new List<Val>() { val }; }
 
-        var sym = val.AsSymbol;
-        var symname = sym.name;
+        Symbol sym = val.AsSymbol;
+        string symname = sym.name;
         if (!symname.Contains(NS_SEPARATOR)) { return new List<Val>() { val }; }
 
         // split on the dot
-        var names = symname.Split(NS_SEPARATOR);
+        string[] names = symname.Split(NS_SEPARATOR);
         return names.Select(n => new Val(sym.pkg.Intern(n))).ToList();
     }
 
@@ -121,11 +121,11 @@ public static class Interop
 
         if (current.IsSymbol)
         { // this should only happen on the very first element?!
-            var result = new Namespace() { ns = current.AsSymbol.name };
+            Namespace result = new Namespace() { ns = current.AsSymbol.name };
             return TryNamespaceLookup(result, nextSymbol, nonSymbols);
         }
 
-        var obj = current.AsObjectOrNull;
+        object obj = current.AsObjectOrNull;
         return obj switch
         {
             Namespace ns => TryNamespaceLookup(ns, nextSymbol, nonSymbols),
@@ -142,7 +142,7 @@ public static class Interop
     private static Val TryNamespaceLookup(Namespace ns, Symbol name, List<Val> nonSymbols)
     {
         if (nonSymbols.Count > 0) { throw new InteropError($"Unexpected non-symbols following {ns} {name}"); }
-        var results = ns.FindTypeOrNamespace(name.name);
+        (Type type, Namespace ns) results = ns.FindTypeOrNamespace(name.name);
         return new Val((object)results.type ?? results.ns);
     }
 
@@ -153,7 +153,7 @@ public static class Interop
     {
 
         // is this a static field or property? look up its value
-        var fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, false);
+        MemberInfo fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, false);
         if (fieldOrProp != null)
         {
             if (nonSymbols.Count > 0) { throw new InteropError($"Unexpected non-symbols following {type} {name}"); }
@@ -162,8 +162,8 @@ public static class Interop
         }
 
         // is this a static function? see if we can call it with the args
-        var args = nonSymbols.Select(v => v.AsBoxedValue).ToArray();
-        var fn = TypeUtils.GetMethodByArgs(type, name.name, false, args);
+        object[] args = nonSymbols.Select(v => v.AsBoxedValue).ToArray();
+        MethodBase fn = TypeUtils.GetMethodByArgs(type, name.name, false, args);
         if (fn != null)
         {
             object result = fn.Invoke(null, BindingFlags.Static, null, args, null);
@@ -197,11 +197,11 @@ public static class Interop
     {
         if (instance == null) { throw new InteropError($"Unexpected null value before {name}"); }
 
-        var type = instance.GetType();
-        var args = nonSymbols.Select(v => v.AsBoxedValue).ToArray();
+        Type type = instance.GetType();
+        object[] args = nonSymbols.Select(v => v.AsBoxedValue).ToArray();
 
         // is this an instance field or property? look up its value
-        var fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, true);
+        MemberInfo fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, true);
         if (fieldOrProp != null)
         {
             object result = LookupInstanceFieldOrProp(fieldOrProp, instance, args);
@@ -209,7 +209,7 @@ public static class Interop
         }
 
         // is this an instance function? see if we can call it with the args
-        var fn = TypeUtils.GetMethodByArgs(type, name.name, true, args);
+        MethodBase fn = TypeUtils.GetMethodByArgs(type, name.name, true, args);
         if (fn != null)
         {
             object result = fn.Invoke(instance, BindingFlags.Instance, null, args, null);

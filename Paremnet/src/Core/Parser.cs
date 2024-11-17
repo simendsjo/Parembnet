@@ -120,7 +120,7 @@ public class Parser
                 // 'foo => (quote foo)
                 {
                     stream.Read();
-                    var body = Parse(stream, backquote);
+                    Val body = Parse(stream, backquote);
                     result = Cons.MakeList(_global.Intern("quote"), body);
                 }
                 break;
@@ -128,8 +128,8 @@ public class Parser
                 // `foo => (` foo) => converted value
                 {
                     stream.Read();
-                    var body = Parse(stream, true);
-                    var aslist = Cons.MakeList(_global.Intern("`"), body);
+                    Val body = Parse(stream, true);
+                    Cons aslist = Cons.MakeList(_global.Intern("`"), body);
                     result = ConvertBackquote(aslist);
                 }
                 break;
@@ -149,7 +149,7 @@ public class Parser
                         stream.Read();
                         atomicUnquote = false;
                     }
-                    var body = Parse(stream, false);
+                    Val body = Parse(stream, false);
                     result = Cons.MakeList(_global.Intern(atomicUnquote ? "," : ",@"), body);
                 }
                 break;
@@ -256,7 +256,7 @@ public class Parser
     {
         try
         {
-            var hasPeriod = val.Contains(".");
+            bool hasPeriod = val.Contains(".");
             if (hasPeriod)
             {
                 return new Val(float.Parse(val, CultureInfo.InvariantCulture));
@@ -417,7 +417,7 @@ public class Parser
     /// </summary>
     private Val ConvertBackquoteElement(Val value)
     {
-        var cons = value.AsConsOrNull;
+        Cons cons = value.AsConsOrNull;
         if (cons != null && cons.first.IsSymbol)
         {
             Symbol sym = cons.first.AsSymbol;
@@ -433,7 +433,7 @@ public class Parser
         }
 
         // [a] => (list (` a)), recursively
-        var body = Cons.MakeList(_global.Intern("`"), value);
+        Cons body = Cons.MakeList(_global.Intern("`"), value);
         return Cons.MakeList(_global.Intern("list"), ConvertBackquote(body));
     }
 

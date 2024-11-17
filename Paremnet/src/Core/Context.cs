@@ -64,17 +64,17 @@ public class Context
     public List<CompileAndExecuteResult> CompileAndExecute(string input)
     {
 
-        var outputs = new List<CompileAndExecuteResult>();
+        List<CompileAndExecuteResult> outputs = new List<CompileAndExecuteResult>();
 
         parser.AddString(input);
-        var parseResults = parser.ParseAll();
+        List<Val> parseResults = parser.ParseAll();
 
         foreach (Val result in parseResults)
         {
-            var cr = compiler.Compile(result);
+            CompilationResults cr = compiler.Compile(result);
 
             Stopwatch s = Stopwatch.StartNew();
-            var output = vm.Execute(cr.closure);
+            Val output = vm.Execute(cr.closure);
             s.Stop();
 
             outputs.Add(new CompileAndExecuteResult

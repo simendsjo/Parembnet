@@ -74,7 +74,7 @@ public class Primitives
 
         // helpers
         new Primitive("trace", 1, new Function((Context ctx, VarArgs args) => {
-            var arglist = args.ToNativeList();
+            List<Val> arglist = args.ToNativeList();
             Console.WriteLine(string.Join(" ", arglist.Select(val => Val.Print(val))));
             return Val.NIL;
         }), FnType.VarArgs, SideFx.Possible),
@@ -83,7 +83,7 @@ public class Primitives
         new Primitive("gensym", 1, new Function((Context ctx, Val a) => GensymHelper(ctx, a.AsStringOrNull))),
 
         new Primitive("eval", 1, new Function((Context ctx, Val e) => {
-            var closure = ctx.compiler.Compile(e);
+            CompilationResults closure = ctx.compiler.Compile(e);
             Val result = ctx.vm.Execute(closure.closure);
             return result;
         }), sideFx: SideFx.Possible),
@@ -128,7 +128,7 @@ public class Primitives
         }), sideFx: SideFx.Possible),
 
         new Primitive("error", 1, new Function ((Context ctx, VarArgs names) => {
-            var all = names.ToNativeList().Select(v => v.AsStringOrNull ?? Val.Print(v)).ToArray();
+            string[] all = names.ToNativeList().Select(v => v.AsStringOrNull ?? Val.Print(v)).ToArray();
             throw new RuntimeError(all);
         }), argsType: FnType.VarArgs, sideFx: SideFx.Possible),
 
@@ -155,7 +155,7 @@ public class Primitives
         new Primitive (".!", 3, new Function((Context ctx, VarArgs args) => {
             var (instance, type, memberName, targetValue, _) = ParseSetterArgs(args, true);
 
-            var member = TypeUtils.GetFieldOrProp(type, memberName, true);
+            MemberInfo member = TypeUtils.GetFieldOrProp(type, memberName, true);
             TypeUtils.SetValue(member, instance, targetValue.AsBoxedValue);
             return targetValue;
         }), sideFx: SideFx.Possible),
@@ -164,7 +164,7 @@ public class Primitives
         new Primitive (".!", 4, new Function((Context ctx, VarArgs args) => {
             var (instance, type, memberName, index, targetValue) = ParseSetterArgs(args, true);
 
-            var member = TypeUtils.GetFieldOrProp(type, memberName, true);
+            MemberInfo member = TypeUtils.GetFieldOrProp(type, memberName, true);
             TypeUtils.SetValue(member, instance, targetValue.AsBoxedValue, new object[] { index.AsBoxedValue });
             return targetValue;
         }), sideFx: SideFx.Possible),
@@ -192,22 +192,22 @@ public class Primitives
         })),
 
         new Primitive("vector-length", 1, new Function((Context ctx, Val v) => {
-            var vector = v.AsVectorOrNull;
+            Vector vector = v.AsVectorOrNull;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
             return vector.Count;
         })),
 
         new Primitive("vector-get", 2, new Function((Context ctx, Val v, Val i) => {
-            var vector = v.AsVectorOrNull;
-            var index = i.AsInt;
+            Vector vector = v.AsVectorOrNull;
+            int index = i.AsInt;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
             if (index < 0 || index >= vector.Count) { throw new LanguageError($"Index value {index} out of bounds"); }
             return vector[index];
         })),
 
         new Primitive("vector-set!", 3, new Function((Context ctx, Val v, Val i, Val value) => {
-            var vector = v.AsVectorOrNull;
-            var index = i.AsInt;
+            Vector vector = v.AsVectorOrNull;
+            int index = i.AsInt;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
             if (index < 0 || index >= vector.Count) { throw new LanguageError($"Index value {index} out of bounds"); }
             vector[index] = value;
@@ -265,7 +265,7 @@ public class Primitives
                     new Instruction(Opcode.CALL_PRIMOP, p.name),
                     new Instruction(Opcode.RETURN_VAL)};
 
-                var code = context.code.AddBlock(instructions, name.fullName);
+                CodeHandle code = context.code.AddBlock(instructions, name.fullName);
                 pkg.SetValue(name, new Closure(code, null, null, name.fullName));
             }
         }
@@ -340,8 +340,8 @@ public class Primitives
     ///// <summary> Performs a left fold on the array: +, 0, [1, 2, 3] => (((0 + 1) + 2) + 3) </summary>
     private static Val FoldLeft(Func<Val, Val, Val> fn, Val baseElement, VarArgs args)
     {
-        var result = baseElement;
-        var elements = args.ToNativeList();
+        Val result = baseElement;
+        List<Val> elements = args.ToNativeList();
         for (int i = 0, len = elements.Count; i < len; i++)
         {
             result = fn(result, elements[i]);
@@ -352,8 +352,8 @@ public class Primitives
     ///// <summary> Performs a right fold on the array: +, 0, [1, 2, 3] => (1 + (2 + (3 + 0))) </summary>
     private static Val FoldRight(Func<Val, Val, Val> fn, Val baseElement, VarArgs args)
     {
-        var result = baseElement;
-        var elements = args.ToNativeList();
+        Val result = baseElement;
+        List<Val> elements = args.ToNativeList();
         for (int i = elements.Count - 1; i >= 0; i--)
         {
             result = fn(elements[i], result);
@@ -412,7 +412,7 @@ public class Primitives
     {
         if (value.IsObject && value.AsObject is Type t) { return t; }
 
-        var name = GetStringOrSymbolName(value);
+        string name = GetStringOrSymbolName(value);
         if (name != null) { return TypeUtils.GetType(name); }
 
         return value.AsBoxedValue?.GetType();
@@ -492,7 +492,7 @@ public class Primitives
         Val third = (setter && list != null) ? list.third : Val.NIL;
         Val fourth = (setter && list != null && list.afterThird.IsNotNil) ? list.fourth : Val.NIL;
 
-        var instance = first.AsBoxedValue;
+        object instance = first.AsBoxedValue;
         Type type = instance?.GetType();
         string member = GetStringOrSymbolName(second);
         return (instance, type, member, third, fourth);

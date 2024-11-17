@@ -103,7 +103,7 @@ public class Packages
     /// <summary> Removes the package and returns true if successful. </summary>
     public bool Remove(Package pkg)
     {
-        var index = FindIndexOfPackage(pkg.name);
+        int index = FindIndexOfPackage(pkg.name);
         if (index >= 0)
         {
             _packages.RemoveAt(index);

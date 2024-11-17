@@ -54,7 +54,7 @@ public class Code
     /// <summary> Registers a new code block and returns its handle </summary>
     public CodeHandle AddBlock(List<Instruction> instructions, string debug)
     {
-        var handle = new CodeHandle { index = _blocks.Count };
+        CodeHandle handle = new CodeHandle { index = _blocks.Count };
         _blocks.Add(new CodeBlock(handle, instructions, debug));
         return handle;
     }
@@ -95,7 +95,7 @@ public class Code
     /// <summary> Converts a set of instructions to a string </summary>
     private string DebugPrint(CodeHandle handle, int indentLevel)
     {
-        var block = Get(handle);
+        CodeBlock block = Get(handle);
         StringBuilder sb = new StringBuilder();
 
         sb.Append('\t', indentLevel);

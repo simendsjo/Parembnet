@@ -17,11 +17,11 @@ public class Libraries
     /// <summary> Loads all standard libraries into an initialized machine instance </summary>
     public static void LoadStandardLibraries(Context ctx)
     {
-        var allLibs = GetAllBuiltInLibraries();
+        List<byte[]> allLibs = GetAllBuiltInLibraries();
         foreach (byte[] libBytes in allLibs)
         {
-            using var stream = new MemoryStream(libBytes);
-            using var reader = new StreamReader(stream);
+            using MemoryStream stream = new MemoryStream(libBytes);
+            using StreamReader reader = new StreamReader(stream);
             string libText = reader.ReadToEnd();
             LoadLibrary(ctx, libText);
         }

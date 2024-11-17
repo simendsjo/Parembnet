@@ -93,7 +93,7 @@ public class Cons
         Cons first = null, last = null;
         foreach (T value in values)
         {
-            var newcell = new Cons(new Val(value), Val.NIL);
+            Cons newcell = new Cons(new Val(value), Val.NIL);
             if (first == null)
             {
                 first = newcell;

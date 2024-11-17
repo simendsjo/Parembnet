@@ -39,8 +39,8 @@ namespace Paremnet
 
             public void Log(params object[] args)
             {
-                var strings = args.Select(obj => (obj == null) ? "null" : obj.ToString());
-                var message = string.Join(" ", strings);
+                IEnumerable<string> strings = args.Select(obj => (obj == null) ? "null" : obj.ToString());
+                string message = string.Join(" ", strings);
                 Console.WriteLine(message);
             }
         }
@@ -70,7 +70,7 @@ namespace Paremnet
             Context ctx = new Context(logger: new Logger());
             Console.WriteLine(GetInfo(ctx));
 
-            var selfTest = ctx.CompileAndExecute("(+ 1 2)").Select(r => r.output);
+            IEnumerable<Val> selfTest = ctx.CompileAndExecute("(+ 1 2)").Select(r => r.output);
             Console.WriteLine();
             Console.WriteLine("SELF TEST: (+ 1 2) => " + string.Join(" ", selfTest));
             Console.WriteLine("Type ,help for list of repl commands or ,exit to quit.\n");
@@ -84,7 +84,7 @@ namespace Paremnet
                 }
 
                 string line = Console.ReadLine();
-                var cmd = _commands.Find(c => line.StartsWith(c.command));
+                Command cmd = _commands.Find(c => line.StartsWith(c.command));
 
                 try
                 {
@@ -95,7 +95,7 @@ namespace Paremnet
                     }
 
                     Stopwatch s = _timeNextExecution ? Stopwatch.StartNew() : null;
-                    var results = ctx.CompileAndExecute(line);
+                    List<Context.CompileAndExecuteResult> results = ctx.CompileAndExecute(line);
                     LogCompilation(ctx, results);
                     LogExecutionTime(results, s);
 
@@ -124,7 +124,7 @@ namespace Paremnet
 
             _timeNextExecution = false;
 
-            foreach (var result in results)
+            foreach (Context.CompileAndExecuteResult result in results)
             {
                 Console.WriteLine($"Execution took {result.exectime.TotalSeconds} seconds for: {result.input}");
             }
@@ -139,7 +139,7 @@ namespace Paremnet
 
         private static string GetInfo(Context ctx)
         {
-            var manifestLocation = ctx.GetType().Assembly.Location;
+            string manifestLocation = ctx.GetType().Assembly.Location;
             FileVersionInfo info = FileVersionInfo.GetVersionInfo(manifestLocation);
             return $"Paremnet.REPL. {info.LegalCopyright}. Version {info.ProductVersion}.";
         }

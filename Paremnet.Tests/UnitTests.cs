@@ -87,8 +87,8 @@ namespace Paremnet
             {
                 if (_writer == null) { return; } // drop on the floor
 
-                var strings = args.Select(obj => (obj == null) ? "null" : obj.ToString());
-                var message = string.Join(" ", strings);
+                IEnumerable<string> strings = args.Select(obj => (obj == null) ? "null" : obj.ToString());
+                string message = string.Join(" ", strings);
                 _writer.WriteLine(message);
             }
 
@@ -255,7 +255,7 @@ namespace Paremnet
         {
             // test environments
 
-            var p = new Package("temp");
+            Package p = new Package("temp");
             Environment e2 = Environment.Make(Cons.MakeList(p.Intern("env2symbol0")), null);
             // e2.setAt(0, p.intern("env2symbol0"));
             Environment e1 = Environment.Make(Cons.MakeList(p.Intern("env1symbol0"), p.Intern("env1symbol1")), e2);
@@ -271,7 +271,7 @@ namespace Paremnet
             Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).frameIndex, 0); // get frame coord
             Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).symbolIndex, 0); // get symbol coord
 
-            var e2s0loc = Environment.GetVariable(p.Intern("env2symbol0"), e0);
+            VarPos e2s0loc = Environment.GetVariable(p.Intern("env2symbol0"), e0);
             Check(Environment.GetSymbolAt(e2s0loc, e0), p.Intern("env2symbol0"));
             Environment.SetSymbolAt(e2s0loc, p.Intern("NEW_SYMBOL"), e0);
             Check(Environment.GetSymbolAt(e2s0loc, e0), p.Intern("NEW_SYMBOL"));
@@ -340,7 +340,7 @@ namespace Paremnet
             List<Val> parsed = parser.ParseAll();
             Check(parsed.Count == 1);
 
-            var result = parsed[0];
+            Val result = parsed[0];
             Check(result, expected);
         }
 
@@ -404,10 +404,10 @@ namespace Paremnet
             Log("COMPILE inputs: ", input);
             ctx.parser.AddString(input);
 
-            var parseds = ctx.parser.ParseAll();
-            foreach (var parsed in parseds)
+            List<Val> parseds = ctx.parser.ParseAll();
+            foreach (Val parsed in parseds)
             {
-                var results = ctx.compiler.Compile(parsed);
+                CompilationResults results = ctx.compiler.Compile(parsed);
                 Log(ctx.code.DebugPrint(results));
             }
         }
@@ -603,7 +603,7 @@ namespace Paremnet
         public void TestStandardLibs()
         {
             // now initialize the standard library
-            var ctx = new Context(true, _logger);
+            Context ctx = new Context(true, _logger);
 
             // test some basic functions
             CompileAndRun(ctx, "(map number? '(a 2 \"foo\"))", "(#f #t #f)");
@@ -685,7 +685,7 @@ namespace Paremnet
 
         public void PrintAllStandardLibraries()
         {
-            var ctx = new Context(true, _logger);
+            Context ctx = new Context(true, _logger);
             DumpCodeBlocks(ctx);
         }
 
@@ -703,7 +703,7 @@ namespace Paremnet
                 Val result = ctx.parser.ParseNext();
                 Log("Parsed: ", result);
 
-                var comp = ctx.compiler.Compile(result);
+                CompilationResults comp = ctx.compiler.Compile(result);
                 Log("Compiled:");
                 Log(ctx.code.DebugPrint(comp));
 

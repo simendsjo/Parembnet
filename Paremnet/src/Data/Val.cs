@@ -205,7 +205,7 @@ public readonly struct Val : IEquatable<Val>
                 return StringifyCons(val.vcons, fullName);
             case Type.Vector:
                 {
-                    var elements = val.vvector.Print(" ");
+                    string elements = val.vvector.Print(" ");
                     return $"[Vector {elements}]";
                 }
             case Type.Closure:
@@ -214,7 +214,7 @@ public readonly struct Val : IEquatable<Val>
                 return $"[{val.vreturn.debug}/{val.vreturn.pc}]";
             case Type.Object:
                 {
-                    var typedesc = val.rawobject == null ? "null" : $"{val.rawobject.GetType()} {val.rawobject}";
+                    string typedesc = val.rawobject == null ? "null" : $"{val.rawobject.GetType()} {val.rawobject}";
                     return $"[Native {typedesc}]";
                 }
             default:

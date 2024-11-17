@@ -41,10 +41,10 @@ public sealed class State
 
     public Val Pop()
     {
-        var count = stack.Count;
+        int count = stack.Count;
         if (count > 0)
         {
-            var result = stack[count - 1];
+            Val result = stack[count - 1];
             stack.RemoveAt(count - 1);
             return result;
         }
@@ -54,7 +54,7 @@ public sealed class State
 
     public Val Peek()
     {
-        var count = stack.Count;
+        int count = stack.Count;
         if (count > 0)
         {
             return stack[count - 1];
