@@ -177,15 +177,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsNotNil => type != Type.Nil;
     public bool IsAtom => type != Type.Cons;
 
-    public bool IsNumber =>
-        type is Type.Int8
-            or Type.UInt8
-            or Type.Int16
-            or Type.UInt16
-            or Type.Int32
-            or Type.UInt32
-            or Type.Float32
-            or Type.Float64;
+    public bool IsNumber => type is >= Type.Int8 and <= Type.Float64;
 
     public bool IsBool => type == Type.Boolean;
     public bool IsUInt8 => type == Type.UInt8;
@@ -284,13 +276,7 @@ public readonly struct Val : IEquatable<Val>
             _ => throw new CompilerError("Float32 cast applied to not a number")
         };
 
-    private bool IsValueType =>
-        type is Type.Boolean
-            or Type.Int16
-            or Type.UInt16
-            or Type.Int32
-            or Type.Float32
-            or Type.Float64;
+    private bool IsValueType => type is >= Type.Boolean and <= Type.Float64;
 
     public static bool Equals(Val a, Val b)
     {
