@@ -180,7 +180,7 @@ public static class TypeUtils
         IEnumerable<MemberInfo> elements = instanced ? GetInstanceMembers(type) : GetStaticMembers(type);
         MemberInfo[] fields = elements
             .Where(m => m.Name == member)
-            .Where(m => m is FieldInfo || m is PropertyInfo)
+            .Where(m => m is FieldInfo or PropertyInfo)
             .ToArray(); // there should be at most one
 
         MemberInfo result = fields.Length > 0 ? fields[0] : null;

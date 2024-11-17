@@ -71,7 +71,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsNotNil => type != Type.Nil;
     public bool IsAtom => type != Type.Cons;
 
-    public bool IsNumber => type == Type.Int || type == Type.Float;
+    public bool IsNumber => type is Type.Int or Type.Float;
 
     public bool IsBool => type == Type.Bool;
     public bool IsInt => type == Type.Int;
@@ -143,7 +143,7 @@ public readonly struct Val : IEquatable<Val>
         (type == Type.Float) ? vfloat :
         throw new CompilerError("Float cast applied to not a number");
 
-    private bool IsValueType => type == Type.Bool || type == Type.Int || type == Type.Float;
+    private bool IsValueType => type is Type.Bool or Type.Int or Type.Float;
 
     public static bool Equals(Val a, Val b)
     {
