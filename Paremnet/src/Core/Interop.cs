@@ -130,7 +130,7 @@ public static class Interop
         {
             Namespace ns => TryNamespaceLookup(ns, nextSymbol, nonSymbols),
             Type type => TryLookupOnType(type, nextSymbol, nonSymbols),
-            object other => TryLookupOnInstance(other, nextSymbol, nonSymbols),
+            not null => TryLookupOnInstance(obj, nextSymbol, nonSymbols),
             _ => throw new InteropError($"Not sure what to do with current {current}"),
         };
     }
