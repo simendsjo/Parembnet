@@ -365,7 +365,7 @@ public class Parser(Packages packages, ILogger logger)
     private Val ConvertBackquote(Cons cons)
     {
         Symbol first = cons.First.AsSymbolOrNull;
-        if (first == null || first.Name != "`")
+        if (first is not { Name: "`" })
         {
             throw new ParserError($"Unexpected {first} in place of backquote");
         }
