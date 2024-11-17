@@ -73,18 +73,7 @@ public class Package(string name)
     /// Uninterns the given symbol. If a symbol existed with this name, it will be removed,
     /// and the function returns true; otherwise returns false.
     /// </summary>
-    public bool Unintern(string name)
-    {
-        if (_symbols.ContainsKey(name))
-        {
-            _symbols.Remove(name);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    public bool Unintern(string name) => _symbols.Remove(name);
 
     /// <summary> Retrieves the value binding for the given symbol, also traversing the import list. </summary>
     public Val GetValue(Symbol symbol)
