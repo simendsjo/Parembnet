@@ -425,38 +425,38 @@ public class Primitives
     private static Val ValAdd(Val a, Val b)
     {
         if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 + b.AsInt32); }
-        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat + b.CastToFloat); }
+        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToSingle + b.CastToSingle); }
         throw new LanguageError("Add applied to non-numbers");
     }
 
     private static Val ValSub(Val a, Val b)
     {
         if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 - b.AsInt32); }
-        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat - b.CastToFloat); }
+        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToSingle - b.CastToSingle); }
         throw new LanguageError("Add applied to non-numbers");
     }
 
     private static Val ValMul(Val a, Val b)
     {
         if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 * b.AsInt32); }
-        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat * b.CastToFloat); }
+        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToSingle * b.CastToSingle); }
         throw new LanguageError("Add applied to non-numbers");
     }
 
     private static Val ValDiv(Val a, Val b)
     {
         if (a.IsInt32 && b.IsInt32) { return new Val(a.AsInt32 / b.AsInt32); }
-        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat / b.CastToFloat); }
+        if (a.IsNumber && b.IsNumber) { return new Val(a.CastToSingle / b.CastToSingle); }
         throw new LanguageError("Add applied to non-numbers");
     }
 
-    private static Val ValLt(Val a, Val b) => a.CastToFloat < b.CastToFloat;
+    private static Val ValLt(Val a, Val b) => a.CastToSingle < b.CastToSingle;
 
-    private static Val ValLte(Val a, Val b) => a.CastToFloat <= b.CastToFloat;
+    private static Val ValLte(Val a, Val b) => a.CastToSingle <= b.CastToSingle;
 
-    private static Val ValGt(Val a, Val b) => a.CastToFloat > b.CastToFloat;
+    private static Val ValGt(Val a, Val b) => a.CastToSingle > b.CastToSingle;
 
-    private static Val ValGte(Val a, Val b) => a.CastToFloat >= b.CastToFloat;
+    private static Val ValGte(Val a, Val b) => a.CastToSingle >= b.CastToSingle;
 
     //
     // helpers for .net interop

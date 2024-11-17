@@ -24,7 +24,7 @@ public readonly struct Val : IEquatable<Val>
         Nil,
         Boolean,
         Int32,
-        Float,
+        Single,
 
         // reference types
         String,
@@ -40,7 +40,7 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(0)] public readonly ulong rawvalue;
     [FieldOffset(0)] public readonly Boolean vboolean;
     [FieldOffset(0)] public readonly Int32 vint32;
-    [FieldOffset(0)] public readonly float vfloat;
+    [FieldOffset(0)] public readonly Single vsingle;
 
     [FieldOffset(8)] public readonly object rawobject;
     [FieldOffset(8)] public readonly string vstring;
@@ -58,7 +58,7 @@ public readonly struct Val : IEquatable<Val>
 
     public Val(bool value) : this() { type = Type.Boolean; vboolean = value; }
     public Val(Int32 value) : this() { type = Type.Int32; vint32 = value; }
-    public Val(float value) : this() { type = Type.Float; vfloat = value; }
+    public Val(float value) : this() { type = Type.Single; vsingle = value; }
     public Val(string value) : this() { type = Type.String; vstring = value; }
     public Val(Symbol value) : this() { type = Type.Symbol; vsymbol = value; }
     public Val(Cons value) : this() { type = Type.Cons; vcons = value; }
@@ -71,11 +71,11 @@ public readonly struct Val : IEquatable<Val>
     public bool IsNotNil => type != Type.Nil;
     public bool IsAtom => type != Type.Cons;
 
-    public bool IsNumber => type is Type.Int32 or Type.Float;
+    public bool IsNumber => type is Type.Int32 or Type.Single;
 
     public bool IsBool => type == Type.Boolean;
     public bool IsInt32 => type == Type.Int32;
-    public bool IsFloat => type == Type.Float;
+    public bool IsSingle => type == Type.Single;
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
     public bool IsCons => type == Type.Cons;
@@ -110,7 +110,7 @@ public readonly struct Val : IEquatable<Val>
             Type.Nil => null,
             Type.Boolean => vboolean,
             Type.Int32 => vint32,
-            Type.Float => vfloat,
+            Type.Single => vsingle,
             Type.String => vstring,
             Type.Symbol => vsymbol,
             Type.Cons => vcons,
@@ -137,15 +137,15 @@ public readonly struct Val : IEquatable<Val>
         };
 
     public bool CastToBool => (type == Type.Boolean) ? vboolean : (type != Type.Nil);
-    public float CastToFloat =>
+    public float CastToSingle =>
         type switch
         {
             Type.Int32 => vint32,
-            Type.Float => vfloat,
-            _ => throw new CompilerError("Float cast applied to not a number")
+            Type.Single => vsingle,
+            _ => throw new CompilerError("Single cast applied to not a number")
         };
 
-    private bool IsValueType => type is Type.Boolean or Type.Int32 or Type.Float;
+    private bool IsValueType => type is Type.Boolean or Type.Int32 or Type.Single;
 
     public static bool Equals(Val a, Val b)
     {
@@ -171,7 +171,7 @@ public readonly struct Val : IEquatable<Val>
 
     public static implicit operator Val(bool val) => new(val);
     public static implicit operator Val(int val) => new(val);
-    public static implicit operator Val(float val) => new(val);
+    public static implicit operator Val(Single val) => new(val);
     public static implicit operator Val(string val) => new(val);
     public static implicit operator Val(Symbol val) => new(val);
     public static implicit operator Val(Cons val) => new(val);
@@ -197,8 +197,8 @@ public readonly struct Val : IEquatable<Val>
                 return val.vboolean ? "#t" : "#f";
             case Type.Int32:
                 return val.vint32.ToString(CultureInfo.InvariantCulture);
-            case Type.Float:
-                return val.vfloat.ToString(CultureInfo.InvariantCulture);
+            case Type.Single:
+                return val.vsingle.ToString(CultureInfo.InvariantCulture);
             case Type.String:
                 return "\"" + val.vstring + "\"";
             case Type.Symbol:
