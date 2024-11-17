@@ -278,13 +278,13 @@ public class Parser(Packages packages, ILogger logger)
         int colon = name.IndexOf(":");
         if (colon >= 0)
         {
-            string pkgname = name.Substring(0, colon);
+            string pkgname = name[..colon];
             p = _packages.Intern(pkgname);  // we have a specific package name, look there instead
             if (p == null)
             {
                 throw new ParserError("Unknown package: " + pkgname);
             }
-            name = name.Substring(colon + 1);
+            name = name[(colon + 1)..];
         }
 
         // do we have the symbol anywhere in that package or its imports?
