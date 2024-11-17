@@ -125,7 +125,7 @@ public readonly struct Val : IEquatable<Val>
         boxed switch
         {
             null => NIL,
-            bool bval => bval,
+            Boolean bval => bval,
             Int32 ival => ival,
             Single fval => fval,
             string sval => sval,
