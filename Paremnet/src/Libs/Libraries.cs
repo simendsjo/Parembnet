@@ -30,18 +30,18 @@ public class Libraries
     /// <summary> Loads a single string into the execution context </summary>
     private static void LoadLibrary(Context ctx, string lib)
     {
-        ctx.parser.AddString(lib);
+        ctx.Parser.AddString(lib);
 
         while (true)
         {
-            Val result = ctx.parser.ParseNext();
-            if (Val.Equals(Parser.EOF, result))
+            Val result = ctx.Parser.ParseNext();
+            if (Val.Equals(Parser.Eof, result))
             {
                 break;
             }
 
-            Closure cl = ctx.compiler.Compile(result).closure;
-            Val _ = ctx.vm.Execute(cl);
+            Closure cl = ctx.Compiler.Compile(result).Closure;
+            Val _ = ctx.Vm.Execute(cl);
             // and we drop the output on the floor... for now... :)
         }
     }

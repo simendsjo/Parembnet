@@ -10,26 +10,26 @@ namespace Paremnet.Core;
 /// <summary> Opaque handle to a code block entry in storage </summary>
 public struct CodeHandle(int index) : IEquatable<CodeHandle>
 {
-    public int index = index;
+    public int Index = index;
 
-    public bool IsValid => index > 0; // index at 0 is always null
+    public bool IsValid => Index > 0; // index at 0 is always null
 
-    public static bool Equals(CodeHandle a, CodeHandle b) => a.index == b.index;
+    public static bool Equals(CodeHandle a, CodeHandle b) => a.Index == b.Index;
     public static bool operator ==(CodeHandle a, CodeHandle b) => Equals(a, b);
     public static bool operator !=(CodeHandle a, CodeHandle b) => !Equals(a, b);
 
     public bool Equals(CodeHandle other) => Equals(this, other);
 
     public override bool Equals(object obj) => obj is CodeHandle handle && Equals(this, handle);
-    public override int GetHashCode() => index;
+    public override int GetHashCode() => Index;
 }
 
 /// <summary> Code block stores a collection of instructions and some additional debugging data </summary>
 public class CodeBlock(CodeHandle handle, List<Instruction> instructions, string debug)
 {
-    public CodeHandle handle = handle;
-    public readonly List<Instruction> instructions = instructions;
-    public readonly string debug = debug;
+    public CodeHandle Handle = handle;
+    public readonly List<Instruction> Instructions = instructions;
+    public readonly string Debug = debug;
 }
 
 /// <summary>
@@ -45,7 +45,7 @@ public class Code
     /// <summary> Registers a new code block and returns its handle </summary>
     public CodeHandle AddBlock(List<Instruction> instructions, string debug)
     {
-        CodeHandle handle = new() { index = _blocks.Count };
+        CodeHandle handle = new() { Index = _blocks.Count };
         _blocks.Add(new CodeBlock(handle, instructions, debug));
         return handle;
     }
@@ -53,23 +53,23 @@ public class Code
     /// <summary> Deregisters the specified code block and replaces it with null. </summary>
     public void RemoveBlock(CodeHandle handle)
     {
-        if (handle.index <= 0 || handle.index >= _blocks.Count)
+        if (handle.Index <= 0 || handle.Index >= _blocks.Count)
         {
             throw new LanguageError("Invalid code block handle!");
         }
 
-        _blocks[handle.index] = null; // note we just leave a hole, so we don't renumber other ones
+        _blocks[handle.Index] = null; // note we just leave a hole, so we don't renumber other ones
     }
 
     /// <summary> Retrieves a code block registered for a given handle </summary>
     public CodeBlock Get(CodeHandle handle)
     {
-        if (handle.index <= 0 || handle.index >= _blocks.Count)
+        if (handle.Index <= 0 || handle.Index >= _blocks.Count)
         {
             throw new LanguageError("Invalid code block handle!");
         }
 
-        return _blocks[handle.index];
+        return _blocks[handle.Index];
     }
 
     /// <summary> Returns an iterator over all code blocks. Some may be null! </summary>
@@ -77,11 +77,11 @@ public class Code
 
     /// <summary> Converts a compilation result to a string </summary>
     public string DebugPrint(CompilationResults comp, int indentLevel = 1) =>
-        string.Join("\n", comp.recents.Select(h => DebugPrint(h, indentLevel)));
+        string.Join("\n", comp.Recents.Select(h => DebugPrint(h, indentLevel)));
 
     /// <summary> Converts a set of instructions to a string </summary>
     public string DebugPrint(Closure cl, int indentLevel = 1) =>
-        DebugPrint(cl.code, indentLevel);
+        DebugPrint(cl.Code, indentLevel);
 
     /// <summary> Converts a set of instructions to a string </summary>
     private string DebugPrint(CodeHandle handle, int indentLevel)
@@ -91,14 +91,14 @@ public class Code
 
         sb.Append('\t', indentLevel);
         //sb.AppendLine($"CODE BLOCK # {block.handle.index} ; {block.debug}");
-        sb.AppendLine($"CODE BLOCK ; {block.debug}");
+        sb.AppendLine($"CODE BLOCK ; {block.Debug}");
 
-        for (int i = 0, count = block.instructions.Count; i < count; i++)
+        for (int i = 0, count = block.Instructions.Count; i < count; i++)
         {
-            Instruction instruction = block.instructions[i];
+            Instruction instruction = block.Instructions[i];
 
             // tab out and print current instruction
-            int tabs = indentLevel + (instruction.type == Opcode.LABEL ? -1 : 0);
+            int tabs = indentLevel + (instruction.Type == Opcode.Label ? -1 : 0);
             sb.Append('\t', tabs);
             sb.Append(i);
             sb.Append('\t');
@@ -124,7 +124,7 @@ public class Code
             CodeBlock block = _blocks[i];
             if (block != null)
             {
-                sb.AppendLine(DebugPrint(block.handle, 1));
+                sb.AppendLine(DebugPrint(block.Handle, 1));
             }
         }
 

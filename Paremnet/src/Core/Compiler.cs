@@ -11,8 +11,8 @@ namespace Paremnet.Core;
 /// </summary>
 public struct CompilationResults(Closure closure, List<CodeHandle> blocks)
 {
-    public Closure closure = closure;
-    public List<CodeHandle> recents = blocks;
+    public Closure Closure = closure;
+    public List<CodeHandle> Recents = blocks;
 }
 
 /// <summary>
@@ -66,7 +66,7 @@ public class Compiler
 
     public Compiler(Context ctx)
     {
-        Package global = ctx.packages.global;
+        Package global = ctx.Packages.Global;
         _quote = global.Intern("quote");
         _begin = global.Intern("begin");
         _set = global.Intern("set!");
@@ -86,13 +86,13 @@ public class Compiler
     /// </summary>
     public CompilationResults Compile(Val x)
     {
-        CodeHandle before = _ctx.code.LastHandle;
+        CodeHandle before = _ctx.Code.LastHandle;
         _labelNum = 0;
         Closure closure = CompileLambda(Val.NIL, new Cons(x, Val.NIL), null);
-        CodeHandle after = _ctx.code.LastHandle;
+        CodeHandle after = _ctx.Code.LastHandle;
 
         List<CodeHandle> blocks = [];
-        for (int i = before.index + 1; i <= after.index; i++) { blocks.Add(new CodeHandle(i)); }
+        for (int i = before.Index + 1; i <= after.Index; i++) { blocks.Add(new CodeHandle(i)); }
 
         return new CompilationResults(closure, blocks);
     }
@@ -122,44 +122,44 @@ public class Compiler
         // it's not an atom, it's a list, deal with it.
         VerifyExpression(Cons.IsList(x), "Non-list expression detected!");
         Cons cons = x.AsConsOrNull;
-        Symbol name = cons.first.AsSymbolOrNull;
+        Symbol name = cons.First.AsSymbolOrNull;
 
         if (name == _quote)
         {    // (quote value)
             VerifyArgCount(cons, 1);
-            return CompileConstant(cons.second, st); // second element is the constant
+            return CompileConstant(cons.Second, st); // second element is the constant
         }
         if (name == _begin)
         {    // (begin ...)
-            return CompileBegin(cons.rest, env, st);
+            return CompileBegin(cons.Rest, env, st);
         }
         if (name == _set)
         {      // (set! symbol-name value)
             VerifyArgCount(cons, 2);
-            VerifyExpression(cons.second.IsSymbol, "Invalid lvalue in set!, must be a symbol, got: ", cons.second);
-            return CompileVarSet(cons.second.AsSymbol, cons.third, env, st);
+            VerifyExpression(cons.Second.IsSymbol, "Invalid lvalue in set!, must be a symbol, got: ", cons.Second);
+            return CompileVarSet(cons.Second.AsSymbol, cons.Third, env, st);
         }
         if (name == _if)
         {       // (if pred then else) or (if pred then)
             VerifyArgCount(cons, 2, 3);
             return CompileIf(
-                cons.second,     // pred
-                cons.third,      // then
-                (cons.afterThird.IsNotNil ? cons.fourth : Val.NIL), // else
+                cons.Second,     // pred
+                cons.Third,      // then
+                (cons.AfterThird.IsNotNil ? cons.Fourth : Val.NIL), // else
                 env, st);
         }
         if (name == _ifStar)
         {   // (if *pred else)
             VerifyArgCount(cons, 2);
             return CompileIfStar(
-                cons.second,    // pred
-                cons.third,     // else
+                cons.Second,    // pred
+                cons.Third,     // else
                 env, st);
         }
         if (name == _while)
         {    // (while pred body ...)
-            Cons body = cons.afterSecond.AsConsOrNull;
-            return CompileWhile(cons.second, body, env, st);
+            Cons body = cons.AfterSecond.AsConsOrNull;
+            return CompileWhile(cons.Second, body, env, st);
         }
         if (name == _lambda)
         {   // (lambda (args...) body...)
@@ -169,21 +169,21 @@ public class Compiler
             }
             else
             {
-                Cons body = cons.afterSecond.AsConsOrNull;
-                Closure f = CompileLambda(cons.second, body, env);
+                Cons body = cons.AfterSecond.AsConsOrNull;
+                Closure f = CompileLambda(cons.Second, body, env);
                 //string debug = $"#{f.code.index} : " + Val.DebugPrint(cons.afterSecond);
-                string debug = Val.DebugPrint(cons.afterSecond);
+                string debug = Val.DebugPrint(cons.AfterSecond);
                 return Merge(
-                    Emit(Opcode.MAKE_CLOSURE, new Val(f), Val.NIL, debug),
-                    EmitIf(st.IsFinal, Emit(Opcode.RETURN_VAL)));
+                    Emit(Opcode.MakeClosure, new Val(f), Val.NIL, debug),
+                    EmitIf(st.IsFinal, Emit(Opcode.ReturnVal)));
             }
         }
         if (name == _defmacro)
         {
-            return CompileAndInstallMacroDefinition(cons.rest.AsConsOrNull, env, st);
+            return CompileAndInstallMacroDefinition(cons.Rest.AsConsOrNull, env, st);
         }
 
-        return CompileFunctionCall(cons.first, cons.rest.AsConsOrNull, env, st);
+        return CompileFunctionCall(cons.First, cons.Rest.AsConsOrNull, env, st);
     }
 
     /// <summary>
@@ -194,7 +194,7 @@ public class Compiler
     private static void VerifyArgCount(Cons cons, int min, int max = -1)
     {
         max = (max >= 0) ? max : min;  // default value means: max == min
-        int count = Cons.Length(cons.rest);
+        int count = Cons.Length(cons.Rest);
         if (count < min || count > max)
         {
             throw new CompilerError("Invalid argument count in expression " + cons +
@@ -217,22 +217,22 @@ public class Compiler
         Cons cons = x.AsConsOrNull;
         return
             cons != null &&
-            cons.first.IsSymbol &&
-            cons.first.AsSymbol.pkg.HasMacro(cons.first.AsSymbol);
+            cons.First.IsSymbol &&
+            cons.First.AsSymbol.Pkg.HasMacro(cons.First.AsSymbol);
     }
 
     /// <summary> Performs compile-time macroexpansion, one-level deep </summary>
     public Val MacroExpand1Step(Val exp)
     {
         Cons cons = exp.AsConsOrNull;
-        if (cons == null || !cons.first.IsSymbol) { return exp; } // something unexpected
+        if (cons == null || !cons.First.IsSymbol) { return exp; } // something unexpected
 
-        Symbol name = cons.first.AsSymbol;
-        Macro macro = name.pkg.GetMacro(name);
+        Symbol name = cons.First.AsSymbol;
+        Macro macro = name.Pkg.GetMacro(name);
         if (macro == null) { return exp; } // no such macro, ignore
 
         // now we execute the macro at compile time, in the same context...
-        Val result = _ctx.vm.Execute(macro.body, Cons.ToNativeList(cons.rest).ToArray());
+        Val result = _ctx.Vm.Execute(macro.Body, Cons.ToNativeList(cons.Rest).ToArray());
         return result;
     }
 
@@ -241,18 +241,18 @@ public class Compiler
     {
         Val expanded = MacroExpand1Step(exp);
         Cons cons = expanded.AsConsOrNull;
-        if (cons == null || !cons.first.IsSymbol) { return expanded; } // nothing more to expand
+        if (cons == null || !cons.First.IsSymbol) { return expanded; } // nothing more to expand
 
         // if we're expanding a list, replace each element recursively
         while (cons != null)
         {
-            Cons elt = cons.first.AsConsOrNull;
-            if (elt != null && elt.first.IsSymbol)
+            Cons elt = cons.First.AsConsOrNull;
+            if (elt != null && elt.First.IsSymbol)
             {
-                Val substitute = MacroExpandFull(cons.first);
-                cons.first = substitute;
+                Val substitute = MacroExpandFull(cons.First);
+                cons.First = substitute;
             }
-            cons = cons.rest.AsConsOrNull;
+            cons = cons.Rest.AsConsOrNull;
         }
 
         return expanded;
@@ -267,9 +267,9 @@ public class Compiler
         bool isLocal = pos.IsValid;
         return Merge(
             (isLocal ?
-                Emit(Opcode.LOCAL_GET, pos.frameIndex, pos.symbolIndex, Val.DebugPrint(x)) :
-                Emit(Opcode.GLOBAL_GET, x)),
-            EmitIf(st.IsFinal, Emit(Opcode.RETURN_VAL)));
+                Emit(Opcode.LocalGet, pos.FrameIndex, pos.SymbolIndex, Val.DebugPrint(x)) :
+                Emit(Opcode.GlobalGet, x)),
+            EmitIf(st.IsFinal, Emit(Opcode.ReturnVal)));
     }
 
     /// <summary> Compiles a constant, if it's actually used elsewhere </summary>
@@ -278,8 +278,8 @@ public class Compiler
         if (st.IsUnused) { return null; }
 
         return Merge(
-            Emit(Opcode.PUSH_CONST, x, Val.NIL),
-            EmitIf(st.IsFinal, Emit(Opcode.RETURN_VAL)));
+            Emit(Opcode.PushConst, x, Val.NIL),
+            EmitIf(st.IsFinal, Emit(Opcode.ReturnVal)));
     }
 
     /// <summary> Compiles a sequence defined by a BEGIN - we pop all values, except for the last one </summary>
@@ -293,15 +293,15 @@ public class Compiler
         Cons cons = exps.AsConsOrNull;
         VerifyExpression(cons != null, "Unexpected value passed to begin block, instead of a cons:", exps);
 
-        if (cons.rest.IsNil)
+        if (cons.Rest.IsNil)
         {  // length == 1
-            return Compile(cons.first, env, st);
+            return Compile(cons.First, env, st);
         }
         else
         {
             return Merge(
-                Compile(cons.first, env, State.NotUsedNonFinal),  // note: not the final expression, set val = f, more = t
-                CompileBegin(cons.rest, env, st));
+                Compile(cons.First, env, State.NotUsedNonFinal),  // note: not the final expression, set val = f, more = t
+                CompileBegin(cons.Rest, env, st));
         }
     }
 
@@ -313,10 +313,10 @@ public class Compiler
         return Merge(
             Compile(value, env, State.UsedNonFinal),
             (isLocal ?
-                Emit(Opcode.LOCAL_SET, pos.frameIndex, pos.symbolIndex, Val.DebugPrint(x)) :
-                Emit(Opcode.GLOBAL_SET, x)),
-            EmitIf(st.IsUnused, Emit(Opcode.STACK_POP)),
-            EmitIf(st.IsFinal, Emit(Opcode.RETURN_VAL))
+                Emit(Opcode.LocalSet, pos.FrameIndex, pos.SymbolIndex, Val.DebugPrint(x)) :
+                Emit(Opcode.GlobalSet, x)),
+            EmitIf(st.IsUnused, Emit(Opcode.StackPop)),
+            EmitIf(st.IsFinal, Emit(Opcode.ReturnVal))
         );
     }
 
@@ -332,16 +332,16 @@ public class Compiler
 
         // actually produce the code for if/then/else clauses
         // note that those clauses will already contain a return opcode if they're final.
-        List<Instruction> PredCode = Compile(pred, env, State.UsedNonFinal);
-        List<Instruction> ThenCode = Compile(then, env, st);
-        List<Instruction> ElseCode = els.IsNotNil ? Compile(els, env, st) : CompileConstant(els, st);
+        List<Instruction> predCode = Compile(pred, env, State.UsedNonFinal);
+        List<Instruction> thenCode = Compile(then, env, st);
+        List<Instruction> elseCode = els.IsNotNil ? Compile(els, env, st) : CompileConstant(els, st);
 
         // (if p x x) => (begin p x)
-        if (CodeEquals(ThenCode, ElseCode))
+        if (CodeEquals(thenCode, elseCode))
         {
             return Merge(
                 Compile(pred, env, State.NotUsedNonFinal),
-                ElseCode);
+                elseCode);
         }
 
         // (if p x y) => p (FJUMP L1) x L1: y
@@ -351,24 +351,24 @@ public class Compiler
         {
             string l1 = MakeLabel();
             return Merge(
-                PredCode,
-                Emit(Opcode.JMP_IF_FALSE, l1),
-                ThenCode,
-                Emit(Opcode.LABEL, l1),
-                ElseCode);
+                predCode,
+                Emit(Opcode.JmpIfFalse, l1),
+                thenCode,
+                Emit(Opcode.Label, l1),
+                elseCode);
         }
         else
         {
             string l1 = MakeLabel();
             string l2 = MakeLabel();
             return Merge(
-                PredCode,
-                Emit(Opcode.JMP_IF_FALSE, l1),
-                ThenCode,
-                Emit(Opcode.JMP_TO_LABEL, l2),
-                Emit(Opcode.LABEL, l1),
-                ElseCode,
-                Emit(Opcode.LABEL, l2));
+                predCode,
+                Emit(Opcode.JmpIfFalse, l1),
+                thenCode,
+                Emit(Opcode.JmpToLabel, l2),
+                Emit(Opcode.Label, l1),
+                elseCode,
+                Emit(Opcode.Label, l2));
         }
     }
 
@@ -384,43 +384,43 @@ public class Compiler
             return Compile(els, env, st);
         }
 
-        List<Instruction> PredCode = Compile(pred, env, State.UsedNonFinal);
+        List<Instruction> predCode = Compile(pred, env, State.UsedNonFinal);
 
         State elseState = st.IsFinal ? State.UsedFinal : State.UsedNonFinal;
-        List<Instruction> ElseCode = els.IsNotNil ? Compile(els, env, elseState) : null;
+        List<Instruction> elseCode = els.IsNotNil ? Compile(els, env, elseState) : null;
 
         // (if* p x) => p (DUPE) (TJUMP L1) (POP) x L1: (POP?)
         string l1 = MakeLabel();
         return Merge(
-            PredCode,
-            Emit(Opcode.DUPLICATE),
-            Emit(Opcode.JMP_IF_TRUE, l1),
-            Emit(Opcode.STACK_POP),
-            ElseCode,
-            Emit(Opcode.LABEL, l1),
-            EmitIf(st.IsUnused, Emit(Opcode.STACK_POP)),
-            EmitIf(st.IsFinal, Emit(Opcode.RETURN_VAL)));
+            predCode,
+            Emit(Opcode.Duplicate),
+            Emit(Opcode.JmpIfTrue, l1),
+            Emit(Opcode.StackPop),
+            elseCode,
+            Emit(Opcode.Label, l1),
+            EmitIf(st.IsUnused, Emit(Opcode.StackPop)),
+            EmitIf(st.IsFinal, Emit(Opcode.ReturnVal)));
     }
 
     /// <summary> Compiles a while loop </summary>
     private List<Instruction> CompileWhile(Val pred, Cons body, Environment env, State st)
     {
         // (while p ...) => (PUSH '()) L1: p (FJUMP L2) (POP) (begin ...) (JUMP L1) L2:
-        List<Instruction> PredCode = Compile(pred, env, State.UsedNonFinal);
-        List<Instruction> BodyCode = CompileBegin(body, env, State.UsedNonFinal); // keep result on stack
+        List<Instruction> predCode = Compile(pred, env, State.UsedNonFinal);
+        List<Instruction> bodyCode = CompileBegin(body, env, State.UsedNonFinal); // keep result on stack
 
         string l1 = MakeLabel(), l2 = MakeLabel();
         return Merge(
-            Emit(Opcode.PUSH_CONST, Val.NIL),
-            Emit(Opcode.LABEL, l1),
-            PredCode,
-            Emit(Opcode.JMP_IF_FALSE, l2),
-            Emit(Opcode.STACK_POP),
-            BodyCode,
-            Emit(Opcode.JMP_TO_LABEL, l1),
-            Emit(Opcode.LABEL, l2),
-            EmitIf(st.IsUnused, Emit(Opcode.STACK_POP)),
-            EmitIf(st.IsFinal, Emit(Opcode.RETURN_VAL)));
+            Emit(Opcode.PushConst, Val.NIL),
+            Emit(Opcode.Label, l1),
+            predCode,
+            Emit(Opcode.JmpIfFalse, l2),
+            Emit(Opcode.StackPop),
+            bodyCode,
+            Emit(Opcode.JmpToLabel, l1),
+            Emit(Opcode.Label, l2),
+            EmitIf(st.IsUnused, Emit(Opcode.StackPop)),
+            EmitIf(st.IsFinal, Emit(Opcode.ReturnVal)));
     }
 
     /// <summary> Compiles code to produce a new closure </summary>
@@ -432,7 +432,7 @@ public class Compiler
             CompileBegin(new Val(body), newEnv, State.UsedFinal));
 
         string debug = newEnv.DebugPrintSymbols() + " => " + Val.DebugPrint(body);
-        CodeHandle handle = _ctx.code.AddBlock(Assemble(instructions), debug);
+        CodeHandle handle = _ctx.Code.AddBlock(Assemble(instructions), debug);
         return new Closure(handle, env, args.AsConsOrNull, "");
     }
 
@@ -441,8 +441,8 @@ public class Compiler
         (exps == null)
             ? null
             : Merge(
-                Compile(exps.first, env, State.UsedNonFinal),
-                CompileList(exps.rest.AsConsOrNull, env));
+                Compile(exps.First, env, State.UsedNonFinal),
+                CompileList(exps.Rest.AsConsOrNull, env));
 
     /// <summary>
     /// Compiles a macro, and sets the given symbol to point to it. NOTE: unlike all other expressions,
@@ -452,14 +452,14 @@ public class Compiler
     {
 
         // example: (defmacro foo (x) (+ x 1))
-        Symbol name = cons.first.AsSymbol;
-        Cons args = cons.second.AsCons;
-        Cons bodylist = cons.afterSecond.AsConsOrNull;
+        Symbol name = cons.First.AsSymbol;
+        Cons args = cons.Second.AsCons;
+        Cons bodylist = cons.AfterSecond.AsConsOrNull;
         Closure body = CompileLambda(new Val(args), bodylist, env);
         Macro macro = new(name, args, body);
 
         // install it in the package
-        name.pkg.SetMacro(name, macro);
+        name.Pkg.SetMacro(name, macro);
         return CompileConstant(Val.NIL, st);
     }
 
@@ -469,11 +469,11 @@ public class Compiler
         if (f.IsCons)
         {
             Cons fcons = f.AsCons;
-            if (fcons.first.IsSymbol && fcons.first.AsSymbol.fullName == "lambda" && fcons.second.IsNil)
+            if (fcons.First.IsSymbol && fcons.First.AsSymbol.FullName == "lambda" && fcons.Second.IsNil)
             {
                 // ((lambda () body)) => (begin body)
                 VerifyExpression(args == null, "Too many arguments supplied!");
-                return CompileBegin(fcons.afterSecond, env, st);
+                return CompileBegin(fcons.AfterSecond, env, st);
             }
         }
 
@@ -483,19 +483,19 @@ public class Compiler
             return Merge(
                 CompileList(args, env),
                 Compile(f, env, State.UsedNonFinal),
-                Emit(Opcode.JMP_CLOSURE, Cons.Length(args)));
+                Emit(Opcode.JmpClosure, Cons.Length(args)));
         }
         else
         {
             // need to save the continuation point
             string k = MakeLabel("R");
             return Merge(
-                Emit(Opcode.SAVE_RETURN, k),
+                Emit(Opcode.SaveReturn, k),
                 CompileList(args, env),
                 Compile(f, env, State.UsedNonFinal),
-                Emit(Opcode.JMP_CLOSURE, Cons.Length(args)),
-                Emit(Opcode.LABEL, k),
-                EmitIf(st.IsUnused, Emit(Opcode.STACK_POP)));
+                Emit(Opcode.JmpClosure, Cons.Length(args)),
+                Emit(Opcode.Label, k),
+                EmitIf(st.IsUnused, Emit(Opcode.StackPop)));
         }
     }
 
@@ -505,12 +505,12 @@ public class Compiler
         // recursively detect whether it's a list or ends with a dotted cons, and generate appropriate arg
 
         // terminal case
-        if (args.IsNil) { return Emit(Opcode.MAKE_ENV, nSoFar, debug); }        // (lambda (a b c) ...)
-        if (args.IsSymbol) { return Emit(Opcode.MAKE_ENVDOT, nSoFar, debug); }  // (lambda (a b . c) ...)
+        if (args.IsNil) { return Emit(Opcode.MakeEnv, nSoFar, debug); }        // (lambda (a b c) ...)
+        if (args.IsSymbol) { return Emit(Opcode.MakeEnvdot, nSoFar, debug); }  // (lambda (a b . c) ...)
 
         // if not at the end, recurse
         Cons cons = args.AsConsOrNull;
-        if (cons != null && cons.first.IsSymbol) { return EmitArgs(cons.rest, debug, nSoFar + 1); }
+        if (cons != null && cons.First.IsSymbol) { return EmitArgs(cons.Rest, debug, nSoFar + 1); }
 
         throw new CompilerError("Invalid argument list");           // (lambda (a b 5 #t) ...) or some other nonsense
     }
@@ -526,7 +526,7 @@ public class Compiler
         if (dottedList.IsAtom) { return new Cons(dottedList, Val.NIL); }
 
         Cons cons = dottedList.AsCons;
-        return new Cons(cons.first, MakeTrueList(cons.rest)); // keep recursing
+        return new Cons(cons.First, MakeTrueList(cons.Rest)); // keep recursing
     }
 
     /// <summary> Generates a sequence containing a single instruction </summary>
@@ -586,14 +586,14 @@ public class Compiler
 
             if (inst.IsJump)
             {
-                int pos = positions.FindPosition(inst.first);
+                int pos = positions.FindPosition(inst.First);
                 if (pos >= 0)
                 {
                     inst.UpdateJumpDestination(pos);
                 }
                 else
                 {
-                    throw new CompilerError($"Can't find jump label {inst.first} during assembly");
+                    throw new CompilerError($"Can't find jump label {inst.First} during assembly");
                 }
             }
         }
@@ -611,9 +611,9 @@ public class Compiler
             for (int i = 0; i < code.Count; i++)
             {
                 Instruction inst = code[i];
-                if (inst.type == Opcode.LABEL)
+                if (inst.Type == Opcode.Label)
                 {
-                    string label = inst.first.AsString;
+                    string label = inst.First.AsString;
                     this[label] = i;
                 }
             }

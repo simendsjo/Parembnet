@@ -30,178 +30,178 @@ public class Machine
 
         if (_logger.EnableInstructionLogging)
         {
-            _logger.Log("Executing: ", fn.name);
-            _logger.Log(_ctx.code.DebugPrint(fn));
+            _logger.Log("Executing: ", fn.Name);
+            _logger.Log(_ctx.Code.DebugPrint(fn));
         }
 
-        while (!st.done)
+        while (!st.Done)
         {
-            if (!code.Equals(st.fn.code))
+            if (!code.Equals(st.Fn.Code))
             {
-                code = st.fn.code;
-                instructions = _ctx.code.Get(code).instructions;
+                code = st.Fn.Code;
+                instructions = _ctx.Code.Get(code).Instructions;
             }
 
-            if (st.pc >= instructions.Count)
+            if (st.Pc >= instructions.Count)
             {
                 throw new LanguageError("Runaway opcodes!");
             }
 
             // fetch instruction
-            Instruction instr = instructions[st.pc++];
+            Instruction instr = instructions[st.Pc++];
 
             if (_logger.EnableStackLogging)
             {
                 _logger.Log("                                    " + State.PrintStack(st));
-                _logger.Log(string.Format("[{0,2}] {1,3} : {2}", st.stack.Count, st.pc - 1, instr.DebugPrint()));
+                _logger.Log(string.Format("[{0,2}] {1,3} : {2}", st.Stack.Count, st.Pc - 1, instr.DebugPrint()));
             }
 
             // and now a big old switch statement. not handler functions - this is much faster.
 
-            switch (instr.type)
+            switch (instr.Type)
             {
-                case Opcode.LABEL:
+                case Opcode.Label:
                     // no op :)
                     break;
 
-                case Opcode.PUSH_CONST:
+                case Opcode.PushConst:
                     {
-                        st.Push(instr.first);
+                        st.Push(instr.First);
                     }
                     break;
 
-                case Opcode.LOCAL_GET:
+                case Opcode.LocalGet:
                     {
-                        VarPos pos = new(instr.first, instr.second);
-                        Val value = Environment.GetValueAt(pos, st.env);
+                        VarPos pos = new(instr.First, instr.Second);
+                        Val value = Environment.GetValueAt(pos, st.Env);
                         st.Push(value);
                     }
                     break;
 
-                case Opcode.LOCAL_SET:
+                case Opcode.LocalSet:
                     {
-                        VarPos pos = new(instr.first, instr.second);
+                        VarPos pos = new(instr.First, instr.Second);
                         Val value = st.Peek();
-                        Environment.SetValueAt(pos, value, st.env);
+                        Environment.SetValueAt(pos, value, st.Env);
                     }
                     break;
 
-                case Opcode.GLOBAL_GET:
+                case Opcode.GlobalGet:
                     {
-                        Symbol symbol = instr.first.AsSymbol;
-                        Val value = symbol.pkg.GetValue(symbol);
+                        Symbol symbol = instr.First.AsSymbol;
+                        Val value = symbol.Pkg.GetValue(symbol);
                         st.Push(value);
                     }
                     break;
 
-                case Opcode.GLOBAL_SET:
+                case Opcode.GlobalSet:
                     {
-                        Symbol symbol = instr.first.AsSymbol;
+                        Symbol symbol = instr.First.AsSymbol;
                         Val value = st.Peek();
-                        symbol.pkg.SetValue(symbol, value);
+                        symbol.Pkg.SetValue(symbol, value);
                     }
                     break;
 
-                case Opcode.STACK_POP:
+                case Opcode.StackPop:
                     st.Pop();
                     break;
 
-                case Opcode.JMP_IF_TRUE:
+                case Opcode.JmpIfTrue:
                     {
                         Val value = st.Pop();
                         if (value.CastToBool)
                         {
-                            st.pc = GetLabelPosition(instr);
+                            st.Pc = GetLabelPosition(instr);
                         }
                     }
                     break;
 
-                case Opcode.JMP_IF_FALSE:
+                case Opcode.JmpIfFalse:
                     {
                         Val value = st.Pop();
                         if (!value.CastToBool)
                         {
-                            st.pc = GetLabelPosition(instr);
+                            st.Pc = GetLabelPosition(instr);
                         }
                     }
                     break;
 
-                case Opcode.JMP_TO_LABEL:
+                case Opcode.JmpToLabel:
                     {
-                        st.pc = GetLabelPosition(instr);
+                        st.Pc = GetLabelPosition(instr);
                     }
                     break;
 
-                case Opcode.MAKE_ENV:
+                case Opcode.MakeEnv:
                     {
-                        int argcount = instr.first.AsInt;
-                        if (st.argcount != argcount) { throw new LanguageError($"Argument count error, expected {argcount}, got {st.argcount}"); }
+                        int argcount = instr.First.AsInt;
+                        if (st.Argcount != argcount) { throw new LanguageError($"Argument count error, expected {argcount}, got {st.Argcount}"); }
 
                         // make an environment for the given number of named args
-                        st.env = new Environment(st.argcount, st.env);
+                        st.Env = new Environment(st.Argcount, st.Env);
 
                         // move named arguments onto the stack frame
                         for (int i = argcount - 1; i >= 0; i--)
                         {
-                            st.env.SetValue(i, st.Pop());
+                            st.Env.SetValue(i, st.Pop());
                         }
                     }
                     break;
 
-                case Opcode.MAKE_ENVDOT:
+                case Opcode.MakeEnvdot:
                     {
-                        int argcount = instr.first.AsInt;
-                        if (st.argcount < argcount) { throw new LanguageError($"Argument count error, expected {argcount} or more, got {st.argcount}"); }
+                        int argcount = instr.First.AsInt;
+                        if (st.Argcount < argcount) { throw new LanguageError($"Argument count error, expected {argcount} or more, got {st.Argcount}"); }
 
                         // make an environment for all named args, +1 for the list of remaining varargs
-                        int dotted = st.argcount - argcount;
-                        st.env = new Environment(argcount + 1, st.env);
+                        int dotted = st.Argcount - argcount;
+                        st.Env = new Environment(argcount + 1, st.Env);
 
                         // cons up dotted values from the stack
                         for (int dd = dotted - 1; dd >= 0; dd--)
                         {
                             Val arg = st.Pop();
-                            st.env.SetValue(argcount, new Val(new Cons(arg, st.env.GetValue(argcount))));
+                            st.Env.SetValue(argcount, new Val(new Cons(arg, st.Env.GetValue(argcount))));
                         }
 
                         // and move the named ones onto the environment stack frame
                         for (int i = argcount - 1; i >= 0; i--)
                         {
-                            st.env.SetValue(i, st.Pop());
+                            st.Env.SetValue(i, st.Pop());
                         }
                     }
                     break;
 
-                case Opcode.DUPLICATE:
+                case Opcode.Duplicate:
                     {
-                        if (st.stack.Count == 0) { throw new LanguageError("Cannot duplicate on an empty stack!"); }
+                        if (st.Stack.Count == 0) { throw new LanguageError("Cannot duplicate on an empty stack!"); }
                         st.Push(st.Peek());
                     }
                     break;
 
-                case Opcode.JMP_CLOSURE:
+                case Opcode.JmpClosure:
                     {
-                        st.env = st.env.parent; // discard the top environment frame
+                        st.Env = st.Env.Parent; // discard the top environment frame
                         Val top = st.Pop();
                         Closure closure = top.AsClosureOrNull;
 
                         // set vm state to the beginning of the closure
-                        st.fn = closure ?? throw new LanguageError($"Unknown function during function call around: {DebugRecentInstructions(st, instructions)}");
-                        st.env = closure.env;
-                        st.pc = 0;
-                        st.argcount = instr.first.AsInt;
+                        st.Fn = closure ?? throw new LanguageError($"Unknown function during function call around: {DebugRecentInstructions(st, instructions)}");
+                        st.Env = closure.Env;
+                        st.Pc = 0;
+                        st.Argcount = instr.First.AsInt;
                     }
                     break;
 
-                case Opcode.SAVE_RETURN:
+                case Opcode.SaveReturn:
                     {
                         // save current vm state to a return value
-                        st.Push(new Val(new ReturnAddress(st.fn, GetLabelPosition(instr), st.env, instr.first.AsStringOrNull)));
+                        st.Push(new Val(new ReturnAddress(st.Fn, GetLabelPosition(instr), st.Env, instr.First.AsStringOrNull)));
                     }
                     break;
 
-                case Opcode.RETURN_VAL:
-                    if (st.stack.Count > 1)
+                case Opcode.ReturnVal:
+                    if (st.Stack.Count > 1)
                     {
                         // preserve return value on top of the stack
                         Val retval = st.Pop();
@@ -209,27 +209,27 @@ public class Machine
                         st.Push(retval);
 
                         // restore vm state from the return value
-                        st.fn = retaddr.fn;
-                        st.env = retaddr.env;
-                        st.pc = retaddr.pc;
+                        st.Fn = retaddr.Fn;
+                        st.Env = retaddr.Env;
+                        st.Pc = retaddr.Pc;
                     }
                     else
                     {
-                        st.done = true; // this will force the virtual machine to finish up
+                        st.Done = true; // this will force the virtual machine to finish up
                     }
                     break;
 
-                case Opcode.MAKE_CLOSURE:
+                case Opcode.MakeClosure:
                     {
-                        Closure cl = instr.first.AsClosure;
-                        st.Push(new Closure(cl.code, st.env, null, cl.name));
+                        Closure cl = instr.First.AsClosure;
+                        st.Push(new Closure(cl.Code, st.Env, null, cl.Name));
                     }
                     break;
 
-                case Opcode.CALL_PRIMOP:
+                case Opcode.CallPrimop:
                     {
-                        string name = instr.first.AsString;
-                        int argn = (instr.second.IsInt) ? instr.second.AsInt : st.argcount;
+                        string name = instr.First.AsString;
+                        int argn = (instr.Second.IsInt) ? instr.Second.AsInt : st.Argcount;
 
                         Primitive prim = Primitives.FindNary(name, argn);
                         if (prim == null) { throw new LanguageError($"Invalid argument count to primitive {name}, count of {argn}"); }
@@ -240,12 +240,12 @@ public class Machine
                     break;
 
                 default:
-                    throw new LanguageError("Unknown instruction type: " + instr.type);
+                    throw new LanguageError("Unknown instruction type: " + instr.Type);
             }
         }
 
         // return whatever's on the top of the stack
-        if (st.stack.Count == 0)
+        if (st.Stack.Count == 0)
         {
             throw new LanguageError("Stack underflow!");
         }
@@ -256,21 +256,21 @@ public class Machine
     /// <summary> Very naive helper function, finds the position of a given label in the instruction set </summary>
     private static int GetLabelPosition(Instruction inst)
     {
-        if (inst.second.IsInt)
+        if (inst.Second.IsInt)
         {
-            return inst.second.AsInt;
+            return inst.Second.AsInt;
         }
         else
         {
-            throw new LanguageError("Unknown jump label: " + inst.first);
+            throw new LanguageError("Unknown jump label: " + inst.First);
         }
     }
 
     /// <summary> A bit of debug info </summary>
     private static string DebugRecentInstructions(State st, List<Instruction> instructions)
     {
-        string result = $"Closure {st.fn.code}, around instr pc {st.pc - 1}:";
-        for (int i = st.pc - 5; i <= st.pc; i++)
+        string result = $"Closure {st.Fn.Code}, around instr pc {st.Pc - 1}:";
+        for (int i = st.Pc - 5; i <= st.Pc; i++)
         {
             if (i >= 0 && i < instructions.Count)
             {

@@ -23,15 +23,15 @@ namespace Paremnet
     {
         public class TestInner
         {
-            public static int StaticField = 42;
+            public static int staticField = 42;
 
             public static int StaticProperty
             {
-                get => StaticField;
-                set => StaticField = value;
+                get => staticField;
+                set => staticField = value;
             }
 
-            public static int StaticFn(int x) => x + StaticField;
+            public static int StaticFn(int x) => x + staticField;
         }
     }
 
@@ -50,7 +50,7 @@ namespace Paremnet
         private int _failures = 0;
 
         /// <summary> Where are we logging unit test results? </summary>
-        public static readonly LogType LOG_TARGET = LogType.TempFile; // change as needed
+        public static readonly LogType LogTarget = LogType.TempFile; // change as needed
 
         /// <summary> Logging implementation, could target standard console, or file, or nothing </summary>
         private class Logger : ILogger
@@ -63,7 +63,7 @@ namespace Paremnet
 
             public void OpenLog(string name)
             {
-                switch (LOG_TARGET)
+                switch (LogTarget)
                 {
                     case LogType.TempFile:
                         string testDir = Path.Combine("..", "..", "..", "TestResults");
@@ -149,8 +149,8 @@ namespace Paremnet
             Run(TestCharStream);
             Run(TestParser);
             Run(PrintSampleCompilations);
-            Run(TestVMNoCoreLib);
-            Run(TestVMPrimitives);
+            Run(TestVmNoCoreLib);
+            Run(TestVmPrimitives);
             Run(TestDotNetInterop);
             Run(TestPackages);
             Run(TestStandardLibs);
@@ -159,7 +159,7 @@ namespace Paremnet
             Run(PrintAllStandardLibraries);
         }
 
-        private void DumpCodeBlocks(Context ctx) => Log(ctx.code.DebugPrintAll());
+        private void DumpCodeBlocks(Context ctx) => Log(ctx.Code.DebugPrintAll());
 
         /// <summary> Tests various internal classes </summary>
         public void TestConsAndAtoms()
@@ -175,14 +175,14 @@ namespace Paremnet
                 Check(Cons.IsCons(list1));
                 Check(Cons.IsList(list1));
                 Check(Cons.Length(list1), 2);
-                Check(list1.first, "foo");
-                Check(list1.second, "bar");
-                Check(list1.afterSecond, Val.NIL);
-                Check(list1.first.IsAtom); // "foo"
-                Check(list1.rest.IsCons); // ("bar")
-                Check(list1.second.IsAtom); // "bar"
-                Check(list1.afterSecond.IsAtom); // nil
-                Check(list1.afterSecond.IsNil); // null
+                Check(list1.First, "foo");
+                Check(list1.Second, "bar");
+                Check(list1.AfterSecond, Val.NIL);
+                Check(list1.First.IsAtom); // "foo"
+                Check(list1.Rest.IsCons); // ("bar")
+                Check(list1.Second.IsAtom); // "bar"
+                Check(list1.AfterSecond.IsAtom); // nil
+                Check(list1.AfterSecond.IsNil); // null
                 Check(Val.Print(list1), "(\"foo\" \"bar\")");
             }
 
@@ -191,14 +191,14 @@ namespace Paremnet
                 Check(Cons.IsCons(list2));
                 Check(Cons.IsList(list2));
                 Check(Cons.Length(list2), 2);
-                Check(list2.first, "foo");
-                Check(list2.second, "bar");
-                Check(list2.afterSecond, Val.NIL);
-                Check(list2.first.IsAtom); // "foo"
-                Check(list2.rest.IsCons); // ("bar")
-                Check(list2.second.IsAtom); // "bar"
-                Check(list2.afterSecond.IsAtom); // null
-                Check(list2.afterSecond.IsNil); // null
+                Check(list2.First, "foo");
+                Check(list2.Second, "bar");
+                Check(list2.AfterSecond, Val.NIL);
+                Check(list2.First.IsAtom); // "foo"
+                Check(list2.Rest.IsCons); // ("bar")
+                Check(list2.Second.IsAtom); // "bar"
+                Check(list2.AfterSecond.IsAtom); // null
+                Check(list2.AfterSecond.IsNil); // null
                 Check(Val.Print(list2), "(\"foo\" \"bar\")");
             }
 
@@ -206,11 +206,11 @@ namespace Paremnet
                 Cons nonlist = new("foo", "bar");
                 Check(Cons.IsCons(nonlist));
                 Check(!Cons.IsList(nonlist));
-                Check(nonlist.first, "foo");
-                Check(nonlist.rest, "bar");
-                Check(nonlist.first.IsAtom); // "foo"
-                Check(nonlist.rest.IsAtom); // "bar"
-                Check(nonlist.rest.IsNotNil);
+                Check(nonlist.First, "foo");
+                Check(nonlist.Rest, "bar");
+                Check(nonlist.First.IsAtom); // "foo"
+                Check(nonlist.Rest.IsAtom); // "bar"
+                Check(nonlist.Rest.IsNotNil);
                 Check(Val.Print(nonlist), "(\"foo\" . \"bar\")");
             }
         }
@@ -219,29 +219,29 @@ namespace Paremnet
         public void TestPackagesAndSymbols()
         {
             Packages packages = new();
-            Package p = packages.global;   // global package
+            Package p = packages.Global;   // global package
 
             Symbol foo = p.Intern("foo");
-            Check(foo.name, "foo");
-            Check(foo.pkg, p);
-            Check(foo.fullName, "foo");
+            Check(foo.Name, "foo");
+            Check(foo.Pkg, p);
+            Check(foo.FullName, "foo");
             Check(p.Intern("foo") == foo); // make sure interning returns the same instance
-            Check(p.Unintern(foo.name));        // first one removes successfully
-            Check(!p.Unintern(foo.name));      // but second time there is nothing to remove
+            Check(p.Unintern(foo.Name));        // first one removes successfully
+            Check(!p.Unintern(foo.Name));      // but second time there is nothing to remove
             Check(p.Intern("foo") != foo); // since we uninterned, second interning will return a different one
 
             Package p2 = new("fancy"); // some fancy package
             Symbol foo2 = p2.Intern("foo");
-            Check(foo2.name, "foo");
-            Check(foo2.pkg, p2);
-            Check(foo2.fullName, "fancy:foo");
+            Check(foo2.Name, "foo");
+            Check(foo2.Pkg, p2);
+            Check(foo2.FullName, "fancy:foo");
 
             // test the packages list
 
-            Check(packages.global.name, (string)null); // get the global package
-            Check(Val.Print(packages.global.Intern("foo")), "foo"); // check symbol name
-            Check(packages.keywords.name, "");      // get the keywords package
-            Check(Val.Print(packages.keywords.Intern("foo")), ":foo");  // check symbol name
+            Check(packages.Global.Name, (string)null); // get the global package
+            Check(Val.Print(packages.Global.Intern("foo")), "foo"); // check symbol name
+            Check(packages.Keywords.Name, "");      // get the keywords package
+            Check(Val.Print(packages.Keywords.Intern("foo")), ":foo");  // check symbol name
 
             Check(packages.Find("fancy"), null);    // make sure the fancy package was not added yet
             Check(packages.Add(p2), p2);            // add our fancy custom package
@@ -264,19 +264,19 @@ namespace Paremnet
             Environment e0 = Environment.Make(Cons.MakeList(p.Intern("env0symbol0"), p.Intern("env0symbol1")), e1);
             // e0.setAt(0, p.intern("env0symbol0"));
             // e0.setAt(1, p.intern("env0symbol1"));
-            Check(Environment.GetVariable(p.Intern("env2symbol0"), e0).frameIndex, 2); // get frame coord
-            Check(Environment.GetVariable(p.Intern("env2symbol0"), e0).symbolIndex, 0); // get symbol coord
-            Check(Environment.GetVariable(p.Intern("env1symbol1"), e0).frameIndex, 1); // get frame coord
-            Check(Environment.GetVariable(p.Intern("env1symbol1"), e0).symbolIndex, 1); // get symbol coord
-            Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).frameIndex, 0); // get frame coord
-            Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).symbolIndex, 0); // get symbol coord
+            Check(Environment.GetVariable(p.Intern("env2symbol0"), e0).FrameIndex, 2); // get frame coord
+            Check(Environment.GetVariable(p.Intern("env2symbol0"), e0).SymbolIndex, 0); // get symbol coord
+            Check(Environment.GetVariable(p.Intern("env1symbol1"), e0).FrameIndex, 1); // get frame coord
+            Check(Environment.GetVariable(p.Intern("env1symbol1"), e0).SymbolIndex, 1); // get symbol coord
+            Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).FrameIndex, 0); // get frame coord
+            Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).SymbolIndex, 0); // get symbol coord
 
-            VarPos e2s0loc = Environment.GetVariable(p.Intern("env2symbol0"), e0);
-            Check(Environment.GetSymbolAt(e2s0loc, e0), p.Intern("env2symbol0"));
-            Environment.SetSymbolAt(e2s0loc, p.Intern("NEW_SYMBOL"), e0);
-            Check(Environment.GetSymbolAt(e2s0loc, e0), p.Intern("NEW_SYMBOL"));
-            Check(Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).frameIndex, 2); // get frame coord
-            Check(Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).symbolIndex, 0); // get symbol coord
+            VarPos e2S0Loc = Environment.GetVariable(p.Intern("env2symbol0"), e0);
+            Check(Environment.GetSymbolAt(e2S0Loc, e0), p.Intern("env2symbol0"));
+            Environment.SetSymbolAt(e2S0Loc, p.Intern("NEW_SYMBOL"), e0);
+            Check(Environment.GetSymbolAt(e2S0Loc, e0), p.Intern("NEW_SYMBOL"));
+            Check(Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).FrameIndex, 2); // get frame coord
+            Check(Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).SymbolIndex, 0); // get symbol coord
         }
 
         /// <summary> Tests the character stream </summary>
@@ -313,7 +313,7 @@ namespace Paremnet
             CheckParseRaw(p, "#t", true);
             CheckParseRaw(p, "#f", false);
             CheckParseRaw(p, "#hashwhatever", false);
-            CheckParseRaw(p, "a", packages.global.Intern("a"));
+            CheckParseRaw(p, "a", packages.Global.Intern("a"));
             CheckParseRaw(p, "()", Val.NIL);
             CheckParseRaw(p, "\"foo \\\" \"", "foo \" ");
 
@@ -402,18 +402,18 @@ namespace Paremnet
         private void CompileAndPrint(Context ctx, string input)
         {
             Log("COMPILE inputs: ", input);
-            ctx.parser.AddString(input);
+            ctx.Parser.AddString(input);
 
-            List<Val> parseds = ctx.parser.ParseAll();
+            List<Val> parseds = ctx.Parser.ParseAll();
             foreach (Val parsed in parseds)
             {
-                CompilationResults results = ctx.compiler.Compile(parsed);
-                Log(ctx.code.DebugPrint(results));
+                CompilationResults results = ctx.Compiler.Compile(parsed);
+                Log(ctx.Code.DebugPrint(results));
             }
         }
 
         /// <summary> Front-to-back test of the virtual machine </summary>
-        public void TestVMNoCoreLib()
+        public void TestVmNoCoreLib()
         {
             // first without the standard library
             Context ctx = new(false, _logger);
@@ -446,7 +446,7 @@ namespace Paremnet
         }
 
         /// <summary> Front-to-back test of the virtual machine </summary>
-        public void TestVMPrimitives()
+        public void TestVmPrimitives()
         {
             // first without the standard library
             Context ctx = new(false, _logger);
@@ -517,7 +517,7 @@ namespace Paremnet
             CompileAndRun(ctx, "(.. \"foobar\" 'ToUpper 'Substring 0 3 'IndexOf \"O\")", "1");
 
             CompileAndRun(ctx, "(.. 'Paremnet.Inner.TestInner)", "[Native System.RuntimeType Paremnet.Inner.TestInner]");
-            CompileAndRun(ctx, "(.. 'Paremnet.Inner.TestInner.StaticField)", "42");
+            CompileAndRun(ctx, "(.. 'Paremnet.Inner.TestInner.staticField)", "42");
             CompileAndRun(ctx, "(.. 'Paremnet.Inner.TestInner.StaticFn 10)", "52");
             CompileAndRun(ctx, "(.. (.new 'System.DateTime 1999 12 31) 'ToString)", "\"12/31/1999 12:00:00 AM\"");
             CompileAndRun(ctx, "(.. (.new 'System.DateTime 1999 12 31) 'ToString \"yyyy\")", "\"1999\"");
@@ -692,7 +692,7 @@ namespace Paremnet
         /// <summary> Compiles an s-expression, runs the resulting code, and checks the output against the expected value </summary>
         private void CompileAndRun(Context ctx, string input, params string[] expecteds)
         {
-            ctx.parser.AddString(input);
+            ctx.Parser.AddString(input);
             Log("\n\n-------------------------------------------------------------------------");
             Log("\n\nCOMPILE AND RUN inputs: ", input);
 
@@ -700,15 +700,15 @@ namespace Paremnet
             {
                 string expected = expecteds[i];
 
-                Val result = ctx.parser.ParseNext();
+                Val result = ctx.Parser.ParseNext();
                 Log("Parsed: ", result);
 
-                CompilationResults comp = ctx.compiler.Compile(result);
+                CompilationResults comp = ctx.Compiler.Compile(result);
                 Log("Compiled:");
-                Log(ctx.code.DebugPrint(comp));
+                Log(ctx.Code.DebugPrint(comp));
 
                 Log("Running...");
-                Val output = ctx.vm.Execute(comp.closure);
+                Val output = ctx.Vm.Execute(comp.Closure);
                 string formatted = Val.Print(output);
                 Check(new Val(formatted), new Val(expected));
             }

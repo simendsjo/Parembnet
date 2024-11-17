@@ -29,21 +29,21 @@ public interface ILogger
 /// </summary>
 public class Context
 {
-    public readonly Code code;
-    public readonly Packages packages;
-    public readonly Parser parser;
-    public readonly Compiler compiler;
-    public readonly Machine vm;
+    public readonly Code Code;
+    public readonly Packages Packages;
+    public readonly Parser Parser;
+    public readonly Compiler Compiler;
+    public readonly Machine Vm;
 
     public Context(bool loadLibraries = true, ILogger logger = null)
     {
-        code = new Code();
-        packages = new Packages();
-        parser = new Parser(packages, logger);
-        compiler = new Compiler(this);
-        vm = new Machine(this, logger);
+        Code = new Code();
+        Packages = new Packages();
+        Parser = new Parser(Packages, logger);
+        Compiler = new Compiler(this);
+        Vm = new Machine(this, logger);
 
-        Primitives.InitializeCorePackage(this, packages.core);
+        Primitives.InitializeCorePackage(this, Packages.Core);
 
         if (loadLibraries)
         {
@@ -54,10 +54,10 @@ public class Context
     /// <summary> Stores the result of compiling a given code block and executing it </summary>
     public struct CompileAndExecuteResult
     {
-        public string input;
-        public CompilationResults comp;
-        public Val output;
-        public TimeSpan exectime;
+        public string Input;
+        public CompilationResults Comp;
+        public Val Output;
+        public TimeSpan Exectime;
     }
 
     /// <summary> Convenience wrapper that processes the input as a string, and returns an array of results. </summary>
@@ -66,23 +66,23 @@ public class Context
 
         List<CompileAndExecuteResult> outputs = new();
 
-        parser.AddString(input);
-        List<Val> parseResults = parser.ParseAll();
+        Parser.AddString(input);
+        List<Val> parseResults = Parser.ParseAll();
 
         foreach (Val result in parseResults)
         {
-            CompilationResults cr = compiler.Compile(result);
+            CompilationResults cr = Compiler.Compile(result);
 
             Stopwatch s = Stopwatch.StartNew();
-            Val output = vm.Execute(cr.closure);
+            Val output = Vm.Execute(cr.Closure);
             s.Stop();
 
             outputs.Add(new CompileAndExecuteResult
             {
-                input = input,
-                comp = cr,
-                output = output,
-                exectime = s.Elapsed
+                Input = input,
+                Comp = cr,
+                Output = output,
+                Exectime = s.Elapsed
             });
         }
 

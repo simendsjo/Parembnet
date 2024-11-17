@@ -11,9 +11,9 @@ public class Primitives
 {
     private static int _gensymIndex = 1;
 
-    private static Dictionary<string, List<Primitive>> ALL_PRIMITIVES_DICT = new();
+    private static Dictionary<string, List<Primitive>> _allPrimitivesDict = new();
 
-    private static readonly List<Primitive> ALL_PRIMITIVES_VECTOR =
+    private static readonly List<Primitive> AllPrimitivesVector =
     [
         new Primitive("+", 2, new Function((Context ctx, Val a, Val b) => ValAdd(a, b))),
         new Primitive("-", 2, new Function((Context ctx, Val a, Val b) => ValSub(a, b))),
@@ -29,10 +29,10 @@ public class Primitives
 
         new Primitive("=", 2, new Function((Context ctx, Val a, Val b) => Val.Equals(a, b))),
         new Primitive("!=", 2, new Function((Context ctx, Val a, Val b) => !Val.Equals(a, b))),
-        new Primitive("<", 2, new Function((Context ctx, Val a, Val b) => ValLT(a, b))),
-        new Primitive("<=", 2, new Function((Context ctx, Val a, Val b) => ValLTE(a, b))),
-        new Primitive(">", 2, new Function((Context ctx, Val a, Val b) => ValGT(a, b))),
-        new Primitive(">=", 2, new Function((Context ctx, Val a, Val b) => ValGTE(a, b))),
+        new Primitive("<", 2, new Function((Context ctx, Val a, Val b) => ValLt(a, b))),
+        new Primitive("<=", 2, new Function((Context ctx, Val a, Val b) => ValLte(a, b))),
+        new Primitive(">", 2, new Function((Context ctx, Val a, Val b) => ValGt(a, b))),
+        new Primitive(">=", 2, new Function((Context ctx, Val a, Val b) => ValGte(a, b))),
 
         new Primitive("cons", 2, new Function((Context ctx, Val a, Val b) => new Cons(a, b))),
         new Primitive("list", 0, new Function((ctx) => Val.NIL)),
@@ -55,12 +55,12 @@ public class Primitives
         new Primitive("atom?", 1, new Function((Context ctx, Val a) => !a.IsCons)),
         new Primitive("closure?", 1, new Function((Context ctx, Val a) => a.IsClosure)),
 
-        new Primitive("car", 1, new Function((Context ctx, Val a) => a.AsCons.first)),
-        new Primitive("cdr", 1, new Function((Context ctx, Val a) => a.AsCons.rest)),
-        new Primitive("cadr", 1, new Function((Context ctx, Val a) => a.AsCons.second)),
-        new Primitive("cddr", 1, new Function((Context ctx, Val a) => a.AsCons.afterSecond)),
-        new Primitive("caddr", 1, new Function((Context ctx, Val a) => a.AsCons.third)),
-        new Primitive("cdddr", 1, new Function((Context ctx, Val a) => a.AsCons.afterThird)),
+        new Primitive("car", 1, new Function((Context ctx, Val a) => a.AsCons.First)),
+        new Primitive("cdr", 1, new Function((Context ctx, Val a) => a.AsCons.Rest)),
+        new Primitive("cadr", 1, new Function((Context ctx, Val a) => a.AsCons.Second)),
+        new Primitive("cddr", 1, new Function((Context ctx, Val a) => a.AsCons.AfterSecond)),
+        new Primitive("caddr", 1, new Function((Context ctx, Val a) => a.AsCons.Third)),
+        new Primitive("cdddr", 1, new Function((Context ctx, Val a) => a.AsCons.AfterThird)),
 
         new Primitive("nth", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNth(n.AsInt))),
         new Primitive("nth-tail", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthTail(n.AsInt))),
@@ -75,8 +75,8 @@ public class Primitives
 
         // macroexpansion
 
-        new Primitive("mx1", 1, new Function((ctx, exp) => ctx.compiler.MacroExpand1Step(exp))),
-        new Primitive("mx", 1, new Function((ctx, exp) => ctx.compiler.MacroExpandFull(exp))),
+        new Primitive("mx1", 1, new Function((ctx, exp) => ctx.Compiler.MacroExpand1Step(exp))),
+        new Primitive("mx", 1, new Function((ctx, exp) => ctx.Compiler.MacroExpandFull(exp))),
 
         // helpers
         new Primitive("trace", 1, new Function((Context ctx, VarArgs args) =>
@@ -92,8 +92,8 @@ public class Primitives
 
         new Primitive("eval", 1, new Function((Context ctx, Val e) =>
         {
-            CompilationResults closure = ctx.compiler.Compile(e);
-            Val result = ctx.vm.Execute(closure.closure);
+            CompilationResults closure = ctx.Compiler.Compile(e);
+            Val result = ctx.Vm.Execute(closure.Closure);
             return result;
         }), sideFx: SideFx.Possible),
 
@@ -102,13 +102,13 @@ public class Primitives
         new Primitive("package-set", 1, new Function((Context ctx, Val a) =>
         {
             string name = a.IsNil ? null : a.AsString; // nil package name == global package
-            Package pkg = ctx.packages.Intern(name);
-            ctx.packages.current = pkg;
+            Package pkg = ctx.Packages.Intern(name);
+            ctx.Packages.Current = pkg;
             return a.IsNil ? Val.NIL : new Val(name);
         }), sideFx: SideFx.Possible),
 
 
-        new Primitive("package-get", 0, new Function(ctx => new Val(ctx.packages.current.name)),
+        new Primitive("package-get", 0, new Function(ctx => new Val(ctx.Packages.Current.Name)),
             sideFx: SideFx.Possible),
 
 
@@ -117,7 +117,7 @@ public class Primitives
             foreach (Val a in names.ToNativeList())
             {
                 string name = a.IsNil ? null : a.AsString;
-                ctx.packages.current.AddImport(ctx.packages.Intern(name));
+                ctx.Packages.Current.AddImport(ctx.Packages.Intern(name));
             }
 
             return Val.NIL;
@@ -126,7 +126,7 @@ public class Primitives
 
         new Primitive("package-imports", 0, new Function(ctx =>
         {
-            List<Val> imports = ctx.packages.current.ListImports();
+            List<Val> imports = ctx.Packages.Current.ListImports();
             return Cons.MakeList(imports);
         }), sideFx: SideFx.Possible),
 
@@ -136,9 +136,9 @@ public class Primitives
             Cons names = a.AsConsOrNull;
             while (names != null)
             {
-                Symbol symbol = names.first.AsSymbol;
-                symbol.exported = true;
-                names = names.rest.AsConsOrNull;
+                Symbol symbol = names.First.AsSymbol;
+                symbol.Exported = true;
+                names = names.Rest.AsConsOrNull;
             }
 
             return Val.NIL;
@@ -147,7 +147,7 @@ public class Primitives
 
         new Primitive("package-exports", 0, new Function(ctx =>
         {
-            List<Val> exports = ctx.packages.current.ListExports();
+            List<Val> exports = ctx.Packages.Current.ListExports();
             return Cons.MakeList(exports);
         }), sideFx: SideFx.Possible),
 
@@ -274,16 +274,16 @@ public class Primitives
     /// </summary>
     public static Primitive FindGlobal(Val f, Data.Environment env, int nargs) =>
         (f.IsSymbol && Data.Environment.GetVariable(f.AsSymbol, env).IsNotValid) ?
-            FindNary(f.AsSymbol.name, nargs) :
+            FindNary(f.AsSymbol.Name, nargs) :
             null;
 
     /// <summary> Helper function, searches based on name and argument count </summary>
     public static Primitive FindNary(string symbol, int nargs)
     {
-        List<Primitive> primitives = ALL_PRIMITIVES_DICT[symbol];
+        List<Primitive> primitives = _allPrimitivesDict[symbol];
         foreach (Primitive p in primitives)
         {
-            if (symbol == p.name && (p.IsExact ? nargs == p.minargs : nargs >= p.minargs))
+            if (symbol == p.Name && (p.IsExact ? nargs == p.Minargs : nargs >= p.Minargs))
             {
                 return p;
             }
@@ -296,32 +296,32 @@ public class Primitives
     {
         // clear out and reinitialize the dictionary.
         // also, intern all primitives in their appropriate package
-        ALL_PRIMITIVES_DICT = new Dictionary<string, List<Primitive>>();
+        _allPrimitivesDict = new Dictionary<string, List<Primitive>>();
 
-        foreach (Primitive p in ALL_PRIMITIVES_VECTOR)
+        foreach (Primitive p in AllPrimitivesVector)
         {
             // dictionary update
-            if (!ALL_PRIMITIVES_DICT.TryGetValue(p.name, out List<Primitive> v))
+            if (!_allPrimitivesDict.TryGetValue(p.Name, out List<Primitive> v))
             {
-                v = ALL_PRIMITIVES_DICT[p.name] = [];
+                v = _allPrimitivesDict[p.Name] = [];
             }
 
             // add to the list of primitives of that name
             v.Add(p);
 
             // also intern in package, if it hasn't been interned yet
-            if (pkg.Find(p.name, false) == null)
+            if (pkg.Find(p.Name, false) == null)
             {
-                Symbol name = pkg.Intern(p.name);
-                name.exported = true;
+                Symbol name = pkg.Intern(p.Name);
+                name.Exported = true;
                 List<Instruction> instructions =
                 [
-                    new Instruction(Opcode.CALL_PRIMOP, p.name),
-                    new Instruction(Opcode.RETURN_VAL)
+                    new Instruction(Opcode.CallPrimop, p.Name),
+                    new Instruction(Opcode.ReturnVal)
                 ];
 
-                CodeHandle code = context.code.AddBlock(instructions, name.fullName);
-                pkg.SetValue(name, new Closure(code, null, null, name.fullName));
+                CodeHandle code = context.Code.AddBlock(instructions, name.FullName);
+                pkg.SetValue(name, new Closure(code, null, null, name.FullName));
             }
         }
     }
@@ -336,17 +336,17 @@ public class Primitives
         // copy all nodes from a, set cdr of the last one to b
         while (alist != null)
         {
-            current = new Cons(alist.first, Val.NIL);
+            current = new Cons(alist.First, Val.NIL);
             if (head == null) { head = current; }
-            if (previous != null) { previous.rest = current; }
+            if (previous != null) { previous.Rest = current; }
             previous = current;
-            alist = alist.rest.AsConsOrNull;
+            alist = alist.Rest.AsConsOrNull;
         }
 
         if (current != null)
         {
             // a != () => head points to the first new node
-            current.rest = bval;
+            current.Rest = bval;
             return head;
         }
         else
@@ -363,7 +363,7 @@ public class Primitives
         {
             string gname = prefix + _gensymIndex;
             _gensymIndex++;
-            Package current = ctx.packages.current;
+            Package current = ctx.Packages.Current;
             if (current.Find(gname, false) == null)
             {
                 return new Val(current.Intern(gname));
@@ -380,13 +380,13 @@ public class Primitives
         // apply fn over all elements of the list, making a copy as we go
         while (list != null)
         {
-            Val input = list.first;
-            Val output = ctx.vm.Execute(fn, input);
+            Val input = list.First;
+            Val output = ctx.Vm.Execute(fn, input);
             Cons current = new(output, Val.NIL);
             if (head == null) { head = current; }
-            if (previous != null) { previous.rest = current; }
+            if (previous != null) { previous.Rest = current; }
             previous = current;
-            list = list.rest.AsConsOrNull;
+            list = list.Rest.AsConsOrNull;
         }
 
         return head;
@@ -444,19 +444,19 @@ public class Primitives
         throw new LanguageError("Add applied to non-numbers");
     }
 
-    private static Val ValLT(Val a, Val b) => a.CastToFloat < b.CastToFloat;
+    private static Val ValLt(Val a, Val b) => a.CastToFloat < b.CastToFloat;
 
-    private static Val ValLTE(Val a, Val b) => a.CastToFloat <= b.CastToFloat;
+    private static Val ValLte(Val a, Val b) => a.CastToFloat <= b.CastToFloat;
 
-    private static Val ValGT(Val a, Val b) => a.CastToFloat > b.CastToFloat;
+    private static Val ValGt(Val a, Val b) => a.CastToFloat > b.CastToFloat;
 
-    private static Val ValGTE(Val a, Val b) => a.CastToFloat >= b.CastToFloat;
+    private static Val ValGte(Val a, Val b) => a.CastToFloat >= b.CastToFloat;
 
     //
     // helpers for .net interop
 
     /// <summary> Extract a name from either the symbol or the string value of a val </summary>
-    private static string GetStringOrSymbolName(Val v) => v.AsStringOrNull ?? v.AsSymbolOrNull?.name;
+    private static string GetStringOrSymbolName(Val v) => v.AsStringOrNull ?? v.AsSymbolOrNull?.Name;
 
     /// <summary>
     /// Extract a .net type descriptor from the argument, which could be either the type itself
@@ -479,11 +479,11 @@ public class Primitives
     /// </summary>
     private static (Type type, object[] varargs) ParseArgsForConstructorInterop(VarArgs args)
     {
-        Cons list = args.cons;
-        Val first = list?.first ?? Val.NIL;
+        Cons list = args.Cons;
+        Val first = list?.First ?? Val.NIL;
 
         Type type = GetTypeFromNameOrObject(first);
-        object[] varargs = TurnConsIntoBoxedArray(list?.rest);
+        object[] varargs = TurnConsIntoBoxedArray(list?.Rest);
         return (type, varargs);
     }
 
@@ -493,13 +493,13 @@ public class Primitives
     /// </summary>
     private static (Type type, string member, object[] varargs) ParseArgsForMethodSearch(VarArgs args)
     {
-        Cons list = args.cons;
-        Val first = list?.first ?? Val.NIL;
-        Val second = list?.second ?? Val.NIL;
+        Cons list = args.Cons;
+        Val first = list?.First ?? Val.NIL;
+        Val second = list?.Second ?? Val.NIL;
 
         Type type = GetTypeFromNameOrObject(first);
         string member = GetStringOrSymbolName(second);
-        object[] varargs = TurnConsIntoBoxedArray(list?.afterSecond);
+        object[] varargs = TurnConsIntoBoxedArray(list?.AfterSecond);
         return (type, member, varargs);
     }
 
@@ -509,13 +509,13 @@ public class Primitives
     /// </summary>
     private static (MethodInfo method, object instance, object[] varargs) ParseArgsForMethodCall(VarArgs args)
     {
-        Cons list = args.cons;
-        Val first = list?.first ?? Val.NIL;
-        Val second = list?.second ?? Val.NIL;
+        Cons list = args.Cons;
+        Val first = list?.First ?? Val.NIL;
+        Val second = list?.Second ?? Val.NIL;
 
         object instance = first.AsObjectOrNull;
         MethodInfo method = second.GetObjectOrNull<MethodInfo>();
-        object[] varargs = TurnConsIntoBoxedArray(list?.afterSecond);
+        object[] varargs = TurnConsIntoBoxedArray(list?.AfterSecond);
         return (method, instance, varargs);
     }
 
@@ -525,9 +525,9 @@ public class Primitives
     /// </summary>
     private static (Type type, string member) ParseArgsForMemberSearch(VarArgs args)
     {
-        Cons list = args.cons;
-        Val first = list?.first ?? Val.NIL;
-        Val second = list?.second ?? Val.NIL;
+        Cons list = args.Cons;
+        Val first = list?.First ?? Val.NIL;
+        Val second = list?.Second ?? Val.NIL;
 
         Type type = GetTypeFromNameOrObject(first);
         string member = GetStringOrSymbolName(second);
@@ -541,11 +541,11 @@ public class Primitives
     /// </summary>
     private static (object instance, Type type, string member, Val third, Val fourth) ParseSetterArgs(VarArgs args, bool setter)
     {
-        Cons list = args.cons;
-        Val first = list?.first ?? Val.NIL;
-        Val second = list?.second ?? Val.NIL;
-        Val third = (setter && list != null) ? list.third : Val.NIL;
-        Val fourth = (setter && list != null && list.afterThird.IsNotNil) ? list.fourth : Val.NIL;
+        Cons list = args.Cons;
+        Val first = list?.First ?? Val.NIL;
+        Val second = list?.Second ?? Val.NIL;
+        Val third = (setter && list != null) ? list.Third : Val.NIL;
+        Val fourth = (setter && list != null && list.AfterThird.IsNotNil) ? list.Fourth : Val.NIL;
 
         object instance = first.AsBoxedValue;
         Type type = instance?.GetType();

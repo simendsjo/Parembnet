@@ -10,17 +10,17 @@ namespace Paremnet.Data;
 public class Symbol(string name, Package pkg)
 {
     /// <summary> String name of this symbol </summary>
-    public string name { get; private set; } = name;
+    public string Name { get; private set; } = name;
 
     /// <summary> Package in this symbol is interned </summary>
-    public Package pkg { get; private set; } = pkg;
+    public Package Pkg { get; private set; } = pkg;
 
     /// <summary> Full (package-prefixed) name of this symbol </summary>
-    public string fullName { get; private set; } = (pkg != null && pkg.name != null) ? (pkg.name + ":" + name) : name;
+    public string FullName { get; private set; } = (pkg != null && pkg.Name != null) ? (pkg.Name + ":" + name) : name;
 
     /// <summary> If true, this symbol is visible outside of its package. This can be adjusted later. </summary>
-    public bool exported = false;
+    public bool Exported = false;
 
-    public override string ToString() => fullName;
-    private string DebugString => fullName;
+    public override string ToString() => FullName;
+    private string DebugString => FullName;
 }

@@ -6,11 +6,11 @@ namespace Paremnet.Data;
 public class Macro(Symbol name, Cons args, Closure body)
 {
     /// <summary> Optional debug name </summary>
-    public readonly string name = name.name;
+    public readonly string Name = name.Name;
 
     /// <summary> List of arguments for the macro </summary>
-    public readonly Cons args = args;
+    public readonly Cons Args = args;
 
     /// <summary> Body of the macro </summary>
-    public readonly Closure body = body;
+    public readonly Closure Body = body;
 }

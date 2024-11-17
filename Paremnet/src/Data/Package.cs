@@ -12,7 +12,7 @@ namespace Paremnet.Data;
 public class Package(string name)
 {
     /// <summary> Name of this package </summary>
-    public readonly string name = name;
+    public readonly string Name = name;
 
     /// <summary> Map from symbol name (string) to instance (Symbol) </summary>
     private readonly Dictionary<string, Symbol> _symbols = new();
@@ -89,9 +89,9 @@ public class Package(string name)
     /// <summary> Retrieves the value binding for the given symbol, also traversing the import list. </summary>
     public Val GetValue(Symbol symbol)
     {
-        if (symbol.pkg != this)
+        if (symbol.Pkg != this)
         {
-            throw new LanguageError("Unexpected package in getBinding: " + symbol.pkg.name);
+            throw new LanguageError("Unexpected package in getBinding: " + symbol.Pkg.Name);
         }
 
         if (_bindings.TryGetValue(symbol, out Val val))
@@ -102,8 +102,8 @@ public class Package(string name)
         // try imports
         foreach (Package pkg in _imports)
         {
-            Symbol local = pkg.Find(symbol.name, false);
-            if (local != null && local.exported)
+            Symbol local = pkg.Find(symbol.Name, false);
+            if (local != null && local.Exported)
             {
                 if (pkg._bindings.TryGetValue(local, out Val innerval))
                 {
@@ -118,9 +118,9 @@ public class Package(string name)
     /// <summary> Sets the binding for the given symbol. If NIL, deletes the binding. </summary>
     public void SetValue(Symbol symbol, Val value)
     {
-        if (symbol.pkg != this)
+        if (symbol.Pkg != this)
         {
-            throw new LanguageError("Unexpected package in setBinding: " + symbol.pkg.name);
+            throw new LanguageError("Unexpected package in setBinding: " + symbol.Pkg.Name);
         }
 
         if (value.IsNil)
@@ -139,9 +139,9 @@ public class Package(string name)
     /// <summary> Retrieves the macro for the given symbol, potentially null </summary>
     public Macro GetMacro(Symbol symbol)
     {
-        if (symbol.pkg != this)
+        if (symbol.Pkg != this)
         {
-            throw new LanguageError("Unexpected package in getBinding: " + symbol.pkg.name);
+            throw new LanguageError("Unexpected package in getBinding: " + symbol.Pkg.Name);
         }
 
         if (_macros.TryGetValue(symbol, out Macro val))
@@ -152,8 +152,8 @@ public class Package(string name)
         // try imports
         foreach (Package pkg in _imports)
         {
-            Symbol s = pkg.Find(symbol.name, false);
-            if (s != null && s.exported)
+            Symbol s = pkg.Find(symbol.Name, false);
+            if (s != null && s.Exported)
             {
                 if (pkg._macros.TryGetValue(s, out Macro innerval))
                 {
@@ -168,7 +168,7 @@ public class Package(string name)
     /// <summary> Sets the macro for the given symbol. If null, deletes the macro. </summary>
     public void SetMacro(Symbol symbol, Macro value)
     {
-        if (symbol.pkg != this)
+        if (symbol.Pkg != this)
         {
             throw new LanguageError("setMacro called with invalid package");
         }
@@ -198,8 +198,8 @@ public class Package(string name)
     }
 
     /// <summary> Returns a new vector of all symbols imported by this package </summary>
-    public List<Val> ListImports() => _imports.Select(pkg => new Val(pkg.name)).ToList();
+    public List<Val> ListImports() => _imports.Select(pkg => new Val(pkg.Name)).ToList();
 
     /// <summary> Returns a new vector of all symbols interned and exported by this package </summary>
-    public List<Val> ListExports() => _symbols.Values.Where(sym => sym.exported).Select(sym => new Val(sym)).ToList();
+    public List<Val> ListExports() => _symbols.Values.Where(sym => sym.Exported).Select(sym => new Val(sym)).ToList();
 }

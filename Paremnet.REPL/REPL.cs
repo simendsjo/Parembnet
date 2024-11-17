@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Paremnet
 {
-    internal class REPL
+    internal class Repl
     {
         private static bool
             _runRepl = true,
@@ -16,12 +16,12 @@ namespace Paremnet
             _logExecution = false,
             _timeNextExecution = false;
 
-        private class Command(string command, string description, Action action)
+        private class Command(string name, string description, Action action)
         {
-            public string command = command, description = description;
-            public Action action = action;
+            public string Name = name, Description = description;
+            public Action Action = action;
 
-            public string Message => $"{command} - {description}";
+            public string Message => $"{Name} - {Description}";
         }
 
         private class Logger : ILogger
@@ -38,12 +38,12 @@ namespace Paremnet
             }
         }
 
-        private static readonly List<Command> _commands =
+        private static readonly List<Command> Commands =
         [
             new Command(",exit", "Quits the REPL", () => _runRepl = false),
             new Command(",help", "Shows this help menu",
                 () => Console.WriteLine("Valid repl commands:\n" +
-                                        string.Join("\n", _commands.Select(p => p.Message)))),
+                                        string.Join("\n", Commands.Select(p => p.Message)))),
 
 
             new Command(",logcomp", "Toggles logging of bytecode compilation",
@@ -70,7 +70,7 @@ namespace Paremnet
             Context ctx = new(logger: new Logger());
             Console.WriteLine(GetInfo(ctx));
 
-            IEnumerable<Val> selfTest = ctx.CompileAndExecute("(+ 1 2)").Select(r => r.output);
+            IEnumerable<Val> selfTest = ctx.CompileAndExecute("(+ 1 2)").Select(r => r.Output);
             Console.WriteLine();
             Console.WriteLine("SELF TEST: (+ 1 2) => " + string.Join(" ", selfTest));
             Console.WriteLine("Type ,help for list of repl commands or ,exit to quit.\n");
@@ -84,14 +84,14 @@ namespace Paremnet
                 }
 
                 string line = Console.ReadLine();
-                Command cmd = _commands.Find(c => line.StartsWith(c.command));
+                Command cmd = Commands.Find(c => line.StartsWith(c.Name));
 
                 try
                 {
                     if (cmd != null)
                     {
-                        line = line.Remove(0, cmd.command.Length).TrimStart();
-                        cmd.action.Invoke();
+                        line = line.Remove(0, cmd.Name.Length).TrimStart();
+                        cmd.Action.Invoke();
                     }
 
                     Stopwatch s = _timeNextExecution ? Stopwatch.StartNew() : null;
@@ -99,7 +99,7 @@ namespace Paremnet
                     LogCompilation(ctx, results);
                     LogExecutionTime(results, s);
 
-                    results.ForEach(entry => Console.WriteLine(Val.Print(entry.output)));
+                    results.ForEach(entry => Console.WriteLine(Val.Print(entry.Output)));
 
                     _showPrompt = cmd != null || results.Count > 0;
 
@@ -126,7 +126,7 @@ namespace Paremnet
 
             foreach (Context.CompileAndExecuteResult result in results)
             {
-                Console.WriteLine($"Execution took {result.exectime.TotalSeconds} seconds for: {result.input}");
+                Console.WriteLine($"Execution took {result.Exectime.TotalSeconds} seconds for: {result.Input}");
             }
         }
 
@@ -134,7 +134,7 @@ namespace Paremnet
         {
             if (!_logCompilation) { return; }
 
-            results.ForEach(result => Console.WriteLine(ctx.code.DebugPrint(result.comp)));
+            results.ForEach(result => Console.WriteLine(ctx.Code.DebugPrint(result.Comp)));
         }
 
         private static string GetInfo(Context ctx)
@@ -170,12 +170,12 @@ namespace Paremnet
         /// </summary>
         public class TestInner
         {
-            public static int StaticField = 42;
+            public static int staticField = 42;
 
             public static int StaticProperty
             {
-                get => StaticField;
-                set => StaticField = value;
+                get => staticField;
+                set => staticField = value;
             }
 
             public static int StaticFn(int x) => x + 42;

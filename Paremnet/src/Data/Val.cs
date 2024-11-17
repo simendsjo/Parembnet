@@ -200,7 +200,7 @@ public readonly struct Val : IEquatable<Val>
             case Type.String:
                 return "\"" + val.vstring + "\"";
             case Type.Symbol:
-                return fullName ? val.vsymbol.fullName : val.vsymbol.name;
+                return fullName ? val.vsymbol.FullName : val.vsymbol.Name;
             case Type.Cons:
                 return StringifyCons(val.vcons, fullName);
             case Type.Vector:
@@ -209,9 +209,9 @@ public readonly struct Val : IEquatable<Val>
                     return $"[Vector {elements}]";
                 }
             case Type.Closure:
-                return string.IsNullOrEmpty(val.vclosure.name) ? "[Closure]" : $"[Closure/{val.vclosure.name}]";
+                return string.IsNullOrEmpty(val.vclosure.Name) ? "[Closure]" : $"[Closure/{val.vclosure.Name}]";
             case Type.ReturnAddress:
-                return $"[{val.vreturn.debug}/{val.vreturn.pc}]";
+                return $"[{val.vreturn.Debug}/{val.vreturn.Pc}]";
             case Type.Object:
                 {
                     string typedesc = val.rawobject == null ? "null" : $"{val.rawobject.GetType()} {val.rawobject}";
@@ -234,12 +234,12 @@ public readonly struct Val : IEquatable<Val>
             Cons cons = val.AsConsOrNull;
             if (cons != null)
             {
-                sb.Append(Print(cons.first, fullName));
-                if (cons.rest.IsNotNil)
+                sb.Append(Print(cons.First, fullName));
+                if (cons.Rest.IsNotNil)
                 {
                     sb.Append(' ');
                 }
-                val = cons.rest;
+                val = cons.Rest;
             }
             else
             {

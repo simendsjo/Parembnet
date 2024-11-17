@@ -10,12 +10,12 @@ namespace Paremnet.Core;
 /// </summary>
 public struct VarArgs(Cons cons)
 {
-    public Cons cons = cons;
+    public Cons Cons = cons;
 
-    public bool IsCons => cons != null;
-    public bool IsNull => cons == null;
+    public bool IsCons => Cons != null;
+    public bool IsNull => Cons == null;
 
-    public Val AsVal => cons ?? Val.NIL;
+    public Val AsVal => Cons ?? Val.NIL;
 
     public List<Val> ToNativeList() => Cons.ToNativeList(AsVal);
 
@@ -35,27 +35,27 @@ public delegate Val FnVarArg(Context ctx, VarArgs args);
 /// </summary>
 public class Function
 {
-    public FnThunk fnThunk;
-    public FnUnary fnUnary;
-    public FnBinary fnBinary;
-    public FnTernary fnTernary;
-    public FnVarArg fnVarArg;
+    public FnThunk FnThunk;
+    public FnUnary FnUnary;
+    public FnBinary FnBinary;
+    public FnTernary FnTernary;
+    public FnVarArg FnVarArg;
 
-    public Function(FnThunk fn) { fnThunk = fn; }
-    public Function(FnUnary fn) { fnUnary = fn; }
-    public Function(FnBinary fn) { fnBinary = fn; }
-    public Function(FnTernary fn) { fnTernary = fn; }
-    public Function(FnVarArg fn) { fnVarArg = fn; }
+    public Function(FnThunk fn) { FnThunk = fn; }
+    public Function(FnUnary fn) { FnUnary = fn; }
+    public Function(FnBinary fn) { FnBinary = fn; }
+    public Function(FnTernary fn) { FnTernary = fn; }
+    public Function(FnVarArg fn) { FnVarArg = fn; }
 
     public Val Call(Context ctx)
     {
-        if (fnThunk != null)
+        if (FnThunk != null)
         {
-            return fnThunk(ctx);
+            return FnThunk(ctx);
         }
-        else if (fnVarArg != null)
+        else if (FnVarArg != null)
         {
-            return fnVarArg(ctx, null);
+            return FnVarArg(ctx, null);
         }
         else
         {
@@ -65,13 +65,13 @@ public class Function
 
     public Val Call(Context ctx, Val a)
     {
-        if (fnUnary != null)
+        if (FnUnary != null)
         {
-            return fnUnary(ctx, a);
+            return FnUnary(ctx, a);
         }
-        else if (fnVarArg != null)
+        else if (FnVarArg != null)
         {
-            return fnVarArg(ctx, Cons.MakeList(a));
+            return FnVarArg(ctx, Cons.MakeList(a));
         }
         else
         {
@@ -81,13 +81,13 @@ public class Function
 
     public Val Call(Context ctx, Val a, Val b)
     {
-        if (fnBinary != null)
+        if (FnBinary != null)
         {
-            return fnBinary(ctx, a, b);
+            return FnBinary(ctx, a, b);
         }
-        else if (fnVarArg != null)
+        else if (FnVarArg != null)
         {
-            return fnVarArg(ctx, Cons.MakeList(a, b));
+            return FnVarArg(ctx, Cons.MakeList(a, b));
         }
         else
         {
@@ -97,13 +97,13 @@ public class Function
 
     public Val Call(Context ctx, Val a, Val b, Val c)
     {
-        if (fnTernary != null)
+        if (FnTernary != null)
         {
-            return fnTernary(ctx, a, b, c);
+            return FnTernary(ctx, a, b, c);
         }
-        else if (fnVarArg != null)
+        else if (FnVarArg != null)
         {
-            return fnVarArg(ctx, Cons.MakeList(a, b, c));
+            return FnVarArg(ctx, Cons.MakeList(a, b, c));
         }
         else
         {
@@ -113,9 +113,9 @@ public class Function
 
     public Val Call(Context ctx, Cons args)
     {
-        if (fnVarArg != null)
+        if (FnVarArg != null)
         {
-            return fnVarArg(ctx, args);
+            return FnVarArg(ctx, args);
         }
         else
         {
@@ -145,17 +145,17 @@ public class Primitive(
     FnType argsType = FnType.ConstArgs,
     SideFx sideFx = SideFx.None)
 {
-    public readonly string name = name;
-    public readonly int minargs = minargs;
-    public readonly Function fn = fn;
-    public readonly FnType argsType = argsType; // is this a function with exact or variable number of arguments?
-    public readonly SideFx sideFx = sideFx;   // does this primitive cause side effects? if so, it should never be optimized away
+    public readonly string Name = name;
+    public readonly int Minargs = minargs;
+    public readonly Function Fn = fn;
+    public readonly FnType ArgsType = argsType; // is this a function with exact or variable number of arguments?
+    public readonly SideFx SideFx = sideFx;   // does this primitive cause side effects? if so, it should never be optimized away
 
-    public bool IsExact => argsType == FnType.ConstArgs;
-    public bool IsVarArg => argsType == FnType.VarArgs;
+    public bool IsExact => ArgsType == FnType.ConstArgs;
+    public bool IsVarArg => ArgsType == FnType.VarArgs;
 
-    public bool HasSideEffects => sideFx == SideFx.Possible;
-    public bool IsPureFunction => sideFx == SideFx.None;
+    public bool HasSideEffects => SideFx == SideFx.Possible;
+    public bool IsPureFunction => SideFx == SideFx.None;
 
     /// <summary> Calls the primitive function with argn operands waiting for it on the stack </summary>
     public Val Call(Context ctx, int argn, State state)
@@ -164,30 +164,30 @@ public class Primitive(
         {
             case 0:
                 {
-                    return fn.Call(ctx);
+                    return Fn.Call(ctx);
                 }
             case 1:
                 {
                     Val first = state.Pop();
-                    return fn.Call(ctx, first);
+                    return Fn.Call(ctx, first);
                 }
             case 2:
                 {
                     Val second = state.Pop();
                     Val first = state.Pop();
-                    return fn.Call(ctx, first, second);
+                    return Fn.Call(ctx, first, second);
                 }
             case 3:
                 {
                     Val third = state.Pop();
                     Val second = state.Pop();
                     Val first = state.Pop();
-                    return fn.Call(ctx, first, second, third);
+                    return Fn.Call(ctx, first, second, third);
                 }
             default:
                 {
                     Cons args = RemoveArgsFromStack(state, argn);
-                    return fn.Call(ctx, args);
+                    return Fn.Call(ctx, args);
                 }
         }
     }

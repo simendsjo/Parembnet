@@ -11,41 +11,41 @@ namespace Paremnet.Core;
 public sealed class State
 {
     /// <summary> Closure containing current code block </summary>
-    public Closure fn = null;
+    public Closure Fn = null;
 
     /// <summary> Program counter; index into the instruction list </summary>
-    public int pc = 0;
+    public int Pc = 0;
 
     /// <summary> Reference to the current environment (head of the chain of environments) </summary>
-    public Environment env = null;
+    public Environment Env = null;
 
     /// <summary> Stack of heterogeneous values (numbers, symbols, strings, closures, etc).
     /// Last item on the list is the top of the stack. </summary>
-    public List<Val> stack = new();
+    public List<Val> Stack = new();
 
     /// <summary> Transient argument count register, used when calling functions </summary>
-    public int argcount = 0;
+    public int Argcount = 0;
 
     /// <summary> Helper flag, stops the REPL </summary>
-    public bool done = false;
+    public bool Done = false;
 
     public State(Closure closure, Val[] args)
     {
-        fn = closure;
-        env = fn.env;
-        foreach (Val arg in args) { stack.Add(arg); }
-        argcount = args.Length;
+        Fn = closure;
+        Env = Fn.Env;
+        foreach (Val arg in args) { Stack.Add(arg); }
+        Argcount = args.Length;
     }
 
-    public void Push(Val v) => stack.Add(v);
+    public void Push(Val v) => Stack.Add(v);
 
     public Val Pop()
     {
-        int count = stack.Count;
+        int count = Stack.Count;
         if (count > 0)
         {
-            Val result = stack[count - 1];
-            stack.RemoveAt(count - 1);
+            Val result = Stack[count - 1];
+            Stack.RemoveAt(count - 1);
             return result;
         }
 
@@ -54,16 +54,16 @@ public sealed class State
 
     public Val Peek()
     {
-        int count = stack.Count;
+        int count = Stack.Count;
         if (count > 0)
         {
-            return stack[count - 1];
+            return Stack[count - 1];
         }
 
         throw new LanguageError("Stack underflow!");
     }
 
     internal static string PrintStack(State st) =>
-        string.Format("{0,3}: [ {1} ]", st.stack.Count,
-            string.Join(" ", st.stack.Select(val => Val.DebugPrint(val))));
+        string.Format("{0,3}: [ {1} ]", st.Stack.Count,
+            string.Join(" ", st.Stack.Select(val => Val.DebugPrint(val))));
 }

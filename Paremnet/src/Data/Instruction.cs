@@ -12,99 +12,99 @@ public enum Opcode
     /// <summary>
     /// Just a label, doesn't do anything, only used during compilation
     /// </summary>
-    LABEL = 0,
+    Label = 0,
 
     /// <summary>
     /// PUSH_CONST x - pushes x onto the stack
     /// </summary>
-    PUSH_CONST = 1,
+    PushConst = 1,
 
     /// <summary>
     /// LOCAL_GET i j -  push local variable onto the stack, where <b>i</b> is the frame index relative
     ///                  to current frame and <b>j</b> is the symbol index
     /// </summary>
-    LOCAL_GET = 2,
+    LocalGet = 2,
 
     /// <summary>
     /// LOCAL_SET i, j - set local variable from what's on top of the stack, without popping from the stack,
     ///                  where <b>i</b> is the frame index relative to current frame and <b>j</b> is the symbol index
     /// </summary>
-    LOCAL_SET = 3,
+    LocalSet = 3,
 
     /// <summary>
     /// GLOBAL_GET name - push global variable onto the stack
     /// </summary>
-    GLOBAL_GET = 4,
+    GlobalGet = 4,
 
     /// <summary>
     /// GLOBAL_SET name - set global variable from what's on top of the stack, without popping the stack
     /// </summary>
-    GLOBAL_SET = 5,
+    GlobalSet = 5,
 
     /// <summary>
     /// STACK_POP - pops the top value from the stack, discarding it
     /// </summary>
-    STACK_POP = 6,
+    StackPop = 6,
 
     /// <summary>
     /// DUPLICATE - duplicates (pushes a second copy of) the topmost value on the stack
     /// </summary>
-    DUPLICATE = 7,
+    Duplicate = 7,
 
     /// <summary>
     /// JMP_IF_TRUE label - pop the stack, and jump to label if the value is true
     /// </summary>
-    JMP_IF_TRUE = 8,
+    JmpIfTrue = 8,
 
     /// <summary>
     /// JMP_IF_FALSE label - pop the stack, and jump to label if the value is not true
     /// </summary>
-    JMP_IF_FALSE = 9,
+    JmpIfFalse = 9,
 
     /// <summary>
     /// JMP_TO_LABEL label - jump to label without modifying or looking up the stack
     /// </summary>
-    JMP_TO_LABEL = 10,
+    JmpToLabel = 10,
 
     /// <summary>
     /// SAVE - save continuation point on the stack, as a combo of specific function, program counter,
     ///        and environment
     /// </summary>
-    SAVE_RETURN = 11,
+    SaveReturn = 11,
 
     /// <summary>
     /// JMP_CLOSURE n - jump to the start of the function on top of the stack; n is arg count
     /// </summary>
-    JMP_CLOSURE = 12,
+    JmpClosure = 12,
 
     /// <summary>
     /// RETURN - return to a previous execution point (second on the stack) but preserving
     ///          the return value (top of the stack)
     /// </summary>
-    RETURN_VAL = 13,
+    ReturnVal = 13,
 
     /// <summary>
     /// MAKE_ENV n - make a new environment frame, pop n values from stack onto it,
     ///              and push it on the environment stack
     /// </summary>
-    MAKE_ENV = 14,
+    MakeEnv = 14,
 
     /// <summary>
     /// MAKE_ENVDOT n - make a new environment frame with n-1 named args and one for varargs,
     ///                 pop values from stack onto it, and push on the environment stack
     /// </summary>
-    MAKE_ENVDOT = 15,
+    MakeEnvdot = 15,
 
     /// <summary>
     /// MAKE_CLOSURE fn - create a closure fn from arguments and current environment, and push onto the stack
     /// </summary>
-    MAKE_CLOSURE = 16,
+    MakeClosure = 16,
 
     /// <summary>
     /// CALL_PRIMOP name - performs a primitive function call right off of the stack, where callee performs
     ///             stack maintenance (i.e. the primitive will pop its args, and push a return value)
     /// </summary>
-    CALL_PRIMOP = 17,
+    CallPrimop = 17,
 }
 
 /// <summary>
@@ -114,40 +114,40 @@ public enum Opcode
 public class Instruction(Opcode type, Val first, Val second, string debug = null)
 {
     /// <summary> ArrayList of human readable names for all constants </summary>
-    private static readonly string[] _NAMES = Enum.GetNames(typeof(Opcode));
+    private static readonly string[] Names = Enum.GetNames(typeof(Opcode));
 
     /// <summary> Names of all jump instructions that need to be fixed up at assembly time </summary>
-    private static readonly List<Opcode> JUMP_TYPES =
+    private static readonly List<Opcode> JumpTypes =
     [
-        Opcode.JMP_TO_LABEL,
-        Opcode.JMP_IF_FALSE,
-        Opcode.JMP_IF_TRUE,
-        Opcode.SAVE_RETURN
+        Opcode.JmpToLabel,
+        Opcode.JmpIfFalse,
+        Opcode.JmpIfTrue,
+        Opcode.SaveReturn
     ];
 
     /// <summary> Instruction type, one of the constants in this class </summary>
-    public Opcode type { get; private set; } = type;
+    public Opcode Type { get; private set; } = type;
 
     /// <summary> First instruction parameter (context-sensitive) </summary>
-    public Val first { get; private set; } = first;
+    public Val First { get; private set; } = first;
 
     /// <summary> Second instruction parameter (context-sensitive) </summary>
-    public Val second { get; private set; } = second;
+    public Val Second { get; private set; } = second;
 
     /// <summary> Debug information (printed to the user as needed) </summary>
-    public readonly string debug = debug;
+    public readonly string Debug = debug;
 
     public Instruction(Opcode type) : this(type, Val.NIL, Val.NIL, null) { }
     public Instruction(Opcode type, Val first, string debug = null) : this(type, first, Val.NIL, debug) { }
 
     /// <summary> Is this instruction one of the jump instructions that needs to be modified during assembly? </summary>
-    public bool IsJump => JUMP_TYPES.Contains(type);
+    public bool IsJump => JumpTypes.Contains(Type);
 
     /// <summary> If this is a jump instruction, updates the second parameter to contain the destination </summary>
     public void UpdateJumpDestination(int pc)
     {
-        if (!IsJump) { throw new LanguageError($"Attempting to set jump destination for non-jump instruction {type}"); }
-        second = new Val(pc);
+        if (!IsJump) { throw new LanguageError($"Attempting to set jump destination for non-jump instruction {Type}"); }
+        Second = new Val(pc);
     }
 
     private string DebugString => DebugPrint(" ");
@@ -156,29 +156,29 @@ public class Instruction(Opcode type, Val first, Val second, string debug = null
     public string DebugPrint(string sep = "\t")
     {
         StringBuilder sb = new();
-        sb.Append(_NAMES[(int)type]);
+        sb.Append(Names[(int)Type]);
 
-        if (first.IsNotNil || type == Opcode.PUSH_CONST)
+        if (First.IsNotNil || Type == Opcode.PushConst)
         {
             sb.Append(sep);
-            sb.Append(Val.DebugPrint(first));
+            sb.Append(Val.DebugPrint(First));
         }
 
-        if (second.IsNotNil)
+        if (Second.IsNotNil)
         {
             sb.Append(sep);
-            sb.Append(Val.DebugPrint(second));
+            sb.Append(Val.DebugPrint(Second));
         }
-        if (debug != null)
+        if (Debug != null)
         {
             sb.Append(sep);
             sb.Append("; ");
-            sb.Append(debug);
+            sb.Append(Debug);
         }
         return sb.ToString();
     }
 
     /// <summary> Returns true if two instructions are equal </summary>
     public static bool Equal(Instruction a, Instruction b)
-        => a.type == b.type && Val.Equals(a.first, b.first) && Val.Equals(a.second, b.second);
+        => a.Type == b.Type && Val.Equals(a.First, b.First) && Val.Equals(a.Second, b.Second);
 }

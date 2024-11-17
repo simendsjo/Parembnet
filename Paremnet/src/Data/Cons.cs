@@ -9,26 +9,26 @@ namespace Paremnet.Data;
 public class Cons(Val first, Val rest)
 {
     /// <summary> First value of this cons cell </summary>
-    public Val first = first;
+    public Val First = first;
 
     /// <summary> Second value of this cons cell </summary>
-    public Val rest = rest;
+    public Val Rest = rest;
 
     // scheme-like accessors
 
     /// <summary> Shorthand for the second element of the list </summary>
-    public Val second => GetNthCons(1).first;
+    public Val Second => GetNthCons(1).First;
     /// <summary> Shorthand for the third element of the list </summary>
-    public Val third => GetNthCons(2).first;
+    public Val Third => GetNthCons(2).First;
     /// <summary> Shorthand for the third element of the list </summary>
-    public Val fourth => GetNthCons(3).first;
+    public Val Fourth => GetNthCons(3).First;
 
     /// <summary> Shorthand for cdr, the sublist after the first element (so second element and beyond) </summary>
-    public Val afterFirst => rest;
+    public Val AfterFirst => Rest;
     /// <summary> Shorthand for the sublist after the second element (so third element and beyond) </summary>
-    public Val afterSecond => GetNthCons(1).rest;
+    public Val AfterSecond => GetNthCons(1).Rest;
     /// <summary> Shorthand for the sublist after the third element (so fourth element and beyond) </summary>
-    public Val afterThird => GetNthCons(2).rest;
+    public Val AfterThird => GetNthCons(2).Rest;
 
 
     /// <summary> Retrieves Nth cons cell in the list, 0-indexed, as an O(N) operation. 
@@ -38,7 +38,7 @@ public class Cons(Val first, Val rest)
         Cons cons = this;
         while (n-- > 0)
         {
-            cons = cons.rest.AsConsOrNull;
+            cons = cons.Rest.AsConsOrNull;
             if (cons == null) { throw new LanguageError("List operation out of bounds"); }
         }
         return cons;
@@ -46,11 +46,11 @@ public class Cons(Val first, Val rest)
 
     /// <summary> Retrieves Nth element in the list, 0-indexed, as an O(N) operation. 
     /// List must have enough elements, otherwise an error will be thrown. </summary>
-    public Val GetNth(int n) => GetNthCons(n).first;
+    public Val GetNth(int n) => GetNthCons(n).First;
 
     /// <summary> Retrieves tail of the Nth cons cell in the list, 0-indexed, as an O(N) operation. 
     /// List must have enough elements, otherwise an error will be thrown. </summary>
-    public Val GetNthTail(int n) => GetNthCons(n).rest;
+    public Val GetNthTail(int n) => GetNthCons(n).Rest;
 
     /// <summary> Helper function: converts a cons list into a native list </summary>
     public List<Val> ToNativeList() => ToNativeList(new Val(this));
@@ -63,7 +63,7 @@ public class Cons(Val first, Val rest)
     public static Val MakeList(List<Val> values)
     {
         int len = values.Count;
-        bool dotted = (len >= 3 && values[len - 2].AsSymbolOrNull?.fullName == ".");
+        bool dotted = (len >= 3 && values[len - 2].AsSymbolOrNull?.FullName == ".");
 
         // the tail should be either the last value, or a cons containing the last value
         Val result =
@@ -94,7 +94,7 @@ public class Cons(Val first, Val rest)
             }
             else
             {
-                last.rest = newcell;
+                last.Rest = newcell;
             }
             last = newcell;
         }
@@ -122,8 +122,8 @@ public class Cons(Val first, Val rest)
                 throw new LanguageError("Only null-terminated lists of cons cells can be converted to arrays!");
             }
             Cons cons = element.AsCons;
-            results.Add(cons.first);
-            element = cons.rest;
+            results.Add(cons.First);
+            element = cons.Rest;
         }
         return results;
     }
@@ -145,8 +145,8 @@ public class Cons(Val first, Val rest)
         Cons cons = value.AsConsOrNull;
         while (cons != null)
         {
-            if (cons.rest.IsNil) { return true; } // found our terminating NIL
-            cons = cons.rest.AsConsOrNull;
+            if (cons.Rest.IsNil) { return true; } // found our terminating NIL
+            cons = cons.Rest.AsConsOrNull;
         }
         return false;
     }
@@ -161,7 +161,7 @@ public class Cons(Val first, Val rest)
         while (cons != null)
         {
             result++;
-            cons = cons.rest.AsConsOrNull;
+            cons = cons.Rest.AsConsOrNull;
         }
         return result;
     }

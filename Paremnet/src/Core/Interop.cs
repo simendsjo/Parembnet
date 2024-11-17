@@ -14,7 +14,7 @@ namespace Paremnet.Core;
 /// </summary>
 public static class Interop
 {
-    public const char NS_SEPARATOR = '.';
+    public const char NsSeparator = '.';
 
     /// <summary>
     /// This object wraps the name of a namespace, and it's used
@@ -23,18 +23,18 @@ public static class Interop
     [DebuggerDisplay("{DebugString}")]
     public class Namespace
     {
-        public string ns;
+        public string Ns;
 
         public (Type type, Namespace ns) FindTypeOrNamespace(string name)
         {
-            string combined = ns + NS_SEPARATOR + name;
+            string combined = Ns + NsSeparator + name;
             Type type = TypeUtils.GetType(combined);
-            Namespace newns = type == null ? new Namespace { ns = combined } : null;
+            Namespace newns = type == null ? new Namespace { Ns = combined } : null;
             return (type, newns);
         }
 
         private string DebugString => ToString();
-        public override string ToString() => $"[ns {ns}]";
+        public override string ToString() => $"[ns {Ns}]";
     }
 
     //
@@ -96,12 +96,12 @@ public static class Interop
         if (!val.IsSymbol) { return [val]; }
 
         Symbol sym = val.AsSymbol;
-        string symname = sym.name;
-        if (!symname.Contains(NS_SEPARATOR)) { return [val]; }
+        string symname = sym.Name;
+        if (!symname.Contains(NsSeparator)) { return [val]; }
 
         // split on the dot
-        string[] names = symname.Split(NS_SEPARATOR);
-        return names.Select(n => new Val(sym.pkg.Intern(n))).ToList();
+        string[] names = symname.Split(NsSeparator);
+        return names.Select(n => new Val(sym.Pkg.Intern(n))).ToList();
     }
 
 
@@ -121,7 +121,7 @@ public static class Interop
 
         if (current.IsSymbol)
         { // this should only happen on the very first element?!
-            Namespace result = new() { ns = current.AsSymbol.name };
+            Namespace result = new() { Ns = current.AsSymbol.Name };
             return TryNamespaceLookup(result, nextSymbol, nonSymbols);
         }
 
@@ -142,7 +142,7 @@ public static class Interop
     private static Val TryNamespaceLookup(Namespace ns, Symbol name, List<Val> nonSymbols)
     {
         if (nonSymbols.Count > 0) { throw new InteropError($"Unexpected non-symbols following {ns} {name}"); }
-        (Type type, Namespace ns) results = ns.FindTypeOrNamespace(name.name);
+        (Type type, Namespace ns) results = ns.FindTypeOrNamespace(name.Name);
         return new Val((object)results.type ?? results.ns);
     }
 
@@ -153,7 +153,7 @@ public static class Interop
     {
 
         // is this a static field or property? look up its value
-        MemberInfo fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, false);
+        MemberInfo fieldOrProp = TypeUtils.GetFieldOrProp(type, name.Name, false);
         if (fieldOrProp != null)
         {
             if (nonSymbols.Count > 0) { throw new InteropError($"Unexpected non-symbols following {type} {name}"); }
@@ -163,14 +163,14 @@ public static class Interop
 
         // is this a static function? see if we can call it with the args
         object[] args = nonSymbols.Select(v => v.AsBoxedValue).ToArray();
-        MethodBase fn = TypeUtils.GetMethodByArgs(type, name.name, false, args);
+        MethodBase fn = TypeUtils.GetMethodByArgs(type, name.Name, false, args);
         if (fn != null)
         {
             object result = fn.Invoke(null, BindingFlags.Static, null, args, null);
             return Val.TryUnbox(result);
         }
 
-        throw new InteropError($"Did not find static member corresponding to {type.Name}.{name.name} with correct arity and argument types");
+        throw new InteropError($"Did not find static member corresponding to {type.Name}.{name.Name} with correct arity and argument types");
     }
 
 
@@ -201,7 +201,7 @@ public static class Interop
         object[] args = nonSymbols.Select(v => v.AsBoxedValue).ToArray();
 
         // is this an instance field or property? look up its value
-        MemberInfo fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, true);
+        MemberInfo fieldOrProp = TypeUtils.GetFieldOrProp(type, name.Name, true);
         if (fieldOrProp != null)
         {
             object result = LookupInstanceFieldOrProp(fieldOrProp, instance, args);
@@ -209,13 +209,13 @@ public static class Interop
         }
 
         // is this an instance function? see if we can call it with the args
-        MethodBase fn = TypeUtils.GetMethodByArgs(type, name.name, true, args);
+        MethodBase fn = TypeUtils.GetMethodByArgs(type, name.Name, true, args);
         if (fn != null)
         {
             object result = fn.Invoke(instance, BindingFlags.Instance, null, args, null);
             return Val.TryUnbox(result);
         }
 
-        throw new InteropError($"Did not find instance member corresponding to {type.Name}.{name.name} with correct arity and argument types");
+        throw new InteropError($"Did not find instance member corresponding to {type.Name}.{name.Name} with correct arity and argument types");
     }
 }

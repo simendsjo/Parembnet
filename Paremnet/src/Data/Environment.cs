@@ -10,23 +10,23 @@ namespace Paremnet.Data;
 /// </summary>
 public struct VarPos
 {
-    public static readonly VarPos INVALID = new(-1, -1);
+    public static readonly VarPos Invalid = new(-1, -1);
 
-    public readonly int frameIndex, symbolIndex;
+    public readonly int FrameIndex, SymbolIndex;
 
     public VarPos(Val frameIndex, Val symbolIndex)
     {
-        this.frameIndex = frameIndex.AsInt;
-        this.symbolIndex = symbolIndex.AsInt;
+        this.FrameIndex = frameIndex.AsInt;
+        this.SymbolIndex = symbolIndex.AsInt;
     }
 
     public VarPos(int frameIndex, int symbolIndex)
     {
-        this.frameIndex = frameIndex;
-        this.symbolIndex = symbolIndex;
+        this.FrameIndex = frameIndex;
+        this.SymbolIndex = symbolIndex;
     }
 
-    public bool IsValid => frameIndex >= 0 && symbolIndex >= 0;
+    public bool IsValid => FrameIndex >= 0 && SymbolIndex >= 0;
     public bool IsNotValid => !IsValid;
 }
 
@@ -38,7 +38,7 @@ public struct VarPos
 public class Environment(int count, Environment parent)
 {
     /// <summary> Parent environment </summary>
-    public readonly Environment parent = parent;
+    public readonly Environment Parent = parent;
 
     /// <summary> Symbols defined in this environment </summary>
     private readonly Symbol[] _symbols = new Symbol[count];
@@ -54,9 +54,9 @@ public class Environment(int count, Environment parent)
 
         for (int i = 0; i < count; i++)
         {
-            env.SetSymbol(i, args.first.AsSymbol);
+            env.SetSymbol(i, args.First.AsSymbol);
             env.SetValue(i, Val.NIL);
-            args = args.rest.AsConsOrNull;
+            args = args.Rest.AsConsOrNull;
         }
 
         return env;
@@ -104,35 +104,35 @@ public class Environment(int count, Environment parent)
             }
             else
             {
-                frame = frame.parent;
+                frame = frame.Parent;
                 frameIndex++;
             }
         }
-        return VarPos.INVALID;
+        return VarPos.Invalid;
     }
 
     /// <summary> Retrieves the symbol at the given coordinates, relative to the current environment. </summary>
     public static Symbol GetSymbolAt(VarPos varref, Environment frame)
-        => GetFrame(varref.frameIndex, frame).GetSymbol(varref.symbolIndex);
+        => GetFrame(varref.FrameIndex, frame).GetSymbol(varref.SymbolIndex);
 
     /// <summary> Sets the symbol at the given coordinates, relative to the current environment. </summary>
     public static void SetSymbolAt(VarPos varref, Symbol symbol, Environment frame)
-        => GetFrame(varref.frameIndex, frame).SetSymbol(varref.symbolIndex, symbol);
+        => GetFrame(varref.FrameIndex, frame).SetSymbol(varref.SymbolIndex, symbol);
 
     /// <summary> Retrieves the value at the given coordinates, relative to the current environment. </summary>
     public static Val GetValueAt(VarPos varref, Environment frame)
-        => GetFrame(varref.frameIndex, frame).GetValue(varref.symbolIndex);
+        => GetFrame(varref.FrameIndex, frame).GetValue(varref.SymbolIndex);
 
     /// <summary> Sets the value at the given coordinates, relative to the current environment. </summary>
     public static void SetValueAt(VarPos varref, Val value, Environment frame)
-        => GetFrame(varref.frameIndex, frame).SetValue(varref.symbolIndex, value);
+        => GetFrame(varref.FrameIndex, frame).SetValue(varref.SymbolIndex, value);
 
     /// <summary> Returns the specified frame, relative to the current environment </summary>
     private static Environment GetFrame(int frameIndex, Environment frame)
     {
         for (int i = 0; i < frameIndex; i++)
         {
-            frame = frame.parent;
+            frame = frame.Parent;
             if (frame == null)
             {
                 throw new LanguageError("Invalid frame coordinates detected");

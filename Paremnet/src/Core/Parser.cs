@@ -14,11 +14,11 @@ namespace Paremnet.Core;
 public class Parser(Packages packages, ILogger logger)
 {
     /// <summary> Full list of reserved keywords - no symbol can be named as one of these </summary>
-    public static readonly List<string> RESERVED
+    public static readonly List<string> Reserved
         = ["quote", "begin", "set!", "if", "if*", "while", "lambda", "defmacro", "."];
 
     /// <summary> Special "end of stream" constant </summary>
-    public static readonly Val EOF = new("!eof");
+    public static readonly Val Eof = new("!eof");
 
     /// <summary> Internal stream </summary>
     private readonly InputStream _stream = new();
@@ -27,7 +27,7 @@ public class Parser(Packages packages, ILogger logger)
     private readonly Packages _packages = packages ?? throw new ParserError("Parser requires a valid packages structure during initialization");
 
     /// <summary> Global unnamed package, used for symbols like "quote" (convenience reference) </summary>
-    private readonly Package _global = packages.global;
+    private readonly Package _global = packages.Global;
 
     /// <summary> Optional logger callback </summary>
     private readonly ILogger _logger = logger;
@@ -40,7 +40,7 @@ public class Parser(Packages packages, ILogger logger)
     {
         List<Val> results = [];
         Val result = ParseNext();
-        while (!Val.Equals(result, EOF))
+        while (!Val.Equals(result, Eof))
         {
             results.Add(result);
             result = ParseNext();
@@ -56,10 +56,10 @@ public class Parser(Packages packages, ILogger logger)
     {
         _stream.Save();
         Val result = Parse(_stream);
-        if (Val.Equals(result, EOF))
+        if (Val.Equals(result, Eof))
         {
             _stream.Restore();
-            return EOF;
+            return Eof;
         }
 
         if (_logger.EnableParsingLogging)
@@ -83,7 +83,7 @@ public class Parser(Packages packages, ILogger logger)
         // pull out the first character, we'll dispatch on it
         if (stream.IsEmpty)
         {
-            return EOF;
+            return Eof;
         }
 
         // remove leading whitespace
@@ -178,10 +178,10 @@ public class Parser(Packages packages, ILogger logger)
         }
     }
 
-    private readonly List<char> SPECIAL_ELEMENTS = ['(', ')', '\"', '\'', '`'];
+    private readonly List<char> _specialElements = ['(', ')', '\"', '\'', '`'];
 
     /// <summary> Special elements are like whitespace - they interrupt tokenizing </summary>
-    private bool IsSpecialElement(char elt, bool insideBackquote) => SPECIAL_ELEMENTS.Contains(elt) || (insideBackquote && elt == ',');
+    private bool IsSpecialElement(char elt, bool insideBackquote) => _specialElements.Contains(elt) || (insideBackquote && elt == ',');
 
 
     /// <summary>
@@ -211,7 +211,7 @@ public class Parser(Packages packages, ILogger logger)
         // did we fail?
         if (sb.Length == 0)
         {
-            return EOF;
+            return Eof;
         }
 
         string str = sb.ToString();
@@ -269,10 +269,10 @@ public class Parser(Packages packages, ILogger logger)
     private Val ParseSymbol(string name)
     {
         // if this is a reserved keyword, always using global namespace
-        if (RESERVED.Contains(name)) { return new Val(_global.Intern(name)); }
+        if (Reserved.Contains(name)) { return new Val(_global.Intern(name)); }
 
         // figure out the package. default to current package.
-        Package p = _packages.current;
+        Package p = _packages.Current;
 
         // reference to a non-current package - let's look it up there
         int colon = name.IndexOf(":");
@@ -364,23 +364,23 @@ public class Parser(Packages packages, ILogger logger)
     /// </pre> </summary>
     private Val ConvertBackquote(Cons cons)
     {
-        Symbol first = cons.first.AsSymbolOrNull;
-        if (first == null || first.name != "`")
+        Symbol first = cons.First.AsSymbolOrNull;
+        if (first == null || first.Name != "`")
         {
             throw new ParserError($"Unexpected {first} in place of backquote");
         }
 
         // (` e) where e is atomic => e
-        Cons body = cons.second.AsConsOrNull;
+        Cons body = cons.Second.AsConsOrNull;
         if (body == null)
         {
-            return Cons.MakeList(_global.Intern("quote"), cons.second);
+            return Cons.MakeList(_global.Intern("quote"), cons.Second);
         }
 
         // (` (, e)) => e
-        if (IsSymbolWithName(body.first, ","))
+        if (IsSymbolWithName(body.First, ","))
         {
-            return body.second;
+            return body.Second;
         }
 
         // we didn't match any special forms, just do a list match
@@ -389,8 +389,8 @@ public class Parser(Packages packages, ILogger logger)
         Cons c = body;
         while (c != null)
         {
-            forms.Add(ConvertBackquoteElement(c.first));
-            c = c.rest.AsConsOrNull;
+            forms.Add(ConvertBackquoteElement(c.First));
+            c = c.Rest.AsConsOrNull;
         }
 
         Cons result = new(_global.Intern("append"), Cons.MakeList(forms));
@@ -411,17 +411,17 @@ public class Parser(Packages packages, ILogger logger)
     private Val ConvertBackquoteElement(Val value)
     {
         Cons cons = value.AsConsOrNull;
-        if (cons != null && cons.first.IsSymbol)
+        if (cons != null && cons.First.IsSymbol)
         {
-            Symbol sym = cons.first.AsSymbol;
-            switch (sym.name)
+            Symbol sym = cons.First.AsSymbol;
+            switch (sym.Name)
             {
                 case ",":
                     // [(, a)] => (list a)
-                    return new Val(new Cons(new Val(_global.Intern("list")), cons.rest));
+                    return new Val(new Cons(new Val(_global.Intern("list")), cons.Rest));
                 case ",@":
                     // [(,@ a)] => a
-                    return cons.second;
+                    return cons.Second;
             }
         }
 
@@ -438,13 +438,13 @@ public class Parser(Packages packages, ILogger logger)
     {
         Val original = new(value);
 
-        if (!IsSymbolWithName(value.first, "append"))
+        if (!IsSymbolWithName(value.First, "append"))
         {
             return original;
         }
 
         List<Val> results = [];
-        Val rest = value.rest;
+        Val rest = value.Rest;
         while (rest.IsNotNil)
         {
             Cons cons = rest.AsConsOrNull;
@@ -453,24 +453,24 @@ public class Parser(Packages packages, ILogger logger)
                 return original; // not a proper list
             }
 
-            Cons maybeList = cons.first.AsConsOrNull;
+            Cons maybeList = cons.First.AsConsOrNull;
             if (maybeList == null)
             {
                 return original; // not all elements are lists themselves
             }
 
-            if (!IsSymbolWithName(maybeList.first, "list"))
+            if (!IsSymbolWithName(maybeList.First, "list"))
             {
                 return original; // not all elements are of the form (list ...)
             }
 
-            Val ops = maybeList.rest;
+            Val ops = maybeList.Rest;
             while (ops.IsCons)
             {
-                results.Add(ops.AsCons.first);
-                ops = ops.AsCons.rest;
+                results.Add(ops.AsCons.First);
+                ops = ops.AsCons.Rest;
             }
-            rest = cons.rest;
+            rest = cons.Rest;
         }
 
         // we've reassembled the bodies, return them in the form (list ...)
@@ -479,5 +479,5 @@ public class Parser(Packages packages, ILogger logger)
 
     /// <summary> Convenience function: checks if the value is of type Symbol, and has the specified name </summary>
     private static bool IsSymbolWithName(Val value, string fullName) =>
-        value.AsSymbolOrNull?.fullName == fullName;
+        value.AsSymbolOrNull?.FullName == fullName;
 }
