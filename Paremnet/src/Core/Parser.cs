@@ -269,7 +269,7 @@ public class Parser(Packages packages, ILogger logger)
         Package p = _packages.Current;
 
         // reference to a non-current package - let's look it up there
-        int colon = name.IndexOf(":");
+        int colon = name.IndexOf(':');
         if (colon >= 0)
         {
             string pkgname = name[..colon];
