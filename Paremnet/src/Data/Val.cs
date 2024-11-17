@@ -134,15 +134,15 @@ public readonly struct Val : IEquatable<Val>
         boxed switch
         {
             null => NIL,
-            Boolean bval => bval,
-            Int16 i16 => i16,
-            Int32 ival => ival,
-            Single fval => fval,
-            string sval => sval,
-            Symbol symval => symval,
-            Cons cval => cval,
-            Vector vval => vval,
-            Closure closval => closval,
+            Boolean boolean => boolean,
+            Int16 int16 => int16,
+            Int32 int32 => int32,
+            Single single => single,
+            string str => str,
+            Symbol symbol => symbol,
+            Cons cons => cons,
+            Vector vec => vec,
+            Closure closure => closure,
             _ => new Val(boxed),
         };
 
