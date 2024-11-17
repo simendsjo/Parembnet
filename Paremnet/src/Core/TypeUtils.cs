@@ -102,8 +102,15 @@ public static class TypeUtils
     /// </summary>
     public static void SetValue(MemberInfo member, object obj, object value, object[] index = null)
     {
-        if (member is PropertyInfo prop) { prop.SetValue(obj, value, index); }
-        if (member is FieldInfo field) { field.SetValue(obj, value); }
+        switch (member)
+        {
+            case PropertyInfo prop:
+                prop.SetValue(obj, value, index);
+                break;
+            case FieldInfo field:
+                field.SetValue(obj, value);
+                break;
+        }
     }
 
     /// <summary>
