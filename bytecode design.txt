@@ -55,7 +55,7 @@ INTEROP CONVENTIONS
 We adopt the Scheme notion of true/false values being different from nil, 
 which is used mainly as a list terminator. This maps cleanly to C# semantics.
 
-C# FORM		CSLISP FORM
+C# FORM		PAREMNET FORM
 null		nil
 true		#t
 false		#f

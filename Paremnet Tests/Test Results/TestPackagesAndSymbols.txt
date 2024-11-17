@@ -1,0 +1,22 @@
+TEST TestPackagesAndSymbols
+test: got "foo"  - expected "foo"
+test: got [Native Paremnet.Data.Package Paremnet.Data.Package]  - expected [Native Paremnet.Data.Package Paremnet.Data.Package]
+test: got "foo"  - expected "foo"
+test: got #t  - expected #t
+test: got #t  - expected #t
+test: got #t  - expected #t
+test: got #t  - expected #t
+test: got "foo"  - expected "foo"
+test: got [Native Paremnet.Data.Package Paremnet.Data.Package]  - expected [Native Paremnet.Data.Package Paremnet.Data.Package]
+test: got "fancy:foo"  - expected "fancy:foo"
+test: got ""  - expected ""
+test: got "foo"  - expected "foo"
+test: got ""  - expected ""
+test: got ":foo"  - expected ":foo"
+test: got [Native null]  - expected [Native null]
+test: got [Native Paremnet.Data.Package Paremnet.Data.Package]  - expected [Native Paremnet.Data.Package Paremnet.Data.Package]
+test: got [Native Paremnet.Data.Package Paremnet.Data.Package]  - expected [Native Paremnet.Data.Package Paremnet.Data.Package]
+test: got "fancy:foo"  - expected "fancy:foo"
+test: got #t  - expected #t
+test: got #t  - expected #t
+SUCCESS

@@ -1,7 +1,7 @@
-CSLisp
+Paremnet
 =======
 
-**CSLisp** is a Scheme / Lisp dialect implemented in C#, intended as an embedded scripting language in .NET projects.
+**Paremnet** is a Scheme / Lisp dialect implemented in C#, intended as an embedded scripting language in .NET projects.
 
 It is a _bytecode compiled_ language, and comes with a compiler and a bytecode interpreter. The language includes the typical Lisp-dialect features you'd expect, like proper closures, tail-call optimization, and macros. However, like Scheme, it prefers explicit boolean types, and a single namespace. 
 
@@ -12,9 +12,9 @@ Design goals:
 - AOT friendly - does not use Reflection.Emit so it can be used in pre-compiled environments (mobile, consoles)
 - Extensible - supports macros and primitives, user primops and reflection coming soon 
 
-**CSLisp** is intended to be used as a library, embedded in another host program, and not a standalone executable. The compiler, bytecode interpreter, and runtime environment, are all easy to access and manipulate from host programs. Unit tests and REPL show how to interop with it.
+**Paremnet** is intended to be used as a library, embedded in another host program, and not a standalone executable. The compiler, bytecode interpreter, and runtime environment, are all easy to access and manipulate from host programs. Unit tests and REPL show how to interop with it.
 
-Unlike most .NET Lisp implementations, CSLisp does **not** emit .NET bytecode, it loads text files only, and compiles to its own bytecode. This is intended for compatibility with _ahead-of-time (AOT) compiled_ environments, such as mobile and console games, which do not allow for runtime .NET IL generation or use of Reflection.Emit.
+Unlike most .NET Lisp implementations, Paremnet does **not** emit .NET bytecode, it loads text files only, and compiles to its own bytecode. This is intended for compatibility with _ahead-of-time (AOT) compiled_ environments, such as mobile and console games, which do not allow for runtime .NET IL generation or use of Reflection.Emit.
 
 Language implementation should be pretty readable and easy to extend. Compiler and bytecode design are heavily ~cribbed from~ influenced by Quinnec's *"Lisp in Small Pieces"* and Norvig's *"Principles of Artificial Intelligence Programming"* . Standing on the shoulders on giants. :)  
 
