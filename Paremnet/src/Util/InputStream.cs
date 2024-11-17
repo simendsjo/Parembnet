@@ -55,8 +55,8 @@ public class InputStream
             return false;
         }
 
-        _index = _saved.index;
-        _buffer = _saved.buffer;
+        _index = _saved.Index;
+        _buffer = _saved.Buffer;
         _saved = null;
         return true;
     }
@@ -67,7 +67,7 @@ public class InputStream
     /// </summary>
     private class StreamState(string buffer, int index)
     {
-        public readonly int index = index;
-        public readonly string buffer = buffer;
+        public readonly int Index = index;
+        public readonly string Buffer = buffer;
     }
 }
