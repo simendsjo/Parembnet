@@ -141,7 +141,7 @@ namespace Paremnet
         {
             var manifestLocation = ctx.GetType().Assembly.Location;
             FileVersionInfo info = FileVersionInfo.GetVersionInfo(manifestLocation);
-            return $"Paremnet REPL. {info.LegalCopyright}. Version {info.ProductVersion}.";
+            return $"Paremnet.REPL. {info.LegalCopyright}. Version {info.ProductVersion}.";
         }
 
         private static void Main(string[] _) => Run();
