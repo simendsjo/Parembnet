@@ -356,7 +356,7 @@ public readonly struct Val : IEquatable<Val>
 
     public bool CastToBool => (type == Type.Boolean) ? vboolean : (type != Type.Nil);
 
-    public float CastToSingle =>
+    public Single CastToFloat32 =>
         type switch
         {
             Type.Int8 => vint8,
