@@ -15,7 +15,7 @@ public class Parser
 {
     /// <summary> Full list of reserved keywords - no symbol can be named as one of these </summary>
     public static readonly List<string> RESERVED
-        = new() { "quote", "begin", "set!", "if", "if*", "while", "lambda", "defmacro", "." };
+        = ["quote", "begin", "set!", "if", "if*", "while", "lambda", "defmacro", "."];
 
     /// <summary> Special "end of stream" constant </summary>
     public static readonly Val EOF = new("!eof");
@@ -45,7 +45,7 @@ public class Parser
     /// <summary> Parses and returns all the elements it can from the stream </summary>
     public List<Val> ParseAll()
     {
-        List<Val> results = new();
+        List<Val> results = [];
         Val result = ParseNext();
         while (!Val.Equals(result, EOF))
         {
@@ -185,7 +185,7 @@ public class Parser
         }
     }
 
-    private readonly List<char> SPECIAL_ELEMENTS = new() { '(', ')', '\"', '\'', '`' };
+    private readonly List<char> SPECIAL_ELEMENTS = ['(', ')', '\"', '\'', '`'];
 
     /// <summary> Special elements are like whitespace - they interrupt tokenizing </summary>
     private bool IsSpecialElement(char elt, bool insideBackquote) => SPECIAL_ELEMENTS.Contains(elt) || (insideBackquote && elt == ',');
@@ -340,7 +340,7 @@ public class Parser
     private Val ParseList(InputStream stream, bool backquote)
     {
 
-        List<Val> results = new();
+        List<Val> results = [];
         stream.Read(); // consume opening paren
         ConsumeWhitespace(stream);
 
@@ -392,7 +392,7 @@ public class Parser
 
         // we didn't match any special forms, just do a list match
         // (` (a ...)) => (append [a] ...)
-        List<Val> forms = new();
+        List<Val> forms = [];
         Cons c = body;
         while (c != null)
         {
@@ -450,7 +450,7 @@ public class Parser
             return original;
         }
 
-        List<Val> results = new();
+        List<Val> results = [];
         Val rest = value.rest;
         while (rest.IsNotNil)
         {

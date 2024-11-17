@@ -13,7 +13,8 @@ public class Primitives
 
     private static Dictionary<string, List<Primitive>> ALL_PRIMITIVES_DICT = new();
 
-    private static readonly List<Primitive> ALL_PRIMITIVES_VECTOR = new() {
+    private static readonly List<Primitive> ALL_PRIMITIVES_VECTOR =
+    [
         new Primitive("+", 2, new Function((Context ctx, Val a, Val b) => ValAdd(a, b))),
         new Primitive("-", 2, new Function((Context ctx, Val a, Val b) => ValSub(a, b))),
         new Primitive("*", 2, new Function((Context ctx, Val a, Val b) => ValMul(a, b))),
@@ -21,14 +22,16 @@ public class Primitives
 
         new Primitive("+", 3, new Function((Context ctx, VarArgs args) =>
             FoldLeft((a, b) => ValAdd(a, b), 0, args)), FnType.VarArgs),
+
         new Primitive("*", 3, new Function((Context ctx, VarArgs args) =>
             FoldLeft((a, b) => ValMul(a, b), 1, args)), FnType.VarArgs),
 
-        new Primitive("=",  2, new Function((Context ctx, Val a, Val b) => Val.Equals(a, b))),
-        new Primitive("!=", 2, new Function((Context ctx, Val a, Val b) => ! Val.Equals(a, b))),
-        new Primitive("<",  2, new Function((Context ctx, Val a, Val b) => ValLT(a, b))),
+
+        new Primitive("=", 2, new Function((Context ctx, Val a, Val b) => Val.Equals(a, b))),
+        new Primitive("!=", 2, new Function((Context ctx, Val a, Val b) => !Val.Equals(a, b))),
+        new Primitive("<", 2, new Function((Context ctx, Val a, Val b) => ValLT(a, b))),
         new Primitive("<=", 2, new Function((Context ctx, Val a, Val b) => ValLTE(a, b))),
-        new Primitive(">",  2, new Function((Context ctx, Val a, Val b) => ValGT(a, b))),
+        new Primitive(">", 2, new Function((Context ctx, Val a, Val b) => ValGT(a, b))),
         new Primitive(">=", 2, new Function((Context ctx, Val a, Val b) => ValGTE(a, b))),
 
         new Primitive("cons", 2, new Function((Context ctx, Val a, Val b) => new Cons(a, b))),
@@ -39,6 +42,7 @@ public class Primitives
 
         new Primitive("append", 1, new Function((Context ctx, VarArgs args) =>
             FoldRight(AppendHelper, Val.NIL, args)), FnType.VarArgs),
+
 
         new Primitive("length", 1, new Function((Context ctx, Val a) => Cons.Length(a))),
 
@@ -62,72 +66,94 @@ public class Primitives
         new Primitive("nth-tail", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthTail(n.AsInt))),
         new Primitive("nth-cons", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthCons(n.AsInt))),
 
-        new Primitive("map", 2, new Function((Context ctx, Val a, Val b) => {
+        new Primitive("map", 2, new Function((Context ctx, Val a, Val b) =>
+        {
             Closure fn = a.AsClosure;
             Cons list = b.AsCons;
             return new Val(MapHelper(ctx, fn, list));
         }), sideFx: SideFx.Possible),
 
         // macroexpansion
+
         new Primitive("mx1", 1, new Function((ctx, exp) => ctx.compiler.MacroExpand1Step(exp))),
         new Primitive("mx", 1, new Function((ctx, exp) => ctx.compiler.MacroExpandFull(exp))),
 
         // helpers
-        new Primitive("trace", 1, new Function((Context ctx, VarArgs args) => {
+        new Primitive("trace", 1, new Function((Context ctx, VarArgs args) =>
+        {
             List<Val> arglist = args.ToNativeList();
             Console.WriteLine(string.Join(" ", arglist.Select(val => Val.Print(val))));
             return Val.NIL;
         }), FnType.VarArgs, SideFx.Possible),
 
+
         new Primitive("gensym", 0, new Function((ctx) => GensymHelper(ctx, "GENSYM-"))),
         new Primitive("gensym", 1, new Function((Context ctx, Val a) => GensymHelper(ctx, a.AsStringOrNull))),
 
-        new Primitive("eval", 1, new Function((Context ctx, Val e) => {
+        new Primitive("eval", 1, new Function((Context ctx, Val e) =>
+        {
             CompilationResults closure = ctx.compiler.Compile(e);
             Val result = ctx.vm.Execute(closure.closure);
             return result;
         }), sideFx: SideFx.Possible),
 
         // packages
-        new Primitive("package-set", 1, new Function((Context ctx, Val a) => {
+
+        new Primitive("package-set", 1, new Function((Context ctx, Val a) =>
+        {
             string name = a.IsNil ? null : a.AsString; // nil package name == global package
             Package pkg = ctx.packages.Intern(name);
             ctx.packages.current = pkg;
             return a.IsNil ? Val.NIL : new Val(name);
         }), sideFx: SideFx.Possible),
 
-        new Primitive("package-get", 0, new Function (ctx => new Val(ctx.packages.current.name)),
+
+        new Primitive("package-get", 0, new Function(ctx => new Val(ctx.packages.current.name)),
             sideFx: SideFx.Possible),
 
-        new Primitive("package-import", 1, new Function ((Context ctx, VarArgs names) => {
-            foreach (Val a in names.ToNativeList()) {
+
+        new Primitive("package-import", 1, new Function((Context ctx, VarArgs names) =>
+        {
+            foreach (Val a in names.ToNativeList())
+            {
                 string name = a.IsNil ? null : a.AsString;
                 ctx.packages.current.AddImport(ctx.packages.Intern(name));
             }
+
             return Val.NIL;
         }), FnType.VarArgs, SideFx.Possible),
 
-        new Primitive("package-imports", 0, new Function (ctx => {
+
+        new Primitive("package-imports", 0, new Function(ctx =>
+        {
             List<Val> imports = ctx.packages.current.ListImports();
             return Cons.MakeList(imports);
         }), sideFx: SideFx.Possible),
 
-        new Primitive("package-export", 1, new Function ((Context ctx, Val a) => {
+
+        new Primitive("package-export", 1, new Function((Context ctx, Val a) =>
+        {
             Cons names = a.AsConsOrNull;
-            while (names != null) {
+            while (names != null)
+            {
                 Symbol symbol = names.first.AsSymbol;
                 symbol.exported = true;
                 names = names.rest.AsConsOrNull;
             }
+
             return Val.NIL;
         }), sideFx: SideFx.Possible),
 
-        new Primitive("package-exports", 0, new Function (ctx => {
+
+        new Primitive("package-exports", 0, new Function(ctx =>
+        {
             List<Val> exports = ctx.packages.current.ListExports();
             return Cons.MakeList(exports);
         }), sideFx: SideFx.Possible),
 
-        new Primitive("error", 1, new Function ((Context ctx, VarArgs names) => {
+
+        new Primitive("error", 1, new Function((Context ctx, VarArgs names) =>
+        {
             string[] all = names.ToNativeList().Select(v => v.AsStringOrNull ?? Val.Print(v)).ToArray();
             throw new RuntimeError(all);
         }), argsType: FnType.VarArgs, sideFx: SideFx.Possible),
@@ -140,11 +166,13 @@ public class Primitives
         // (.. mydata 'ToString "D") => calls mydata.ToString("D")
         // (.. myarray 'Item 0)      => returns 0th item etc.
         // (.. mydata 'ToString "D" 'Length 'ToString) => calls mydata.ToString("D").Length.ToString()
-        new Primitive ("..", 1, new Function(Interop.DotDot), FnType.VarArgs, SideFx.Possible),
+
+        new Primitive("..", 1, new Function(Interop.DotDot), FnType.VarArgs, SideFx.Possible),
 
         // (.new 'System.DateTime 1999 12 31)
         // (.new (.. 'System 'DateTime) 1999 12 31)
-        new Primitive(".new", 1, new Function((Context ctx, VarArgs args) => {
+        new Primitive(".new", 1, new Function((Context ctx, VarArgs args) =>
+        {
             var (type, varargs) = ParseArgsForConstructorInterop(args);
             if (type == null) { return Val.NIL; }
 
@@ -152,7 +180,9 @@ public class Primitives
         }), FnType.VarArgs, SideFx.Possible),
 
         // (.! some-instance 'FieldName 42)
-        new Primitive (".!", 3, new Function((Context ctx, VarArgs args) => {
+
+        new Primitive(".!", 3, new Function((Context ctx, VarArgs args) =>
+        {
             var (instance, type, memberName, targetValue, _) = ParseSetterArgs(args, true);
 
             MemberInfo member = TypeUtils.GetFieldOrProp(type, memberName, true);
@@ -161,11 +191,13 @@ public class Primitives
         }), sideFx: SideFx.Possible),
 
         // (.! some-instance 'Item 0 "hello") sets 0th item etc
-        new Primitive (".!", 4, new Function((Context ctx, VarArgs args) => {
+
+        new Primitive(".!", 4, new Function((Context ctx, VarArgs args) =>
+        {
             var (instance, type, memberName, index, targetValue) = ParseSetterArgs(args, true);
 
             MemberInfo member = TypeUtils.GetFieldOrProp(type, memberName, true);
-            TypeUtils.SetValue(member, instance, targetValue.AsBoxedValue, new object[] { index.AsBoxedValue });
+            TypeUtils.SetValue(member, instance, targetValue.AsBoxedValue, [index.AsBoxedValue]);
             return targetValue;
         }), sideFx: SideFx.Possible),
 
@@ -175,45 +207,66 @@ public class Primitives
 
         // (make-vector 3)
         // (make-vector '(1 2 3))
-        new Primitive("make-vector", 1, new Function((Context ctx, Val arg) => {
+
+        new Primitive("make-vector", 1, new Function((Context ctx, Val arg) =>
+        {
             if (arg.IsInt) { return new Val(new Vector(Enumerable.Repeat(Val.NIL, arg.AsInt))); }
+
             if (arg.IsCons) { return new Val(new Vector(arg.AsCons)); }
+
             throw new LanguageError("Invalid parameter, expected size or list, got: " + arg.ToString());
         })),
 
         // (make-vector 3 "value")
-        new Primitive("make-vector", 2, new Function((Context ctx, Val count, Val val) => {
+
+        new Primitive("make-vector", 2, new Function((Context ctx, Val count, Val val) =>
+        {
             if (count.IsInt) { return new Val(new Vector(Enumerable.Repeat(val, count.AsInt))); }
+
             throw new LanguageError("Invalid parameter, expected size, got: " + count.ToString());
         })),
 
-        new Primitive("vector?", 1, new Function((Context ctx, Val arg) => {
+
+        new Primitive("vector?", 1, new Function((Context ctx, Val arg) =>
+        {
             return arg.IsVector;
         })),
 
-        new Primitive("vector-length", 1, new Function((Context ctx, Val v) => {
+
+        new Primitive("vector-length", 1, new Function((Context ctx, Val v) =>
+        {
             Vector vector = v.AsVectorOrNull;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
+
             return vector.Count;
         })),
 
-        new Primitive("vector-get", 2, new Function((Context ctx, Val v, Val i) => {
+
+        new Primitive("vector-get", 2, new Function((Context ctx, Val v, Val i) =>
+        {
             Vector vector = v.AsVectorOrNull;
             int index = i.AsInt;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
+
             if (index < 0 || index >= vector.Count) { throw new LanguageError($"Index value {index} out of bounds"); }
+
             return vector[index];
         })),
 
-        new Primitive("vector-set!", 3, new Function((Context ctx, Val v, Val i, Val value) => {
+
+        new Primitive("vector-set!", 3, new Function((Context ctx, Val v, Val i, Val value) =>
+        {
             Vector vector = v.AsVectorOrNull;
             int index = i.AsInt;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
+
             if (index < 0 || index >= vector.Count) { throw new LanguageError($"Index value {index} out of bounds"); }
+
             vector[index] = value;
             return value;
-        }), sideFx: SideFx.Possible),
-    };
+        }), sideFx: SideFx.Possible)
+
+    ];
 
     /// <summary>
     /// If f is a symbol that refers to a primitive, and it's not shadowed in the local environment,
@@ -250,7 +303,7 @@ public class Primitives
             // dictionary update
             if (!ALL_PRIMITIVES_DICT.TryGetValue(p.name, out List<Primitive> v))
             {
-                v = ALL_PRIMITIVES_DICT[p.name] = new List<Primitive>();
+                v = ALL_PRIMITIVES_DICT[p.name] = [];
             }
 
             // add to the list of primitives of that name
@@ -261,9 +314,11 @@ public class Primitives
             {
                 Symbol name = pkg.Intern(p.name);
                 name.exported = true;
-                List<Instruction> instructions = new() {
+                List<Instruction> instructions =
+                [
                     new Instruction(Opcode.CALL_PRIMOP, p.name),
-                    new Instruction(Opcode.RETURN_VAL)};
+                    new Instruction(Opcode.RETURN_VAL)
+                ];
 
                 CodeHandle code = context.code.AddBlock(instructions, name.fullName);
                 pkg.SetValue(name, new Closure(code, null, null, name.fullName));
@@ -499,7 +554,7 @@ public class Primitives
     }
 
     private static object[] TurnConsIntoBoxedArray(Val? cons) =>
-        cons?.AsConsOrNull?.ToNativeList().Select(v => v.AsBoxedValue).ToArray() ?? Array.Empty<object>();
+        cons?.AsConsOrNull?.ToNativeList().Select(v => v.AsBoxedValue).ToArray() ?? [];
 
     /// <summary> Collapses a native path (expressed as a Cons list) into a fully qualified name </summary>
     /*

@@ -47,7 +47,7 @@ public class CodeBlock
 public class Code
 {
     // block storage as a list to ensure fast lookup
-    private readonly List<CodeBlock> _blocks = new() { null }; // make sure index starts at 1
+    private readonly List<CodeBlock> _blocks = [null]; // make sure index starts at 1
 
     public CodeHandle LastHandle => new(_blocks.Count - 1);
 

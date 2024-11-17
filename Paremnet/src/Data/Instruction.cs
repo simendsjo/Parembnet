@@ -117,12 +117,13 @@ public class Instruction
     private static readonly string[] _NAMES = Enum.GetNames(typeof(Opcode));
 
     /// <summary> Names of all jump instructions that need to be fixed up at assembly time </summary>
-    private static readonly List<Opcode> JUMP_TYPES = new() {
+    private static readonly List<Opcode> JUMP_TYPES =
+    [
         Opcode.JMP_TO_LABEL,
         Opcode.JMP_IF_FALSE,
         Opcode.JMP_IF_TRUE,
         Opcode.SAVE_RETURN
-    };
+    ];
 
     /// <summary> Instruction type, one of the constants in this class </summary>
     public Opcode type { get; private set; }

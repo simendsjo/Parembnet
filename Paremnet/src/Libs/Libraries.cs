@@ -12,7 +12,7 @@ public class Libraries
 {
     /// <summary> All libraries as a list </summary>
     private static List<byte[]> GetAllBuiltInLibraries() =>
-        new() { Resources.Core, Resources.Record, Resources.User };
+        [Resources.Core, Resources.Record, Resources.User];
 
     /// <summary> Loads all standard libraries into an initialized machine instance </summary>
     public static void LoadStandardLibraries(Context ctx)

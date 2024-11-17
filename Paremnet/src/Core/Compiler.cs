@@ -97,7 +97,7 @@ public class Compiler
         Closure closure = CompileLambda(Val.NIL, new Cons(x, Val.NIL), null);
         CodeHandle after = _ctx.code.LastHandle;
 
-        List<CodeHandle> blocks = new();
+        List<CodeHandle> blocks = [];
         for (int i = before.index + 1; i <= after.index; i++) { blocks.Add(new CodeHandle(i)); }
 
         return new CompilationResults(closure, blocks);
@@ -537,15 +537,15 @@ public class Compiler
 
     /// <summary> Generates a sequence containing a single instruction </summary>
     private static List<Instruction> Emit(Opcode type, Val first, Val second, string debug = null) =>
-        new() { new Instruction(type, first, second, debug) };
+        [new Instruction(type, first, second, debug)];
 
     /// <summary> Generates a sequence containing a single instruction </summary>
     private static List<Instruction> Emit(Opcode type, Val first, string debug = null) =>
-        new() { new Instruction(type, first, debug) };
+        [new Instruction(type, first, debug)];
 
     /// <summary> Generates a sequence containing a single instruction with no arguments </summary>
     private static List<Instruction> Emit(Opcode type) =>
-        new() { new Instruction(type) };
+        [new Instruction(type)];
 
 
     /// <summary> Creates a new unique label </summary>

@@ -93,11 +93,11 @@ public static class Interop
     public static List<Val> SplitSymbol(Val val)
     {
 
-        if (!val.IsSymbol) { return new List<Val>() { val }; }
+        if (!val.IsSymbol) { return [val]; }
 
         Symbol sym = val.AsSymbol;
         string symname = sym.name;
-        if (!symname.Contains(NS_SEPARATOR)) { return new List<Val>() { val }; }
+        if (!symname.Contains(NS_SEPARATOR)) { return [val]; }
 
         // split on the dot
         string[] names = symname.Split(NS_SEPARATOR);

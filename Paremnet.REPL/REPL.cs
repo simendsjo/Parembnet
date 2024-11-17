@@ -45,24 +45,31 @@ namespace Paremnet
             }
         }
 
-        private static readonly List<Command> _commands = new() {
+        private static readonly List<Command> _commands =
+        [
             new Command(",exit", "Quits the REPL", () => _runRepl = false),
             new Command(",help", "Shows this help menu",
-                () => Console.WriteLine("Valid repl commands:\n" + string.Join("\n", _commands.Select(p => p.Message)))),
+                () => Console.WriteLine("Valid repl commands:\n" +
+                                        string.Join("\n", _commands.Select(p => p.Message)))),
+
 
             new Command(",logcomp", "Toggles logging of bytecode compilation",
-                () => {
+                () =>
+                {
                     _logCompilation = !_logCompilation;
                     Console.WriteLine("Logging compilation: " + _logCompilation);
                 }),
+
             new Command(",logexec", "Toggles logging of bytecode execution",
-                () => {
+                () =>
+                {
                     _logExecution = !_logExecution;
                     Console.WriteLine("Logging execution: " + _logExecution);
                 }),
+
             new Command(",time", "Type ',time (expression ...)' to log and print execution time of that expression",
                 () => _timeNextExecution = true)
-        };
+        ];
 
         public static void Run()
         {
