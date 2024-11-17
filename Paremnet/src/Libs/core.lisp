@@ -1,3 +1,4 @@
+;; -*- mode: lisp; -*-
 (package-set "core")
 
 (package-export 

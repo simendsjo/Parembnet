@@ -1,3 +1,4 @@
+;; -*- mode: lisp; -*-
 (package-set "user")
 
 (package-import "core")

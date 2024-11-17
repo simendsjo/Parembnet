@@ -1,3 +1,4 @@
+;; -*- mode: lisp; -*-
 ;; Experimental record support
 ;; Inspired by SRFI-9
 
