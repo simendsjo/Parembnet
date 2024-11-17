@@ -22,7 +22,7 @@ public readonly struct Val : IEquatable<Val>
     {
         // value types
         Nil,
-        Bool,
+        Boolean,
         Int32,
         Float,
 
@@ -38,7 +38,7 @@ public readonly struct Val : IEquatable<Val>
 
     // value types need to live at a separate offset from reference types
     [FieldOffset(0)] public readonly ulong rawvalue;
-    [FieldOffset(0)] public readonly bool vbool;
+    [FieldOffset(0)] public readonly Boolean vboolean;
     [FieldOffset(0)] public readonly Int32 vint32;
     [FieldOffset(0)] public readonly float vfloat;
 
@@ -56,7 +56,7 @@ public readonly struct Val : IEquatable<Val>
 
     private Val(Type type) : this() { this.type = type; }
 
-    public Val(bool value) : this() { type = Type.Bool; vbool = value; }
+    public Val(bool value) : this() { type = Type.Boolean; vboolean = value; }
     public Val(Int32 value) : this() { type = Type.Int32; vint32 = value; }
     public Val(float value) : this() { type = Type.Float; vfloat = value; }
     public Val(string value) : this() { type = Type.String; vstring = value; }
@@ -73,7 +73,7 @@ public readonly struct Val : IEquatable<Val>
 
     public bool IsNumber => type is Type.Int32 or Type.Float;
 
-    public bool IsBool => type == Type.Bool;
+    public bool IsBool => type == Type.Boolean;
     public bool IsInt32 => type == Type.Int32;
     public bool IsFloat => type == Type.Float;
     public bool IsString => type == Type.String;
@@ -84,7 +84,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsReturnAddress => type == Type.ReturnAddress;
     public bool IsObject => type == Type.Object;
 
-    public bool AsBool => type == Type.Bool ? vbool : throw new CompilerError("Value type was expected to be bool");
+    public bool AsBoolean => type == Type.Boolean ? vboolean : throw new CompilerError("Value type was expected to be Boolean");
     public int AsInt32 => type == Type.Int32 ? vint32 : throw new CompilerError("Value type was expected to be Int32");
     public string AsString => type == Type.String ? vstring : throw new CompilerError("Value type was expected to be string");
     public Symbol AsSymbol => type == Type.Symbol ? vsymbol : throw new CompilerError("Value type was expected to be symbol");
@@ -108,7 +108,7 @@ public readonly struct Val : IEquatable<Val>
         type switch
         {
             Type.Nil => null,
-            Type.Bool => vbool,
+            Type.Boolean => vboolean,
             Type.Int32 => vint32,
             Type.Float => vfloat,
             Type.String => vstring,
@@ -136,7 +136,7 @@ public readonly struct Val : IEquatable<Val>
             _ => new Val(boxed),
         };
 
-    public bool CastToBool => (type == Type.Bool) ? vbool : (type != Type.Nil);
+    public bool CastToBool => (type == Type.Boolean) ? vboolean : (type != Type.Nil);
     public float CastToFloat =>
         type switch
         {
@@ -145,7 +145,7 @@ public readonly struct Val : IEquatable<Val>
             _ => throw new CompilerError("Float cast applied to not a number")
         };
 
-    private bool IsValueType => type is Type.Bool or Type.Int32 or Type.Float;
+    private bool IsValueType => type is Type.Boolean or Type.Int32 or Type.Float;
 
     public static bool Equals(Val a, Val b)
     {
@@ -193,8 +193,8 @@ public readonly struct Val : IEquatable<Val>
         {
             case Type.Nil:
                 return "()";
-            case Type.Bool:
-                return val.vbool ? "#t" : "#f";
+            case Type.Boolean:
+                return val.vboolean ? "#t" : "#f";
             case Type.Int32:
                 return val.vint32.ToString(CultureInfo.InvariantCulture);
             case Type.Float:

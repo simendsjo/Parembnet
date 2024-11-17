@@ -324,7 +324,7 @@ public class Compiler
     private List<Instruction> CompileIf(Val pred, Val then, Val els, Environment env, State st)
     {
         // (if #f x y) => y
-        if (pred.IsBool && !pred.AsBool) { return Compile(els, env, st); }
+        if (pred.IsBool && !pred.AsBoolean) { return Compile(els, env, st); }
 
         // (if #t x y) => x, or (if 5 ...) or (if "foo" ...)
         bool isConst = (pred.IsBool) || (pred.IsNumber) || (pred.IsString);
@@ -379,7 +379,7 @@ public class Compiler
         // (if* x y) will return x if it's not false, otherwise it will return y
 
         // (if* #f x) => x
-        if (pred.IsBool && !pred.AsBool)
+        if (pred.IsBool && !pred.AsBoolean)
         {
             return Compile(els, env, st);
         }
