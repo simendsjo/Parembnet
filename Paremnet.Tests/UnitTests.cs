@@ -134,15 +134,6 @@ namespace Paremnet
         [Test]
         public void RunTests()
         {
-            void Run(System.Action fn)
-            {
-                _logger.OpenLog(fn.GetMethodInfo().Name);
-                _failures = 0;
-                fn();
-                Log(_failures == 0 ? "SUCCESS" : $"FAILURES: {_failures}");
-                _logger.CloseLog();
-            }
-
             Run(TestConsAndAtoms);
             Run(TestPackagesAndSymbols);
             Run(TestEnvironments);
@@ -157,6 +148,16 @@ namespace Paremnet
             Run(TestRecords);
 
             Run(PrintAllStandardLibraries);
+            return;
+
+            void Run(System.Action fn)
+            {
+                _logger.OpenLog(fn.GetMethodInfo().Name);
+                _failures = 0;
+                fn();
+                Log(_failures == 0 ? "SUCCESS" : $"FAILURES: {_failures}");
+                _logger.CloseLog();
+            }
         }
 
         private void DumpCodeBlocks(Context ctx) => Log(ctx.Code.DebugPrintAll());
