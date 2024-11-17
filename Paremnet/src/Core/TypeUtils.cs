@@ -110,9 +110,12 @@ public static class TypeUtils
     /// If the member is either a variable or a property, returns its value
     /// </summary>
     public static object GetValue(MemberInfo member, object obj, object[] index = null) =>
-        (member is PropertyInfo prop) ? prop.GetValue(obj, index) :
-        (member is FieldInfo field) ? field.GetValue(obj) :
-        null;
+        member switch
+        {
+            PropertyInfo prop => prop.GetValue(obj, index),
+            FieldInfo field => field.GetValue(obj),
+            _ => null
+        };
 
     /// <summary>
     /// Returns all members from the given object
