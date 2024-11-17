@@ -60,15 +60,15 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(0)] public readonly Single vfloat32;
     [FieldOffset(0)] public readonly double vfloat64;
 
-    [FieldOffset(8)] public readonly object rawobject;
-    [FieldOffset(8)] public readonly string vstring;
-    [FieldOffset(8)] public readonly Symbol vsymbol;
-    [FieldOffset(8)] public readonly Cons vcons;
-    [FieldOffset(8)] public readonly Vector vvector;
-    [FieldOffset(8)] public readonly Closure vclosure;
-    [FieldOffset(8)] public readonly ReturnAddress vreturn;
+    [FieldOffset(16)] public readonly object rawobject;
+    [FieldOffset(16)] public readonly string vstring;
+    [FieldOffset(16)] public readonly Symbol vsymbol;
+    [FieldOffset(16)] public readonly Cons vcons;
+    [FieldOffset(16)] public readonly Vector vvector;
+    [FieldOffset(16)] public readonly Closure vclosure;
+    [FieldOffset(16)] public readonly ReturnAddress vreturn;
 
-    [FieldOffset(16)] public readonly Type type;
+    [FieldOffset(24)] public readonly Type type;
 
     public static readonly Val NIL = new(Type.Nil);
 
