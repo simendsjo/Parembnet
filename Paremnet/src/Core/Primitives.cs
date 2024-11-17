@@ -86,6 +86,12 @@ public class Primitives
             return Val.NIL;
         }), FnType.VarArgs, SideFx.Possible),
 
+        new("break", 0, new Function((ctx) =>
+            {
+             System.Diagnostics.Debugger.Break();
+             return Val.NIL;
+            }), FnType.ConstArgs, SideFx.Possible),
+
 
         new("gensym", 0, new Function((ctx) => GensymHelper(ctx, "GENSYM-"))),
         new("gensym", 1, new Function((Context ctx, Val a) => GensymHelper(ctx, a.AsStringOrNull))),
