@@ -5,25 +5,17 @@ namespace Paremnet.Data;
 /// <summary>
 /// Encapsulates everything needed for a function call
 /// </summary>
-public class Closure
+public class Closure(CodeHandle code, Environment env, Cons args, string name)
 {
     /// <summary> Handle to the compiled sequence of instructions </summary>
-    public readonly CodeHandle code;
+    public readonly CodeHandle code = code;
 
     /// <summary> Environment in which we're running </summary>
-    public readonly Environment env;
+    public readonly Environment env = env;
 
     /// <summary> List of arguments this function expects </summary>
-    public readonly Cons args;
+    public readonly Cons args = args;
 
     /// <summary> Optional closure name, for debugging purposes only </summary>
-    public readonly string name;
-
-    public Closure(CodeHandle code, Environment env, Cons args, string name)
-    {
-        this.code = code;
-        this.env = env;
-        this.args = args;
-        this.name = name;
-    }
+    public readonly string name = name;
 }

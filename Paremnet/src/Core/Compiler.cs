@@ -9,16 +9,10 @@ namespace Paremnet.Core;
 /// Stores the results of top-level compilation: a closure that is ready for execution,
 /// and a set of code block handles for code that was just compiled, for debugging purposes.
 /// </summary>
-public struct CompilationResults
+public struct CompilationResults(Closure closure, List<CodeHandle> blocks)
 {
-    public Closure closure;
-    public List<CodeHandle> recents;
-
-    public CompilationResults(Closure closure, List<CodeHandle> blocks)
-    {
-        this.closure = closure;
-        recents = blocks;
-    }
+    public Closure closure = closure;
+    public List<CodeHandle> recents = blocks;
 }
 
 /// <summary>

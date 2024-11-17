@@ -8,11 +8,9 @@ namespace Paremnet.Core;
 /// Special wrapper around cons for primitive invocations,
 /// so that we avoid ambiguiting with passing in Vals
 /// </summary>
-public struct VarArgs
+public struct VarArgs(Cons cons)
 {
-    public Cons cons;
-
-    public VarArgs(Cons cons) { this.cons = cons; }
+    public Cons cons = cons;
 
     public bool IsCons => cons != null;
     public bool IsNull => cons == null;
@@ -140,22 +138,18 @@ public enum SideFx { None, Possible }
 /// <summary>
 /// Built-in primitive functions, which all live in the core package.
 /// </summary>
-public class Primitive
+public class Primitive(
+    string name,
+    int minargs,
+    Function fn,
+    FnType argsType = FnType.ConstArgs,
+    SideFx sideFx = SideFx.None)
 {
-    public readonly string name;
-    public readonly int minargs;
-    public readonly Function fn;
-    public readonly FnType argsType; // is this a function with exact or variable number of arguments?
-    public readonly SideFx sideFx;   // does this primitive cause side effects? if so, it should never be optimized away
-
-    public Primitive(string name, int minargs, Function fn, FnType argsType = FnType.ConstArgs, SideFx sideFx = SideFx.None)
-    {
-        this.name = name;
-        this.minargs = minargs;
-        this.fn = fn;
-        this.argsType = argsType;
-        this.sideFx = sideFx;
-    }
+    public readonly string name = name;
+    public readonly int minargs = minargs;
+    public readonly Function fn = fn;
+    public readonly FnType argsType = argsType; // is this a function with exact or variable number of arguments?
+    public readonly SideFx sideFx = sideFx;   // does this primitive cause side effects? if so, it should never be optimized away
 
     public bool IsExact => argsType == FnType.ConstArgs;
     public bool IsVarArg => argsType == FnType.VarArgs;

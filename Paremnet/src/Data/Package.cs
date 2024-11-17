@@ -9,34 +9,25 @@ namespace Paremnet.Data;
 /// it retrieves the appropriate symbol from the package, or if one hasn't been seen before,
 /// it interns a new one.
 /// </summary>
-public class Package
+public class Package(string name)
 {
     /// <summary> Name of this package </summary>
-    public readonly string name;
+    public readonly string name = name;
 
     /// <summary> Map from symbol name (string) to instance (Symbol) </summary>
-    private readonly Dictionary<string, Symbol> _symbols;
+    private readonly Dictionary<string, Symbol> _symbols = new();
 
     /// <summary> Map from symbol (Symbol) to its value (*) </summary>
-    private readonly Dictionary<Symbol, Val> _bindings;
+    private readonly Dictionary<Symbol, Val> _bindings = new();
 
     /// <summary> Map from macro name (Symbol) to the actual macro body </summary>
-    private readonly Dictionary<Symbol, Macro> _macros;
+    private readonly Dictionary<Symbol, Macro> _macros = new();
 
     /// <summary> 
     /// Vector of other packages imported into this one. 
     /// Symbol lookup will use these packages, if the symbol is not found here. 
     /// </summary>
-    private readonly List<Package> _imports;
-
-    public Package(string name)
-    {
-        this.name = name;
-        _symbols = new Dictionary<string, Symbol>();
-        _bindings = new Dictionary<Symbol, Val>();
-        _macros = new Dictionary<Symbol, Macro>();
-        _imports = new List<Package>();
-    }
+    private readonly List<Package> _imports = new();
 
     /// <summary> 
     /// Returns a symbol with the given name if one was interned, undefined otherwise.

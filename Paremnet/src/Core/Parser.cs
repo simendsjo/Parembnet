@@ -11,7 +11,7 @@ namespace Paremnet.Core;
 /// <summary>
 /// Parser reads strings, and spits out s-expressions
 /// </summary>
-public class Parser
+public class Parser(Packages packages, ILogger logger)
 {
     /// <summary> Full list of reserved keywords - no symbol can be named as one of these </summary>
     public static readonly List<string> RESERVED
@@ -24,20 +24,13 @@ public class Parser
     private readonly InputStream _stream = new();
 
     /// <summary> Reference to the global packages manager </summary>
-    private readonly Packages _packages;
+    private readonly Packages _packages = packages ?? throw new ParserError("Parser requires a valid packages structure during initialization");
 
     /// <summary> Global unnamed package, used for symbols like "quote" (convenience reference) </summary>
-    private readonly Package _global;
+    private readonly Package _global = packages.global;
 
     /// <summary> Optional logger callback </summary>
-    private readonly ILogger _logger;
-
-    public Parser(Packages packages, ILogger logger)
-    {
-        _packages = packages ?? throw new ParserError("Parser requires a valid packages structure during initialization");
-        _global = packages.global;
-        _logger = logger;
-    }
+    private readonly ILogger _logger = logger;
 
     /// <summary> Adds a new string to the parse buffer </summary>
     public void AddString(string str) => _stream.Add(str);

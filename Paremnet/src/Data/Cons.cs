@@ -6,19 +6,13 @@ namespace Paremnet.Data;
 /// <summary>
 /// Cons cell, contains first and rest (car and cdr) elements.
 /// </summary>
-public class Cons
+public class Cons(Val first, Val rest)
 {
     /// <summary> First value of this cons cell </summary>
-    public Val first;
+    public Val first = first;
 
     /// <summary> Second value of this cons cell </summary>
-    public Val rest;
-
-    public Cons(Val first, Val rest)
-    {
-        this.first = first;
-        this.rest = rest;
-    }
+    public Val rest = rest;
 
     // scheme-like accessors
 

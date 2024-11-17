@@ -8,11 +8,9 @@ using System.Text;
 namespace Paremnet.Core;
 
 /// <summary> Opaque handle to a code block entry in storage </summary>
-public struct CodeHandle : IEquatable<CodeHandle>
+public struct CodeHandle(int index) : IEquatable<CodeHandle>
 {
-    public int index;
-
-    public CodeHandle(int index) { this.index = index; }
+    public int index = index;
 
     public bool IsValid => index > 0; // index at 0 is always null
 
@@ -27,18 +25,11 @@ public struct CodeHandle : IEquatable<CodeHandle>
 }
 
 /// <summary> Code block stores a collection of instructions and some additional debugging data </summary>
-public class CodeBlock
+public class CodeBlock(CodeHandle handle, List<Instruction> instructions, string debug)
 {
-    public CodeHandle handle;
-    public readonly List<Instruction> instructions;
-    public readonly string debug;
-
-    public CodeBlock(CodeHandle handle, List<Instruction> instructions, string debug)
-    {
-        this.handle = handle;
-        this.instructions = instructions;
-        this.debug = debug;
-    }
+    public CodeHandle handle = handle;
+    public readonly List<Instruction> instructions = instructions;
+    public readonly string debug = debug;
 }
 
 /// <summary>

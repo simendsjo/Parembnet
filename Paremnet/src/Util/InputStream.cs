@@ -6,18 +6,13 @@ namespace Paremnet.Util;
 public class InputStream
 {
     /// <summary> Internal string storage </summary>
-    private string _buffer;
+    private string _buffer = "";
 
     /// <summary> Current position in the buffer </summary>
     private int _index;
 
     /// <summary> Optional saved state </summary>
     private StreamState _saved;
-
-    public InputStream()
-    {
-        _buffer = "";
-    }
 
     /// <summary> Appends more data to the stream </summary>
     public void Add(string str) => _buffer += str;
@@ -70,14 +65,9 @@ public class InputStream
     /// <summary>
     /// Used for storing and restoring buffer state
     /// </summary>
-    private class StreamState
+    private class StreamState(string buffer, int index)
     {
-        public int index;
-        public string buffer;
-        public StreamState(string buffer, int index)
-        {
-            this.index = index;
-            this.buffer = buffer;
-        }
+        public int index = index;
+        public string buffer = buffer;
     }
 }

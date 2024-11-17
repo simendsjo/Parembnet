@@ -35,23 +35,16 @@ public struct VarPos
 /// Variable names are for compilation only - they're not used at runtime
 /// (except for debugging help).
 /// </summary>
-public class Environment
+public class Environment(int count, Environment parent)
 {
     /// <summary> Parent environment </summary>
-    public readonly Environment parent;
+    public readonly Environment parent = parent;
 
     /// <summary> Symbols defined in this environment </summary>
-    private readonly Symbol[] _symbols;
+    private readonly Symbol[] _symbols = new Symbol[count];
 
     /// <summary> Values defined for each symbol </summary>
-    private readonly Val[] _values;
-
-    public Environment(int count, Environment parent)
-    {
-        _symbols = new Symbol[count];
-        _values = new Val[count];
-        this.parent = parent;
-    }
+    private readonly Val[] _values = new Val[count];
 
     /// <summary> Creates a new environment from a cons'd list of arguments </summary>
     public static Environment Make(Cons args, Environment parent)

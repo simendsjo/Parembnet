@@ -111,7 +111,7 @@ public enum Opcode
 /// Instructions produced by the compiler
 /// </summary>
 [DebuggerDisplay("{DebugString}")]
-public class Instruction
+public class Instruction(Opcode type, Val first, Val second, string debug = null)
 {
     /// <summary> ArrayList of human readable names for all constants </summary>
     private static readonly string[] _NAMES = Enum.GetNames(typeof(Opcode));
@@ -126,26 +126,19 @@ public class Instruction
     ];
 
     /// <summary> Instruction type, one of the constants in this class </summary>
-    public Opcode type { get; private set; }
+    public Opcode type { get; private set; } = type;
 
     /// <summary> First instruction parameter (context-sensitive) </summary>
-    public Val first { get; private set; }
+    public Val first { get; private set; } = first;
 
     /// <summary> Second instruction parameter (context-sensitive) </summary>
-    public Val second { get; private set; }
+    public Val second { get; private set; } = second;
 
     /// <summary> Debug information (printed to the user as needed) </summary>
-    public readonly string debug;
+    public readonly string debug = debug;
 
     public Instruction(Opcode type) : this(type, Val.NIL, Val.NIL, null) { }
     public Instruction(Opcode type, Val first, string debug = null) : this(type, first, Val.NIL, debug) { }
-    public Instruction(Opcode type, Val first, Val second, string debug = null)
-    {
-        this.type = type;
-        this.first = first;
-        this.second = second;
-        this.debug = debug;
-    }
 
     /// <summary> Is this instruction one of the jump instructions that needs to be modified during assembly? </summary>
     public bool IsJump => JUMP_TYPES.Contains(type);

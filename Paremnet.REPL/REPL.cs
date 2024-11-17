@@ -16,17 +16,10 @@ namespace Paremnet
             _logExecution = false,
             _timeNextExecution = false;
 
-        private class Command
+        private class Command(string command, string description, Action action)
         {
-            public string command, description;
-            public Action action;
-
-            public Command(string command, string description, Action action)
-            {
-                this.command = command;
-                this.description = description;
-                this.action = action;
-            }
+            public string command = command, description = description;
+            public Action action = action;
 
             public string Message => $"{command} - {description}";
         }

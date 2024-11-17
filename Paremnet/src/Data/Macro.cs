@@ -3,21 +3,14 @@ namespace Paremnet.Data;
 /// <summary>
 /// Encapsulates a macro and code that runs to expand it.
 /// </summary>
-public class Macro
+public class Macro(Symbol name, Cons args, Closure body)
 {
     /// <summary> Optional debug name </summary>
-    public readonly string name;
+    public readonly string name = name.name;
 
     /// <summary> List of arguments for the macro </summary>
-    public readonly Cons args;
+    public readonly Cons args = args;
 
     /// <summary> Body of the macro </summary>
-    public readonly Closure body;
-
-    public Macro(Symbol name, Cons args, Closure body)
-    {
-        this.name = name.name;
-        this.args = args;
-        this.body = body;
-    }
+    public readonly Closure body = body;
 }
