@@ -197,14 +197,17 @@ public readonly struct Val : IEquatable<Val>
     public bool IsNumber => type is >= Type.Int8 and <= Type.Float64;
 
     public bool IsBool => type == Type.Boolean;
-    public bool IsUInt8 => type == Type.UInt8;
+
     public bool IsInt8 => type == Type.Int8;
-    public bool IsUInt16 => type == Type.UInt16;
+    public bool IsUInt8 => type == Type.UInt8;
     public bool IsInt16 => type == Type.Int16;
+    public bool IsUInt16 => type == Type.UInt16;
     public bool IsInt32 => type == Type.Int32;
     public bool IsUInt32 => type == Type.UInt32;
+
     public bool IsFloat32 => type == Type.Float32;
     public bool IsFloat64 => type == Type.Float64;
+
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
     public bool IsCons => type == Type.Cons;
