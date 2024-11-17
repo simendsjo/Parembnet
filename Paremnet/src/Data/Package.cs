@@ -27,7 +27,7 @@ public class Package(string name)
     /// Vector of other packages imported into this one. 
     /// Symbol lookup will use these packages, if the symbol is not found here. 
     /// </summary>
-    private readonly List<Package> _imports = new();
+    private readonly List<Package> _imports = [];
 
     /// <summary> 
     /// Returns a symbol with the given name if one was interned, undefined otherwise.

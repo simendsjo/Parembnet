@@ -21,7 +21,7 @@ public sealed class State
 
     /// <summary> Stack of heterogeneous values (numbers, symbols, strings, closures, etc).
     /// Last item on the list is the top of the stack. </summary>
-    public List<Val> Stack = new();
+    public List<Val> Stack = [];
 
     /// <summary> Transient argument count register, used when calling functions </summary>
     public int Argcount = 0;

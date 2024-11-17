@@ -30,7 +30,7 @@ public class Packages
 
     public Packages()
     {
-        _packages = new List<Entry>();
+        _packages = [];
         Reinitialize();
     }
 

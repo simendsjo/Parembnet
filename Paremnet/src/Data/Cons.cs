@@ -114,7 +114,7 @@ public class Cons(Val first, Val rest)
     /// <summary> Helper function: converts a cons list into a native list </summary>
     public static List<Val> ToNativeList(Val element)
     {
-        List<Val> results = new();
+        List<Val> results = [];
         while (element.IsNotNil)
         {
             if (element.IsAtom)
