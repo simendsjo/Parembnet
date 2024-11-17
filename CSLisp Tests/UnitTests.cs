@@ -1,4 +1,4 @@
-﻿using CSLisp.Core;
+using CSLisp.Core;
 using CSLisp.Data;
 using CSLisp.Util;
 using NUnit.Framework;

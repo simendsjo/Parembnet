@@ -1,4 +1,4 @@
-﻿using CSLisp.Core;
+using CSLisp.Core;
 using CSLisp.Data;
 using System;
 using System.Collections.Generic;
