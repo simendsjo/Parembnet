@@ -67,7 +67,7 @@ public class InputStream
     /// </summary>
     private class StreamState(string buffer, int index)
     {
-        public int index = index;
-        public string buffer = buffer;
+        public readonly int index = index;
+        public readonly string buffer = buffer;
     }
 }

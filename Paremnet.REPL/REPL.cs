@@ -18,8 +18,9 @@ namespace Paremnet
 
         private class Command(string name, string description, Action action)
         {
-            public string Name = name, Description = description;
-            public Action Action = action;
+            public readonly string Name = name;
+            public readonly string Description = description;
+            public readonly Action Action = action;
 
             public string Message => $"{Name} - {Description}";
         }
