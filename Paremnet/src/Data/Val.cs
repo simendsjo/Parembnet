@@ -247,7 +247,7 @@ public readonly struct Val : IEquatable<Val>
             Int16 int16 => int16,
             UInt16 uint16 => uint16,
             Int32 int32 => int32,
-            Single single => single,
+            Single float32 => float32,
             string str => str,
             Symbol symbol => symbol,
             Cons cons => cons,
