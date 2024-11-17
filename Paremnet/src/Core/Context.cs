@@ -37,11 +37,11 @@ public class Context
 
     public Context(bool loadLibraries = true, ILogger logger = null)
     {
-        this.code = new Code();
-        this.packages = new Packages();
-        this.parser = new Parser(packages, logger);
-        this.compiler = new Compiler(this);
-        this.vm = new Machine(this, logger);
+        code = new Code();
+        packages = new Packages();
+        parser = new Parser(packages, logger);
+        compiler = new Compiler(this);
+        vm = new Machine(this, logger);
 
         Primitives.InitializeCorePackage(this, packages.core);
 

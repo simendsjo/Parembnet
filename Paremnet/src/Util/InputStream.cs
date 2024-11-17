@@ -60,9 +60,9 @@ public class InputStream
             return false;
         }
 
-        this._index = _saved.index;
-        this._buffer = _saved.buffer;
-        this._saved = null;
+        _index = _saved.index;
+        _buffer = _saved.buffer;
+        _saved = null;
         return true;
     }
 

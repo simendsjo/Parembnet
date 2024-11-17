@@ -26,7 +26,7 @@ public class Symbol
         this.name = name;
         this.pkg = pkg;
 
-        this.fullName = (pkg != null && pkg.name != null) ? (pkg.name + ":" + name) : name;
+        fullName = (pkg != null && pkg.name != null) ? (pkg.name + ":" + name) : name;
     }
 
     public override string ToString() => fullName;

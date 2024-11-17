@@ -17,7 +17,7 @@ public struct CompilationResults
     public CompilationResults(Closure closure, List<CodeHandle> blocks)
     {
         this.closure = closure;
-        this.recents = blocks;
+        recents = blocks;
     }
 }
 
