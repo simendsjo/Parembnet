@@ -15,58 +15,58 @@ public class Primitives
 
     private static readonly List<Primitive> AllPrimitivesVector =
     [
-        new Primitive("+", 2, new Function((Context ctx, Val a, Val b) => ValAdd(a, b))),
-        new Primitive("-", 2, new Function((Context ctx, Val a, Val b) => ValSub(a, b))),
-        new Primitive("*", 2, new Function((Context ctx, Val a, Val b) => ValMul(a, b))),
-        new Primitive("/", 2, new Function((Context ctx, Val a, Val b) => ValDiv(a, b))),
+        new("+", 2, new Function((Context ctx, Val a, Val b) => ValAdd(a, b))),
+        new("-", 2, new Function((Context ctx, Val a, Val b) => ValSub(a, b))),
+        new("*", 2, new Function((Context ctx, Val a, Val b) => ValMul(a, b))),
+        new("/", 2, new Function((Context ctx, Val a, Val b) => ValDiv(a, b))),
 
-        new Primitive("+", 3, new Function((Context ctx, VarArgs args) =>
+        new("+", 3, new Function((Context ctx, VarArgs args) =>
             FoldLeft((a, b) => ValAdd(a, b), 0, args)), FnType.VarArgs),
 
-        new Primitive("*", 3, new Function((Context ctx, VarArgs args) =>
+        new("*", 3, new Function((Context ctx, VarArgs args) =>
             FoldLeft((a, b) => ValMul(a, b), 1, args)), FnType.VarArgs),
 
 
-        new Primitive("=", 2, new Function((Context ctx, Val a, Val b) => Val.Equals(a, b))),
-        new Primitive("!=", 2, new Function((Context ctx, Val a, Val b) => !Val.Equals(a, b))),
-        new Primitive("<", 2, new Function((Context ctx, Val a, Val b) => ValLt(a, b))),
-        new Primitive("<=", 2, new Function((Context ctx, Val a, Val b) => ValLte(a, b))),
-        new Primitive(">", 2, new Function((Context ctx, Val a, Val b) => ValGt(a, b))),
-        new Primitive(">=", 2, new Function((Context ctx, Val a, Val b) => ValGte(a, b))),
+        new("=", 2, new Function((Context ctx, Val a, Val b) => Val.Equals(a, b))),
+        new("!=", 2, new Function((Context ctx, Val a, Val b) => !Val.Equals(a, b))),
+        new("<", 2, new Function((Context ctx, Val a, Val b) => ValLt(a, b))),
+        new("<=", 2, new Function((Context ctx, Val a, Val b) => ValLte(a, b))),
+        new(">", 2, new Function((Context ctx, Val a, Val b) => ValGt(a, b))),
+        new(">=", 2, new Function((Context ctx, Val a, Val b) => ValGte(a, b))),
 
-        new Primitive("cons", 2, new Function((Context ctx, Val a, Val b) => new Cons(a, b))),
-        new Primitive("list", 0, new Function((ctx) => Val.NIL)),
-        new Primitive("list", 1, new Function((Context ctx, Val a) => new Cons(a, Val.NIL))),
-        new Primitive("list", 2, new Function((Context ctx, Val a, Val b) => new Cons(a, new Cons(b, Val.NIL)))),
-        new Primitive("list", 3, new Function((Context ctx, VarArgs args) => args.AsVal), FnType.VarArgs),
+        new("cons", 2, new Function((Context ctx, Val a, Val b) => new Cons(a, b))),
+        new("list", 0, new Function((ctx) => Val.NIL)),
+        new("list", 1, new Function((Context ctx, Val a) => new Cons(a, Val.NIL))),
+        new("list", 2, new Function((Context ctx, Val a, Val b) => new Cons(a, new Cons(b, Val.NIL)))),
+        new("list", 3, new Function((Context ctx, VarArgs args) => args.AsVal), FnType.VarArgs),
 
-        new Primitive("append", 1, new Function((Context ctx, VarArgs args) =>
+        new("append", 1, new Function((Context ctx, VarArgs args) =>
             FoldRight(AppendHelper, Val.NIL, args)), FnType.VarArgs),
 
 
-        new Primitive("length", 1, new Function((Context ctx, Val a) => Cons.Length(a))),
+        new("length", 1, new Function((Context ctx, Val a) => Cons.Length(a))),
 
-        new Primitive("not", 1, new Function((Context ctx, Val a) => !a.CastToBool)),
-        new Primitive("null?", 1, new Function((Context ctx, Val a) => a.IsNil)),
-        new Primitive("cons?", 1, new Function((Context ctx, Val a) => a.IsCons)),
-        new Primitive("string?", 1, new Function((Context ctx, Val a) => a.IsString)),
-        new Primitive("number?", 1, new Function((Context ctx, Val a) => a.IsNumber)),
-        new Primitive("boolean?", 1, new Function((Context ctx, Val a) => a.IsBool)),
-        new Primitive("atom?", 1, new Function((Context ctx, Val a) => !a.IsCons)),
-        new Primitive("closure?", 1, new Function((Context ctx, Val a) => a.IsClosure)),
+        new("not", 1, new Function((Context ctx, Val a) => !a.CastToBool)),
+        new("null?", 1, new Function((Context ctx, Val a) => a.IsNil)),
+        new("cons?", 1, new Function((Context ctx, Val a) => a.IsCons)),
+        new("string?", 1, new Function((Context ctx, Val a) => a.IsString)),
+        new("number?", 1, new Function((Context ctx, Val a) => a.IsNumber)),
+        new("boolean?", 1, new Function((Context ctx, Val a) => a.IsBool)),
+        new("atom?", 1, new Function((Context ctx, Val a) => !a.IsCons)),
+        new("closure?", 1, new Function((Context ctx, Val a) => a.IsClosure)),
 
-        new Primitive("car", 1, new Function((Context ctx, Val a) => a.AsCons.First)),
-        new Primitive("cdr", 1, new Function((Context ctx, Val a) => a.AsCons.Rest)),
-        new Primitive("cadr", 1, new Function((Context ctx, Val a) => a.AsCons.Second)),
-        new Primitive("cddr", 1, new Function((Context ctx, Val a) => a.AsCons.AfterSecond)),
-        new Primitive("caddr", 1, new Function((Context ctx, Val a) => a.AsCons.Third)),
-        new Primitive("cdddr", 1, new Function((Context ctx, Val a) => a.AsCons.AfterThird)),
+        new("car", 1, new Function((Context ctx, Val a) => a.AsCons.First)),
+        new("cdr", 1, new Function((Context ctx, Val a) => a.AsCons.Rest)),
+        new("cadr", 1, new Function((Context ctx, Val a) => a.AsCons.Second)),
+        new("cddr", 1, new Function((Context ctx, Val a) => a.AsCons.AfterSecond)),
+        new("caddr", 1, new Function((Context ctx, Val a) => a.AsCons.Third)),
+        new("cdddr", 1, new Function((Context ctx, Val a) => a.AsCons.AfterThird)),
 
-        new Primitive("nth", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNth(n.AsInt))),
-        new Primitive("nth-tail", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthTail(n.AsInt))),
-        new Primitive("nth-cons", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthCons(n.AsInt))),
+        new("nth", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNth(n.AsInt))),
+        new("nth-tail", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthTail(n.AsInt))),
+        new("nth-cons", 2, new Function((Context ctx, Val a, Val n) => a.AsCons.GetNthCons(n.AsInt))),
 
-        new Primitive("map", 2, new Function((Context ctx, Val a, Val b) =>
+        new("map", 2, new Function((Context ctx, Val a, Val b) =>
         {
             Closure fn = a.AsClosure;
             Cons list = b.AsCons;
@@ -75,11 +75,11 @@ public class Primitives
 
         // macroexpansion
 
-        new Primitive("mx1", 1, new Function((ctx, exp) => ctx.Compiler.MacroExpand1Step(exp))),
-        new Primitive("mx", 1, new Function((ctx, exp) => ctx.Compiler.MacroExpandFull(exp))),
+        new("mx1", 1, new Function((ctx, exp) => ctx.Compiler.MacroExpand1Step(exp))),
+        new("mx", 1, new Function((ctx, exp) => ctx.Compiler.MacroExpandFull(exp))),
 
         // helpers
-        new Primitive("trace", 1, new Function((Context ctx, VarArgs args) =>
+        new("trace", 1, new Function((Context ctx, VarArgs args) =>
         {
             List<Val> arglist = args.ToNativeList();
             Console.WriteLine(string.Join(" ", arglist.Select(val => Val.Print(val))));
@@ -87,10 +87,10 @@ public class Primitives
         }), FnType.VarArgs, SideFx.Possible),
 
 
-        new Primitive("gensym", 0, new Function((ctx) => GensymHelper(ctx, "GENSYM-"))),
-        new Primitive("gensym", 1, new Function((Context ctx, Val a) => GensymHelper(ctx, a.AsStringOrNull))),
+        new("gensym", 0, new Function((ctx) => GensymHelper(ctx, "GENSYM-"))),
+        new("gensym", 1, new Function((Context ctx, Val a) => GensymHelper(ctx, a.AsStringOrNull))),
 
-        new Primitive("eval", 1, new Function((Context ctx, Val e) =>
+        new("eval", 1, new Function((Context ctx, Val e) =>
         {
             CompilationResults closure = ctx.Compiler.Compile(e);
             Val result = ctx.Vm.Execute(closure.Closure);
@@ -99,7 +99,7 @@ public class Primitives
 
         // packages
 
-        new Primitive("package-set", 1, new Function((Context ctx, Val a) =>
+        new("package-set", 1, new Function((Context ctx, Val a) =>
         {
             string name = a.IsNil ? null : a.AsString; // nil package name == global package
             Package pkg = ctx.Packages.Intern(name);
@@ -108,11 +108,11 @@ public class Primitives
         }), sideFx: SideFx.Possible),
 
 
-        new Primitive("package-get", 0, new Function(ctx => new Val(ctx.Packages.Current.Name)),
+        new("package-get", 0, new Function(ctx => new Val(ctx.Packages.Current.Name)),
             sideFx: SideFx.Possible),
 
 
-        new Primitive("package-import", 1, new Function((Context ctx, VarArgs names) =>
+        new("package-import", 1, new Function((Context ctx, VarArgs names) =>
         {
             foreach (Val a in names.ToNativeList())
             {
@@ -124,14 +124,14 @@ public class Primitives
         }), FnType.VarArgs, SideFx.Possible),
 
 
-        new Primitive("package-imports", 0, new Function(ctx =>
+        new("package-imports", 0, new Function(ctx =>
         {
             List<Val> imports = ctx.Packages.Current.ListImports();
             return Cons.MakeList(imports);
         }), sideFx: SideFx.Possible),
 
 
-        new Primitive("package-export", 1, new Function((Context ctx, Val a) =>
+        new("package-export", 1, new Function((Context ctx, Val a) =>
         {
             Cons names = a.AsConsOrNull;
             while (names != null)
@@ -145,14 +145,14 @@ public class Primitives
         }), sideFx: SideFx.Possible),
 
 
-        new Primitive("package-exports", 0, new Function(ctx =>
+        new("package-exports", 0, new Function(ctx =>
         {
             List<Val> exports = ctx.Packages.Current.ListExports();
             return Cons.MakeList(exports);
         }), sideFx: SideFx.Possible),
 
 
-        new Primitive("error", 1, new Function((Context ctx, VarArgs names) =>
+        new("error", 1, new Function((Context ctx, VarArgs names) =>
         {
             string[] all = names.ToNativeList().Select(v => v.AsStringOrNull ?? Val.Print(v)).ToArray();
             throw new RuntimeError(all);
@@ -167,11 +167,11 @@ public class Primitives
         // (.. myarray 'Item 0)      => returns 0th item etc.
         // (.. mydata 'ToString "D" 'Length 'ToString) => calls mydata.ToString("D").Length.ToString()
 
-        new Primitive("..", 1, new Function(Interop.DotDot), FnType.VarArgs, SideFx.Possible),
+        new("..", 1, new Function(Interop.DotDot), FnType.VarArgs, SideFx.Possible),
 
         // (.new 'System.DateTime 1999 12 31)
         // (.new (.. 'System 'DateTime) 1999 12 31)
-        new Primitive(".new", 1, new Function((Context ctx, VarArgs args) =>
+        new(".new", 1, new Function((Context ctx, VarArgs args) =>
         {
             var (type, varargs) = ParseArgsForConstructorInterop(args);
             if (type == null) { return Val.NIL; }
@@ -181,7 +181,7 @@ public class Primitives
 
         // (.! some-instance 'FieldName 42)
 
-        new Primitive(".!", 3, new Function((Context ctx, VarArgs args) =>
+        new(".!", 3, new Function((Context ctx, VarArgs args) =>
         {
             var (instance, type, memberName, targetValue, _) = ParseSetterArgs(args, true);
 
@@ -192,7 +192,7 @@ public class Primitives
 
         // (.! some-instance 'Item 0 "hello") sets 0th item etc
 
-        new Primitive(".!", 4, new Function((Context ctx, VarArgs args) =>
+        new(".!", 4, new Function((Context ctx, VarArgs args) =>
         {
             var (instance, type, memberName, index, targetValue) = ParseSetterArgs(args, true);
 
@@ -208,7 +208,7 @@ public class Primitives
         // (make-vector 3)
         // (make-vector '(1 2 3))
 
-        new Primitive("make-vector", 1, new Function((Context ctx, Val arg) =>
+        new("make-vector", 1, new Function((Context ctx, Val arg) =>
         {
             if (arg.IsInt) { return new Val(new Vector(Enumerable.Repeat(Val.NIL, arg.AsInt))); }
 
@@ -219,7 +219,7 @@ public class Primitives
 
         // (make-vector 3 "value")
 
-        new Primitive("make-vector", 2, new Function((Context ctx, Val count, Val val) =>
+        new("make-vector", 2, new Function((Context ctx, Val count, Val val) =>
         {
             if (count.IsInt) { return new Val(new Vector(Enumerable.Repeat(val, count.AsInt))); }
 
@@ -227,13 +227,13 @@ public class Primitives
         })),
 
 
-        new Primitive("vector?", 1, new Function((Context ctx, Val arg) =>
+        new("vector?", 1, new Function((Context ctx, Val arg) =>
         {
             return arg.IsVector;
         })),
 
 
-        new Primitive("vector-length", 1, new Function((Context ctx, Val v) =>
+        new("vector-length", 1, new Function((Context ctx, Val v) =>
         {
             Vector vector = v.AsVectorOrNull;
             if (vector == null) { throw new LanguageError("Value is not a vector"); }
@@ -242,7 +242,7 @@ public class Primitives
         })),
 
 
-        new Primitive("vector-get", 2, new Function((Context ctx, Val v, Val i) =>
+        new("vector-get", 2, new Function((Context ctx, Val v, Val i) =>
         {
             Vector vector = v.AsVectorOrNull;
             int index = i.AsInt;
@@ -254,7 +254,7 @@ public class Primitives
         })),
 
 
-        new Primitive("vector-set!", 3, new Function((Context ctx, Val v, Val i, Val value) =>
+        new("vector-set!", 3, new Function((Context ctx, Val v, Val i, Val value) =>
         {
             Vector vector = v.AsVectorOrNull;
             int index = i.AsInt;
@@ -316,8 +316,8 @@ public class Primitives
                 name.Exported = true;
                 List<Instruction> instructions =
                 [
-                    new Instruction(Opcode.CallPrimop, p.Name),
-                    new Instruction(Opcode.ReturnVal)
+                    new(Opcode.CallPrimop, p.Name),
+                    new(Opcode.ReturnVal)
                 ];
 
                 CodeHandle code = context.Code.AddBlock(instructions, name.FullName);

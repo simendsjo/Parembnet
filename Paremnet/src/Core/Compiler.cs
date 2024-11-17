@@ -531,15 +531,15 @@ public class Compiler
 
     /// <summary> Generates a sequence containing a single instruction </summary>
     private static List<Instruction> Emit(Opcode type, Val first, Val second, string debug = null) =>
-        [new Instruction(type, first, second, debug)];
+        [new(type, first, second, debug)];
 
     /// <summary> Generates a sequence containing a single instruction </summary>
     private static List<Instruction> Emit(Opcode type, Val first, string debug = null) =>
-        [new Instruction(type, first, debug)];
+        [new(type, first, debug)];
 
     /// <summary> Generates a sequence containing a single instruction with no arguments </summary>
     private static List<Instruction> Emit(Opcode type) =>
-        [new Instruction(type)];
+        [new(type)];
 
 
     /// <summary> Creates a new unique label </summary>
