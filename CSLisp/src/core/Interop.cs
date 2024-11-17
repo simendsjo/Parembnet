@@ -25,7 +25,8 @@ namespace CSLisp.Core
         {
             public string ns;
 
-            public (Type type, Namespace ns) FindTypeOrNamespace (string name) {
+            public (Type type, Namespace ns) FindTypeOrNamespace(string name)
+            {
                 var combined = ns + NS_SEPARATOR + name;
                 var type = TypeUtils.GetType(combined);
                 Namespace newns = type == null ? new Namespace { ns = combined } : null;
@@ -33,14 +34,15 @@ namespace CSLisp.Core
             }
 
             private string DebugString => ToString();
-            public override string ToString () => $"[ns {ns}]";
+            public override string ToString() => $"[ns {ns}]";
         }
 
         //
         //
         // dotnet interop
 
-        public static Val DotDot (Context _, VarArgs args) {
+        public static Val DotDot(Context _, VarArgs args)
+        {
 
             var arglist = args.ToNativeList().SelectMany(SplitSymbol).ToList();
 
@@ -50,7 +52,8 @@ namespace CSLisp.Core
             int i = 0;
             var current = arglist[i++];
 
-            do {
+            do
+            {
                 var nextSymbol = TakeNextSymbolOrNull();
                 var nonSymbols = TakeNonSymbols().ToList();
                 current = TryReflectionStep(current, nextSymbol, nonSymbols);
@@ -58,29 +61,37 @@ namespace CSLisp.Core
 
             return current;
 
-            Symbol TakeNextSymbolOrNull () {
+            Symbol TakeNextSymbolOrNull()
+            {
                 var results = TakeSymbols(true).Take(1);
                 return results.FirstOrDefault().AsSymbolOrNull;
             }
 
-            IEnumerable<Val> TakeNonSymbols () {
+            IEnumerable<Val> TakeNonSymbols()
+            {
                 return TakeSymbols(false);
             }
 
-            IEnumerable<Val> TakeSymbols (bool expected) {
-                while (i < arglist.Count) {
+            IEnumerable<Val> TakeSymbols(bool expected)
+            {
+                while (i < arglist.Count)
+                {
                     var next = arglist[i];
-                    if (next.IsSymbol == expected) {
+                    if (next.IsSymbol == expected)
+                    {
                         i++;
                         yield return next;
-                    } else {
+                    }
+                    else
+                    {
                         break;
                     }
                 }
             }
         }
 
-        public static List<Val> SplitSymbol (Val val) {
+        public static List<Val> SplitSymbol(Val val)
+        {
 
             if (!val.IsSymbol) { return new List<Val>() { val }; }
 
@@ -100,19 +111,23 @@ namespace CSLisp.Core
         /// the first call should evaluate to "foobar".Length
         /// and then a subsequent call should evaluate current.ToSTring("D")
         /// </summary>
-        private static Val TryReflectionStep (Val current, Symbol nextSymbol, List<Val> nonSymbols) {
+        private static Val TryReflectionStep(Val current, Symbol nextSymbol, List<Val> nonSymbols)
+        {
 
-            if (current.IsBool || current.IsNumber || current.IsString) {
+            if (current.IsBool || current.IsNumber || current.IsString)
+            {
                 return TryLookupOnInstance(current.AsBoxedValue, nextSymbol, nonSymbols);
             }
 
-            if (current.IsSymbol) { // this should only happen on the very first element?!
+            if (current.IsSymbol)
+            { // this should only happen on the very first element?!
                 var result = new Namespace() { ns = current.AsSymbol.name };
                 return TryNamespaceLookup(result, nextSymbol, nonSymbols);
             }
 
             var obj = current.AsObjectOrNull;
-            return obj switch {
+            return obj switch
+            {
                 Namespace ns => TryNamespaceLookup(ns, nextSymbol, nonSymbols),
                 Type type => TryLookupOnType(type, nextSymbol, nonSymbols),
                 object other => TryLookupOnInstance(other, nextSymbol, nonSymbols),
@@ -124,20 +139,23 @@ namespace CSLisp.Core
         /// Looks up a specific namespace, either in specific parent namespace, or in root
         /// (the latter is only meaningful if it's the first symbol in the sequence)
         /// </summary>
-        private static Val TryNamespaceLookup (Namespace ns, Symbol name, List<Val> nonSymbols) {
+        private static Val TryNamespaceLookup(Namespace ns, Symbol name, List<Val> nonSymbols)
+        {
             if (nonSymbols.Count > 0) { throw new InteropError($"Unexpected non-symbols following {ns} {name}"); }
             var results = ns.FindTypeOrNamespace(name.name);
-            return new Val((object) results.type ?? results.ns);
+            return new Val((object)results.type ?? results.ns);
         }
 
         /// <summary>
         /// Looks up named symbol on the type, suggesting it's a static field
         /// </summary>
-        private static Val TryLookupOnType (Type type, Symbol name, List<Val> nonSymbols) {
+        private static Val TryLookupOnType(Type type, Symbol name, List<Val> nonSymbols)
+        {
 
             // is this a static field or property? look up its value
             var fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, false);
-            if (fieldOrProp != null) {
+            if (fieldOrProp != null)
+            {
                 if (nonSymbols.Count > 0) { throw new InteropError($"Unexpected non-symbols following {type} {name}"); }
                 object result = LookupStaticFieldOrProp(fieldOrProp);
                 return Val.TryUnbox(result);
@@ -146,7 +164,8 @@ namespace CSLisp.Core
             // is this a static function? see if we can call it with the args
             var args = nonSymbols.Select(v => v.AsBoxedValue).ToArray();
             var fn = TypeUtils.GetMethodByArgs(type, name.name, false, args);
-            if (fn != null) {
+            if (fn != null)
+            {
                 object result = fn.Invoke(null, BindingFlags.Static, null, args, null);
                 return Val.TryUnbox(result);
             }
@@ -155,15 +174,17 @@ namespace CSLisp.Core
         }
 
 
-        private static object LookupStaticFieldOrProp (MemberInfo fieldOrProp, object[] args = null) =>
-            fieldOrProp switch {
+        private static object LookupStaticFieldOrProp(MemberInfo fieldOrProp, object[] args = null) =>
+            fieldOrProp switch
+            {
                 FieldInfo fi => fi.GetValue(null),
                 PropertyInfo pi => pi.GetValue(null, BindingFlags.Static, null, args, null),
                 _ => throw new InteropError($"Unknown type of {fieldOrProp}"),
             };
 
-        private static object LookupInstanceFieldOrProp (MemberInfo fieldOrProp, object instance, object[] args = null) =>
-            fieldOrProp switch {
+        private static object LookupInstanceFieldOrProp(MemberInfo fieldOrProp, object instance, object[] args = null) =>
+            fieldOrProp switch
+            {
                 FieldInfo fi => fi.GetValue(instance),
                 PropertyInfo pi => pi.GetValue(instance, BindingFlags.Instance, null, args, null),
                 _ => throw new InteropError($"Unknown type of {fieldOrProp}"),
@@ -172,7 +193,8 @@ namespace CSLisp.Core
         /// <summary>
         /// Finds an instance member, either the field/property, or a method name
         /// </summary>
-        private static Val TryLookupOnInstance (object instance, Symbol name, List<Val> nonSymbols) {
+        private static Val TryLookupOnInstance(object instance, Symbol name, List<Val> nonSymbols)
+        {
             if (instance == null) { throw new InteropError($"Unexpected null value before {name}"); }
 
             var type = instance.GetType();
@@ -180,14 +202,16 @@ namespace CSLisp.Core
 
             // is this an instance field or property? look up its value
             var fieldOrProp = TypeUtils.GetFieldOrProp(type, name.name, true);
-            if (fieldOrProp != null) {
+            if (fieldOrProp != null)
+            {
                 object result = LookupInstanceFieldOrProp(fieldOrProp, instance, args);
                 return Val.TryUnbox(result);
             }
 
             // is this an instance function? see if we can call it with the args
             var fn = TypeUtils.GetMethodByArgs(type, name.name, true, args);
-            if (fn != null) {
+            if (fn != null)
+            {
                 object result = fn.Invoke(instance, BindingFlags.Instance, null, args, null);
                 return Val.TryUnbox(result);
             }

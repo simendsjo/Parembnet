@@ -19,7 +19,8 @@ namespace CSLisp.Core
         /// <summary> Return label name for debugging </summary>
         public readonly string debug;
 
-        public ReturnAddress (Closure fn, int pc, Environment env, string debug) {
+        public ReturnAddress(Closure fn, int pc, Environment env, string debug)
+        {
             this.fn = fn;
             this.pc = pc;
             this.env = env;

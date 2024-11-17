@@ -7,7 +7,7 @@ namespace CSLisp.Error
 	/// </summary>
     public class LanguageError : Exception
     {
-        public LanguageError (string message) : base(message) { }
+        public LanguageError(string message) : base(message) { }
     }
 
 }

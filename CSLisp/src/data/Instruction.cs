@@ -136,9 +136,10 @@ namespace CSLisp.Data
         /// <summary> Debug information (printed to the user as needed) </summary>
         public readonly string debug;
 
-        public Instruction (Opcode type) : this(type, Val.NIL, Val.NIL, null) { }
-        public Instruction (Opcode type, Val first, string debug = null) : this(type, first, Val.NIL, debug) { }
-        public Instruction (Opcode type, Val first, Val second, string debug = null) {
+        public Instruction(Opcode type) : this(type, Val.NIL, Val.NIL, null) { }
+        public Instruction(Opcode type, Val first, string debug = null) : this(type, first, Val.NIL, debug) { }
+        public Instruction(Opcode type, Val first, Val second, string debug = null)
+        {
             this.type = type;
             this.first = first;
             this.second = second;
@@ -149,7 +150,8 @@ namespace CSLisp.Data
         public bool IsJump => JUMP_TYPES.Contains(type);
 
         /// <summary> If this is a jump instruction, updates the second parameter to contain the destination </summary>
-        public void UpdateJumpDestination (int pc) {
+        public void UpdateJumpDestination(int pc)
+        {
             if (!IsJump) { throw new LanguageError($"Attempting to set jump destination for non-jump instruction {type}"); }
             second = new Val(pc);
         }
@@ -157,20 +159,24 @@ namespace CSLisp.Data
         private string DebugString => DebugPrint(" ");
 
         /// <summary> Converts an instruction to a string </summary>
-        public string DebugPrint (string sep = "\t") {
+        public string DebugPrint(string sep = "\t")
+        {
             StringBuilder sb = new StringBuilder();
-            sb.Append(_NAMES[(int) type]);
+            sb.Append(_NAMES[(int)type]);
 
-            if (first.IsNotNil || type == Opcode.PUSH_CONST) {
+            if (first.IsNotNil || type == Opcode.PUSH_CONST)
+            {
                 sb.Append(sep);
                 sb.Append(Val.DebugPrint(first));
             }
 
-            if (second.IsNotNil) {
+            if (second.IsNotNil)
+            {
                 sb.Append(sep);
                 sb.Append(Val.DebugPrint(second));
             }
-            if (debug != null) {
+            if (debug != null)
+            {
                 sb.Append(sep);
                 sb.Append("; ");
                 sb.Append(debug);
@@ -179,7 +185,7 @@ namespace CSLisp.Data
         }
 
         /// <summary> Returns true if two instructions are equal </summary>
-        public static bool Equal (Instruction a, Instruction b)
+        public static bool Equal(Instruction a, Instruction b)
             => a.type == b.type && Val.Equals(a.first, b.first) && Val.Equals(a.second, b.second);
     }
 

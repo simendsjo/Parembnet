@@ -21,14 +21,15 @@ namespace CSLisp.Data
         /// <summary> If true, this symbol is visible outside of its package. This can be adjusted later. </summary>
         public bool exported = false;
 
-        public Symbol (string name, Package pkg) {
+        public Symbol(string name, Package pkg)
+        {
             this.name = name;
             this.pkg = pkg;
 
             this.fullName = (pkg != null && pkg.name != null) ? (pkg.name + ":" + name) : name;
         }
 
-        public override string ToString () => fullName;
+        public override string ToString() => fullName;
         private string DebugString => fullName;
     }
 }

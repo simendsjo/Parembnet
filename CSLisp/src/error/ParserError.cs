@@ -7,7 +7,7 @@ namespace CSLisp.Error
 	/// </summary>
     public class ParserError : Exception
     {
-        public ParserError (string message) : base(message) { }
+        public ParserError(string message) : base(message) { }
     }
 
 }

@@ -15,74 +15,87 @@ namespace CSLisp.Core
         /// <summary> Internal execution context </summary>
         private readonly Context _ctx = null;
 
-        public Machine (Context ctx, ILogger logger) {
+        public Machine(Context ctx, ILogger logger)
+        {
             _ctx = ctx;
             _logger = logger;
         }
 
         /// <summary> Runs the given piece of code, and returns the value left at the top of the stack. </summary>
-        public Val Execute (Closure fn, params Val[] args) {
+        public Val Execute(Closure fn, params Val[] args)
+        {
             State st = new State(fn, args);
             CodeHandle code = default;
             List<Instruction> instructions = null;
 
-            if (_logger.EnableInstructionLogging) {
+            if (_logger.EnableInstructionLogging)
+            {
                 _logger.Log("Executing: ", fn.name);
                 _logger.Log(_ctx.code.DebugPrint(fn));
             }
 
-            while (!st.done) {
-                if (!code.Equals(st.fn.code)) {
+            while (!st.done)
+            {
+                if (!code.Equals(st.fn.code))
+                {
                     code = st.fn.code;
                     instructions = _ctx.code.Get(code).instructions;
                 }
 
-                if (st.pc >= instructions.Count) {
+                if (st.pc >= instructions.Count)
+                {
                     throw new LanguageError("Runaway opcodes!");
                 }
 
                 // fetch instruction
                 Instruction instr = instructions[st.pc++];
 
-                if (_logger.EnableStackLogging) {
+                if (_logger.EnableStackLogging)
+                {
                     _logger.Log("                                    " + State.PrintStack(st));
                     _logger.Log(string.Format("[{0,2}] {1,3} : {2}", st.stack.Count, st.pc - 1, instr.DebugPrint()));
                 }
 
                 // and now a big old switch statement. not handler functions - this is much faster.
 
-                switch (instr.type) {
+                switch (instr.type)
+                {
                     case Opcode.LABEL:
                         // no op :)
                         break;
 
-                    case Opcode.PUSH_CONST: {
+                    case Opcode.PUSH_CONST:
+                        {
                             st.Push(instr.first);
                         }
                         break;
 
-                    case Opcode.LOCAL_GET: {
+                    case Opcode.LOCAL_GET:
+                        {
                             VarPos pos = new VarPos(instr.first, instr.second);
                             Val value = Environment.GetValueAt(pos, st.env);
                             st.Push(value);
                         }
                         break;
 
-                    case Opcode.LOCAL_SET: {
+                    case Opcode.LOCAL_SET:
+                        {
                             VarPos pos = new VarPos(instr.first, instr.second);
                             Val value = st.Peek();
                             Environment.SetValueAt(pos, value, st.env);
                         }
                         break;
 
-                    case Opcode.GLOBAL_GET: {
+                    case Opcode.GLOBAL_GET:
+                        {
                             Symbol symbol = instr.first.AsSymbol;
                             Val value = symbol.pkg.GetValue(symbol);
                             st.Push(value);
                         }
                         break;
 
-                    case Opcode.GLOBAL_SET: {
+                    case Opcode.GLOBAL_SET:
+                        {
                             Symbol symbol = instr.first.AsSymbol;
                             Val value = st.Peek();
                             symbol.pkg.SetValue(symbol, value);
@@ -93,28 +106,34 @@ namespace CSLisp.Core
                         st.Pop();
                         break;
 
-                    case Opcode.JMP_IF_TRUE: {
+                    case Opcode.JMP_IF_TRUE:
+                        {
                             Val value = st.Pop();
-                            if (value.CastToBool) {
+                            if (value.CastToBool)
+                            {
                                 st.pc = GetLabelPosition(instr);
                             }
                         }
                         break;
 
-                    case Opcode.JMP_IF_FALSE: {
+                    case Opcode.JMP_IF_FALSE:
+                        {
                             Val value = st.Pop();
-                            if (!value.CastToBool) {
+                            if (!value.CastToBool)
+                            {
                                 st.pc = GetLabelPosition(instr);
                             }
                         }
                         break;
 
-                    case Opcode.JMP_TO_LABEL: {
+                    case Opcode.JMP_TO_LABEL:
+                        {
                             st.pc = GetLabelPosition(instr);
                         }
                         break;
 
-                    case Opcode.MAKE_ENV: {
+                    case Opcode.MAKE_ENV:
+                        {
                             int argcount = instr.first.AsInt;
                             if (st.argcount != argcount) { throw new LanguageError($"Argument count error, expected {argcount}, got {st.argcount}"); }
 
@@ -122,13 +141,15 @@ namespace CSLisp.Core
                             st.env = new Environment(st.argcount, st.env);
 
                             // move named arguments onto the stack frame
-                            for (int i = argcount - 1; i >= 0; i--) {
+                            for (int i = argcount - 1; i >= 0; i--)
+                            {
                                 st.env.SetValue(i, st.Pop());
                             }
                         }
                         break;
 
-                    case Opcode.MAKE_ENVDOT: {
+                    case Opcode.MAKE_ENVDOT:
+                        {
                             int argcount = instr.first.AsInt;
                             if (st.argcount < argcount) { throw new LanguageError($"Argument count error, expected {argcount} or more, got {st.argcount}"); }
 
@@ -137,25 +158,29 @@ namespace CSLisp.Core
                             st.env = new Environment(argcount + 1, st.env);
 
                             // cons up dotted values from the stack
-                            for (int dd = dotted - 1; dd >= 0; dd--) {
+                            for (int dd = dotted - 1; dd >= 0; dd--)
+                            {
                                 Val arg = st.Pop();
                                 st.env.SetValue(argcount, new Val(new Cons(arg, st.env.GetValue(argcount))));
                             }
 
                             // and move the named ones onto the environment stack frame
-                            for (int i = argcount - 1; i >= 0; i--) {
+                            for (int i = argcount - 1; i >= 0; i--)
+                            {
                                 st.env.SetValue(i, st.Pop());
                             }
                         }
                         break;
 
-                    case Opcode.DUPLICATE: {
+                    case Opcode.DUPLICATE:
+                        {
                             if (st.stack.Count == 0) { throw new LanguageError("Cannot duplicate on an empty stack!"); }
                             st.Push(st.Peek());
                         }
                         break;
 
-                    case Opcode.JMP_CLOSURE: {
+                    case Opcode.JMP_CLOSURE:
+                        {
                             st.env = st.env.parent; // discard the top environment frame
                             Val top = st.Pop();
                             Closure closure = top.AsClosureOrNull;
@@ -168,14 +193,16 @@ namespace CSLisp.Core
                         }
                         break;
 
-                    case Opcode.SAVE_RETURN: {
+                    case Opcode.SAVE_RETURN:
+                        {
                             // save current vm state to a return value
                             st.Push(new Val(new ReturnAddress(st.fn, GetLabelPosition(instr), st.env, instr.first.AsStringOrNull)));
                         }
                         break;
 
                     case Opcode.RETURN_VAL:
-                        if (st.stack.Count > 1) {
+                        if (st.stack.Count > 1)
+                        {
                             // preserve return value on top of the stack
                             Val retval = st.Pop();
                             ReturnAddress retaddr = st.Pop().AsReturnAddress;
@@ -185,18 +212,22 @@ namespace CSLisp.Core
                             st.fn = retaddr.fn;
                             st.env = retaddr.env;
                             st.pc = retaddr.pc;
-                        } else {
+                        }
+                        else
+                        {
                             st.done = true; // this will force the virtual machine to finish up
                         }
                         break;
 
-                    case Opcode.MAKE_CLOSURE: {
+                    case Opcode.MAKE_CLOSURE:
+                        {
                             var cl = instr.first.AsClosure;
                             st.Push(new Closure(cl.code, st.env, null, cl.name));
                         }
                         break;
 
-                    case Opcode.CALL_PRIMOP: {
+                    case Opcode.CALL_PRIMOP:
+                        {
                             string name = instr.first.AsString;
                             int argn = (instr.second.IsInt) ? instr.second.AsInt : st.argcount;
 
@@ -214,7 +245,8 @@ namespace CSLisp.Core
             }
 
             // return whatever's on the top of the stack
-            if (st.stack.Count == 0) {
+            if (st.stack.Count == 0)
+            {
                 throw new LanguageError("Stack underflow!");
             }
 
@@ -222,19 +254,26 @@ namespace CSLisp.Core
         }
 
         /// <summary> Very naive helper function, finds the position of a given label in the instruction set </summary>
-        private static int GetLabelPosition (Instruction inst) {
-            if (inst.second.IsInt) {
+        private static int GetLabelPosition(Instruction inst)
+        {
+            if (inst.second.IsInt)
+            {
                 return inst.second.AsInt;
-            } else {
+            }
+            else
+            {
                 throw new LanguageError("Unknown jump label: " + inst.first);
             }
         }
 
         /// <summary> A bit of debug info </summary>
-        private static string DebugRecentInstructions (State st, List<Instruction> instructions) {
+        private static string DebugRecentInstructions(State st, List<Instruction> instructions)
+        {
             string result = $"Closure {st.fn.code}, around instr pc {st.pc - 1}:";
-            for (int i = st.pc - 5; i <= st.pc; i++) {
-                if (i >= 0 && i < instructions.Count) {
+            for (int i = st.pc - 5; i <= st.pc; i++)
+            {
+                if (i >= 0 && i < instructions.Count)
+                {
                     result += $"{i}: {instructions[i].DebugPrint()}\n";
                 }
             }

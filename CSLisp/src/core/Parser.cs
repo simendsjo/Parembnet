@@ -32,20 +32,23 @@ namespace CSLisp.Core
         /// <summary> Optional logger callback </summary>
         private readonly ILogger _logger;
 
-        public Parser (Packages packages, ILogger logger) {
+        public Parser(Packages packages, ILogger logger)
+        {
             _packages = packages ?? throw new ParserError("Parser requires a valid packages structure during initialization");
             _global = packages.global;
             _logger = logger;
         }
 
         /// <summary> Adds a new string to the parse buffer </summary>
-        public void AddString (string str) => _stream.Add(str);
+        public void AddString(string str) => _stream.Add(str);
 
         /// <summary> Parses and returns all the elements it can from the stream </summary>
-        public List<Val> ParseAll () {
+        public List<Val> ParseAll()
+        {
             List<Val> results = new List<Val>();
             Val result = ParseNext();
-            while (!Val.Equals(result, EOF)) {
+            while (!Val.Equals(result, EOF))
+            {
                 results.Add(result);
                 result = ParseNext();
             }
@@ -56,15 +59,18 @@ namespace CSLisp.Core
         /// Parses the next element out of the stream (just one, if the stream contains more). 
         /// Returns EOF and restores the stream, if no full element has been found.
         /// </summary>
-        public Val ParseNext () {
+        public Val ParseNext()
+        {
             _stream.Save();
             Val result = Parse(_stream);
-            if (Val.Equals(result, EOF)) {
+            if (Val.Equals(result, EOF))
+            {
                 _stream.Restore();
                 return EOF;
             }
 
-            if (_logger.EnableParsingLogging) {
+            if (_logger.EnableParsingLogging)
+            {
                 _logger.Log("ParseNext ==> ", Val.DebugPrint(result));
             }
 
@@ -79,9 +85,11 @@ namespace CSLisp.Core
         /// If backquote is true, we are recursively parsing inside a backquote expression
         /// which changes some of the parse behavior.
         /// </summary>
-        private Val Parse (InputStream stream, bool backquote = false) {
+        private Val Parse(InputStream stream, bool backquote = false)
+        {
             // pull out the first character, we'll dispatch on it 
-            if (stream.IsEmpty) {
+            if (stream.IsEmpty)
+            {
                 return EOF;
             }
 
@@ -91,7 +99,8 @@ namespace CSLisp.Core
             // check for special forms
             Val result;
             char c = stream.Peek();
-            switch (c) {
+            switch (c)
+            {
                 case ';':
                     ConsumeToEndOfLine(stream);
                     result = Parse(stream, backquote);
@@ -130,11 +139,13 @@ namespace CSLisp.Core
                     // ,@foo => (,@ foo)
                     {
                         stream.Read();
-                        if (!backquote) {
+                        if (!backquote)
+                        {
                             throw new ParserError("Unexpected unquote!");
                         }
                         bool atomicUnquote = true;
-                        if (stream.Peek() == '@') {
+                        if (stream.Peek() == '@')
+                        {
                             stream.Read();
                             atomicUnquote = false;
                         }
@@ -155,17 +166,20 @@ namespace CSLisp.Core
         }
 
         /// <summary> Is this one of the standard whitespace characters? </summary>
-        private static bool IsWhitespace (char ch) => char.IsWhiteSpace(ch);
+        private static bool IsWhitespace(char ch) => char.IsWhiteSpace(ch);
 
         /// <summary> Eats up whitespace, nom nom </summary>
-        private static void ConsumeWhitespace (InputStream stream) {
+        private static void ConsumeWhitespace(InputStream stream)
+        {
             while (IsWhitespace(stream.Peek())) { stream.Read(); }
         }
 
         /// <summary> Eats up everything till end of line </summary>
-        private static void ConsumeToEndOfLine (InputStream stream) {
+        private static void ConsumeToEndOfLine(InputStream stream)
+        {
             char c = stream.Peek();
-            while (c != '\n' && c != '\r') {
+            while (c != '\n' && c != '\r')
+            {
                 stream.Read();
                 c = stream.Peek();
             }
@@ -174,7 +188,7 @@ namespace CSLisp.Core
         private readonly List<char> SPECIAL_ELEMENTS = new List<char>() { '(', ')', '\"', '\'', '`' };
 
         /// <summary> Special elements are like whitespace - they interrupt tokenizing </summary>
-        private bool IsSpecialElement (char elt, bool insideBackquote) => SPECIAL_ELEMENTS.Contains(elt) || (insideBackquote && elt == ',');
+        private bool IsSpecialElement(char elt, bool insideBackquote) => SPECIAL_ELEMENTS.Contains(elt) || (insideBackquote && elt == ',');
 
 
         /// <summary> 
@@ -185,13 +199,16 @@ namespace CSLisp.Core
         ///     (int or float, assuming parsing validation passes)
         ///   - otherwise it will be returned as a symbol
         /// </summary>
-        private Val ParseAtom (InputStream stream, bool backquote) {
+        private Val ParseAtom(InputStream stream, bool backquote)
+        {
 
             // tokenizer loop
             StringBuilder sb = new StringBuilder();
             char ch;
-            while ((ch = stream.Peek()) != (char) 0) {
-                if (IsWhitespace(ch) || IsSpecialElement(ch, backquote)) {
+            while ((ch = stream.Peek()) != (char)0)
+            {
+                if (IsWhitespace(ch) || IsSpecialElement(ch, backquote))
+                {
                     break; // we're done here, don't touch the special character
                 }
                 sb.Append(ch);
@@ -199,7 +216,8 @@ namespace CSLisp.Core
             }
 
             // did we fail?
-            if (sb.Length == 0) {
+            if (sb.Length == 0)
+            {
                 return EOF;
             }
 
@@ -207,18 +225,24 @@ namespace CSLisp.Core
 
             // #t => true, #(anything) => false
             char c0 = str[0];
-            if (c0 == '#') {
-                if (str.Length == 2 && (str[1] == 't' || str[1] == 'T')) {
+            if (c0 == '#')
+            {
+                if (str.Length == 2 && (str[1] == 't' || str[1] == 'T'))
+                {
                     return new Val(true);
-                } else {
+                }
+                else
+                {
                     return new Val(false);
                 }
             }
 
             // parse if it starts with -, +, or a digit, but fall back if it causes a parse error
-            if (c0 == '-' || c0 == '+' || char.IsDigit(c0)) {
+            if (c0 == '-' || c0 == '+' || char.IsDigit(c0))
+            {
                 Val num = ParseNumber(str);
-                if (num.IsNotNil) {
+                if (num.IsNotNil)
+                {
                     return num;
                 }
             }
@@ -228,21 +252,29 @@ namespace CSLisp.Core
         }
 
         /// <summary> Parses as a number, an int or a float (the latter if there is a period present) </summary>
-        private static Val ParseNumber (string val) {
-            try {
+        private static Val ParseNumber(string val)
+        {
+            try
+            {
                 var hasPeriod = val.Contains(".");
-                if (hasPeriod) {
+                if (hasPeriod)
+                {
                     return new Val(float.Parse(val, CultureInfo.InvariantCulture));
-                } else {
+                }
+                else
+                {
                     return new Val(int.Parse(val, CultureInfo.InvariantCulture));
                 }
-            } catch (Exception) {
+            }
+            catch (Exception)
+            {
                 return Val.NIL;
             }
         }
 
         /// <summary> Parses as a symbol, taking into account optional package prefix </summary>
-        private Val ParseSymbol (string name) {
+        private Val ParseSymbol(string name)
+        {
             // if this is a reserved keyword, always using global namespace
             if (RESERVED.Contains(name)) { return new Val(_global.Intern(name)); }
 
@@ -251,10 +283,12 @@ namespace CSLisp.Core
 
             // reference to a non-current package - let's look it up there
             int colon = name.IndexOf(":");
-            if (colon >= 0) {
+            if (colon >= 0)
+            {
                 string pkgname = name.Substring(0, colon);
                 p = _packages.Intern(pkgname);  // we have a specific package name, look there instead
-                if (p == null) {
+                if (p == null)
+                {
                     throw new ParserError("Unknown package: " + pkgname);
                 }
                 name = name.Substring(colon + 1);
@@ -262,7 +296,8 @@ namespace CSLisp.Core
 
             // do we have the symbol anywhere in that package or its imports?
             Symbol result = p.Find(name, true);
-            if (result != null) {
+            if (result != null)
+            {
                 return new Val(result);
             }
 
@@ -274,15 +309,17 @@ namespace CSLisp.Core
         /// Starting with an opening double-quote, it will consume everything up to and including closing double quote.
         /// Any characters preceded by backslash will be escaped.
         /// </summary>
-        private static Val ParseString (InputStream stream) {
+        private static Val ParseString(InputStream stream)
+        {
 
             StringBuilder sb = new StringBuilder();
 
             stream.Read(); // consume the opening quote
 
-            while (true) {
+            while (true)
+            {
                 char ch = stream.Read();
-                if (ch == (char) 0) { throw new ParserError($"string not properly terminated: {sb}"); }
+                if (ch == (char)0) { throw new ParserError($"string not properly terminated: {sb}"); }
 
                 // if we've consumed the closing double-quote, we're done.
                 if (ch == '\"') { break; }
@@ -300,14 +337,16 @@ namespace CSLisp.Core
         /// Starting with an open paren, recursively parse everything up to the matching closing paren,
         /// and then return it as a sequence of conses.
         /// </summary>
-		private Val ParseList (InputStream stream, bool backquote) {
+		private Val ParseList(InputStream stream, bool backquote)
+        {
 
             List<Val> results = new List<Val>();
             stream.Read(); // consume opening paren
             ConsumeWhitespace(stream);
 
             char ch;
-            while ((ch = stream.Peek()) != ')' && ch != (char) 0) {
+            while ((ch = stream.Peek()) != ')' && ch != (char)0)
+            {
                 Val val = Parse(stream, backquote);
                 results.Add(val);
             }
@@ -330,20 +369,24 @@ namespace CSLisp.Core
         ///   [a] => (list (` a)) transformed further recursively
         ///   
         /// </pre> </summary>
-        private Val ConvertBackquote (Cons cons) {
+        private Val ConvertBackquote(Cons cons)
+        {
             Symbol first = cons.first.AsSymbolOrNull;
-            if (first == null || first.name != "`") {
+            if (first == null || first.name != "`")
+            {
                 throw new ParserError($"Unexpected {first} in place of backquote");
             }
 
             // (` e) where e is atomic => e
             Cons body = cons.second.AsConsOrNull;
-            if (body == null) {
+            if (body == null)
+            {
                 return Cons.MakeList(_global.Intern("quote"), cons.second);
             }
 
             // (` (, e)) => e
-            if (IsSymbolWithName(body.first, ",")) {
+            if (IsSymbolWithName(body.first, ","))
+            {
                 return body.second;
             }
 
@@ -351,7 +394,8 @@ namespace CSLisp.Core
             // (` (a ...)) => (append [a] ...) 
             List<Val> forms = new List<Val>();
             Cons c = body;
-            while (c != null) {
+            while (c != null)
+            {
                 forms.Add(ConvertBackquoteElement(c.first));
                 c = c.rest.AsConsOrNull;
             }
@@ -371,11 +415,14 @@ namespace CSLisp.Core
 		/// [(,@ a)] => a
 		/// [a] => (list (` a))
 		/// </summary>
-        private Val ConvertBackquoteElement (Val value) {
+        private Val ConvertBackquoteElement(Val value)
+        {
             var cons = value.AsConsOrNull;
-            if (cons != null && cons.first.IsSymbol) {
+            if (cons != null && cons.first.IsSymbol)
+            {
                 Symbol sym = cons.first.AsSymbol;
-                switch (sym.name) {
+                switch (sym.name)
+                {
                     case ",":
                         // [(, a)] => (list a)
                         return new Val(new Cons(new Val(_global.Intern("list")), cons.rest));
@@ -394,32 +441,39 @@ namespace CSLisp.Core
         /// If the results form follows the pattern (append (list a b) (list c d) ...)
         /// it will be converted to a simple (list a b c d ...)
         /// </summary>
-        private Val TryOptimizeAppend (Cons value) {
+        private Val TryOptimizeAppend(Cons value)
+        {
             Val original = new Val(value);
 
-            if (!IsSymbolWithName(value.first, "append")) {
+            if (!IsSymbolWithName(value.first, "append"))
+            {
                 return original;
             }
 
             List<Val> results = new List<Val>();
             Val rest = value.rest;
-            while (rest.IsNotNil) {
+            while (rest.IsNotNil)
+            {
                 Cons cons = rest.AsConsOrNull;
-                if (cons == null) {
+                if (cons == null)
+                {
                     return original; // not a proper list
                 }
 
                 Cons maybeList = cons.first.AsConsOrNull;
-                if (maybeList == null) {
+                if (maybeList == null)
+                {
                     return original; // not all elements are lists themselves
                 }
 
-                if (!IsSymbolWithName(maybeList.first, "list")) {
+                if (!IsSymbolWithName(maybeList.first, "list"))
+                {
                     return original; // not all elements are of the form (list ...)
                 }
 
                 Val ops = maybeList.rest;
-                while (ops.IsCons) {
+                while (ops.IsCons)
+                {
                     results.Add(ops.AsCons.first);
                     ops = ops.AsCons.rest;
                 }
@@ -431,7 +485,7 @@ namespace CSLisp.Core
         }
 
         /// <summary> Convenience function: checks if the value is of type Symbol, and has the specified name </summary>
-        private static bool IsSymbolWithName (Val value, string fullName) =>
+        private static bool IsSymbolWithName(Val value, string fullName) =>
             value.AsSymbolOrNull?.fullName == fullName;
     }
 }

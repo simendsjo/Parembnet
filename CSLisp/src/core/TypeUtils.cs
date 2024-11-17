@@ -26,7 +26,8 @@ namespace CSLisp.Core
         /// </summary>
         public static Dictionary<Type, List<MemberInfo>> StaticMemberCache { get; private set; }
 
-        static TypeUtils () {
+        static TypeUtils()
+        {
             NameToTypeCache = new Dictionary<string, Type>();
             InstanceMemberCache = new Dictionary<Type, List<MemberInfo>>();
             StaticMemberCache = new Dictionary<Type, List<MemberInfo>>();
@@ -42,17 +43,20 @@ namespace CSLisp.Core
         /// 
         /// Note that this is a caching operation; when new assemblies are loaded please clear type caches.
         /// </summary>
-        public static Type GetType (string fullname) {
+        public static Type GetType(string fullname)
+        {
             if (string.IsNullOrEmpty(fullname)) { return null; }
 
-            if (!NameToTypeCache.TryGetValue(fullname, out Type result)) {
+            if (!NameToTypeCache.TryGetValue(fullname, out Type result))
+            {
 
                 result = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(a => a.GetTypes())
                     .Where(t => t.FullName == fullname)
                     .FirstOrDefault();
 
-                if (result != null) {
+                if (result != null)
+                {
                     NameToTypeCache[fullname] = result;
                 }
             }
@@ -66,7 +70,8 @@ namespace CSLisp.Core
         /// If this type is found but invalid arguments were passed, or another reflection
         /// exception occurred, it throws an Interop exception.
         /// </summary>
-        public static object Instantiate (string fullname, params object[] args) {
+        public static object Instantiate(string fullname, params object[] args)
+        {
             var t = GetType(fullname);
             return t != null ? Instantiate(t, args) : null;
         }
@@ -76,10 +81,14 @@ namespace CSLisp.Core
         /// and passing in the specified arguments. If invalid arguments were passed, or another reflection
         /// exception occurred, it throws an Interop exception.
         /// </summary>
-        public static object Instantiate (Type t, params object[] args) {
-            try {
+        public static object Instantiate(Type t, params object[] args)
+        {
+            try
+            {
                 return Activator.CreateInstance(t, args);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 throw new InteropError("Failed to instantiate type: " + t.FullName, e);
             }
         }
@@ -91,7 +100,8 @@ namespace CSLisp.Core
         /// <summary>
         /// If the member is either a variable or a property, sets its value
         /// </summary>
-        public static void SetValue (MemberInfo member, object obj, object value, object[] index = null) {
+        public static void SetValue(MemberInfo member, object obj, object value, object[] index = null)
+        {
             if (member is PropertyInfo prop) { prop.SetValue(obj, value, index); }
             if (member is FieldInfo field) { field.SetValue(obj, value); }
         }
@@ -99,7 +109,7 @@ namespace CSLisp.Core
         /// <summary>
         /// If the member is either a variable or a property, returns its value
         /// </summary>
-        public static object GetValue (MemberInfo member, object obj, object[] index = null) =>
+        public static object GetValue(MemberInfo member, object obj, object[] index = null) =>
             (member is PropertyInfo prop) ? prop.GetValue(obj, index) :
             (member is FieldInfo field) ? field.GetValue(obj) :
             null;
@@ -107,21 +117,23 @@ namespace CSLisp.Core
         /// <summary>
         /// Returns all members from the given object
         /// </summary>
-        public static IEnumerable<MemberInfo> GetInstanceMembers (object obj) =>
+        public static IEnumerable<MemberInfo> GetInstanceMembers(object obj) =>
             GetInstanceMembers(obj.GetType());
 
         /// <summary>
         /// Returns all members from a type descriptor, with a given member name
         /// </summary>
-        public static IEnumerable<MemberInfo> GetInstanceMembers (Type t, string name) =>
+        public static IEnumerable<MemberInfo> GetInstanceMembers(Type t, string name) =>
             GetInstanceMembers(t).Where(m => m.Name == name);
 
         /// <summary>
         /// Returns all public instance members from a type descriptor
         /// </summary>
-        public static IEnumerable<MemberInfo> GetInstanceMembers (Type t) {
+        public static IEnumerable<MemberInfo> GetInstanceMembers(Type t)
+        {
             var found = InstanceMemberCache.TryGetValue(t, out List<MemberInfo> result);
-            if (!found) {
+            if (!found)
+            {
                 result = InstanceMemberCache[t] =
                     t.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
                     .ToList();
@@ -132,9 +144,11 @@ namespace CSLisp.Core
         /// <summary>
         /// Returns all public static members from a type descriptor
         /// </summary>
-        public static IEnumerable<MemberInfo> GetStaticMembers (Type t) {
+        public static IEnumerable<MemberInfo> GetStaticMembers(Type t)
+        {
             var found = StaticMemberCache.TryGetValue(t, out List<MemberInfo> result);
-            if (!found) {
+            if (!found)
+            {
                 result = StaticMemberCache[t] =
                     t.GetMembers(BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy)
                     .ToList();
@@ -145,7 +159,8 @@ namespace CSLisp.Core
         /// <summary>
         /// Returns public methods on a type that match a specific name and signature.
         /// </summary>
-        public static MethodBase GetMethodByArgs (Type type, string name, bool instanced, object[] varargs) {
+        public static MethodBase GetMethodByArgs(Type type, string name, bool instanced, object[] varargs)
+        {
             var varargTypes = varargs.Select(a => a?.GetType() ?? typeof(object)).ToArray();
             var elements = instanced ? GetInstanceMembers(type) : GetStaticMembers(type);
             var methods = elements.OfType<MethodInfo>().Where(m => m.Name == name).ToArray();
@@ -160,7 +175,8 @@ namespace CSLisp.Core
         /// Returns a public member field or property, suitable for setting or getting.
         /// In this iteration we don't support accessing non-public ones.
         /// <returns></returns>
-        public static MemberInfo GetFieldOrProp (Type type, string member, bool instanced) {
+        public static MemberInfo GetFieldOrProp(Type type, string member, bool instanced)
+        {
             var elements = instanced ? GetInstanceMembers(type) : GetStaticMembers(type);
             var fields = elements
                 .Where(m => m.Name == member)

@@ -7,7 +7,7 @@ namespace CSLisp.Error
     /// </summary>
     public class InteropError : Exception
     {
-        public InteropError (string message) : base(message) { }
-        public InteropError (string message, Exception inner) : base(message, inner) { }
+        public InteropError(string message) : base(message) { }
+        public InteropError(string message, Exception inner) : base(message, inner) { }
     }
 }

@@ -14,28 +14,32 @@ namespace CSLisp.Util
         /// <summary> Optional saved state </summary>
         private StreamState _saved;
 
-        public InputStream () {
+        public InputStream()
+        {
             _buffer = "";
         }
 
         /// <summary> Appends more data to the stream </summary>
-        public void Add (string str) => _buffer += str;
+        public void Add(string str) => _buffer += str;
 
         /// <summary> Returns true if empty, false if we still have characters in the buffer </summary>
         public bool IsEmpty => _index >= _buffer.Length;
 
         /// <summary> Returns the current character in the stream without removing it; 0 if empty. </summary>
-        public char Peek () => (_index >= _buffer.Length) ? (char) 0 : _buffer[_index];
+        public char Peek() => (_index >= _buffer.Length) ? (char)0 : _buffer[_index];
 
         /// <summary> Returns and removes the current character in the stream; 0 if empty. </summary>
-        public char Read () {
-            char result = (char) 0;
-            if (_index < _buffer.Length) {
+        public char Read()
+        {
+            char result = (char)0;
+            if (_index < _buffer.Length)
+            {
                 result = _buffer[_index];
                 _index++;
             }
             // if we reached end of the buffer, clear out internal storage
-            if (_index >= _buffer.Length && _index > 0) {
+            if (_index >= _buffer.Length && _index > 0)
+            {
                 _buffer = "";
                 _index = 0;
             }
@@ -43,14 +47,16 @@ namespace CSLisp.Util
         }
 
         /// <summary> Saves the state of the stream into an internal register. Each save overwrites the previous one. </summary>
-        public void Save () => _saved = new StreamState(_buffer, _index);
+        public void Save() => _saved = new StreamState(_buffer, _index);
 
         /// <summary> 
 		/// Restores (and deletes) a saved stream state, and returns true. 
 		/// If one did not exist, it does not change existing state, and returns false.
 		/// </summary>
-        public bool Restore () {
-            if (_saved == null) {
+        public bool Restore()
+        {
+            if (_saved == null)
+            {
                 return false;
             }
 
@@ -68,7 +74,8 @@ namespace CSLisp.Util
         {
             public int index;
             public string buffer;
-            public StreamState (string buffer, int index) {
+            public StreamState(string buffer, int index)
+            {
                 this.index = index;
                 this.buffer = buffer;
             }

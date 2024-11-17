@@ -7,7 +7,7 @@ namespace CSLisp.Error
 	/// </summary>
     public class CompilerError : Exception
     {
-        public CompilerError (string message) : base(message) { }
+        public CompilerError(string message) : base(message) { }
     }
 
 }

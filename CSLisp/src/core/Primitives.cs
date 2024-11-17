@@ -219,16 +219,19 @@ namespace CSLisp.Core
         /// If f is a symbol that refers to a primitive, and it's not shadowed in the local environment,
         /// returns an appropriate instance of Primitive for that argument count.
         /// </summary>
-        public static Primitive FindGlobal (Val f, Data.Environment env, int nargs) =>
+        public static Primitive FindGlobal(Val f, Data.Environment env, int nargs) =>
             (f.IsSymbol && Data.Environment.GetVariable(f.AsSymbol, env).IsNotValid) ?
             FindNary(f.AsSymbol.name, nargs) :
             null;
 
         /// <summary> Helper function, searches based on name and argument count </summary>
-        public static Primitive FindNary (string symbol, int nargs) {
+        public static Primitive FindNary(string symbol, int nargs)
+        {
             List<Primitive> primitives = ALL_PRIMITIVES_DICT[symbol];
-            foreach (Primitive p in primitives) {
-                if (symbol == p.name && (p.IsExact ? nargs == p.minargs : nargs >= p.minargs)) {
+            foreach (Primitive p in primitives)
+            {
+                if (symbol == p.name && (p.IsExact ? nargs == p.minargs : nargs >= p.minargs))
+                {
                     return p;
                 }
             }
@@ -236,14 +239,17 @@ namespace CSLisp.Core
         }
 
         /// <summary> Initializes the core package with stub functions for primitives </summary>
-        public static void InitializeCorePackage (Context context, Package pkg) {
+        public static void InitializeCorePackage(Context context, Package pkg)
+        {
             // clear out and reinitialize the dictionary.
             // also, intern all primitives in their appropriate package
             ALL_PRIMITIVES_DICT = new Dictionary<string, List<Primitive>>();
 
-            foreach (Primitive p in ALL_PRIMITIVES_VECTOR) {
+            foreach (Primitive p in ALL_PRIMITIVES_VECTOR)
+            {
                 // dictionary update
-                if (!ALL_PRIMITIVES_DICT.TryGetValue(p.name, out List<Primitive> v)) {
+                if (!ALL_PRIMITIVES_DICT.TryGetValue(p.name, out List<Primitive> v))
+                {
                     v = ALL_PRIMITIVES_DICT[p.name] = new List<Primitive>();
                 }
 
@@ -251,7 +257,8 @@ namespace CSLisp.Core
                 v.Add(p);
 
                 // also intern in package, if it hasn't been interned yet
-                if (pkg.Find(p.name, false) == null) {
+                if (pkg.Find(p.name, false) == null)
+                {
                     Symbol name = pkg.Intern(p.name);
                     name.exported = true;
                     List<Instruction> instructions = new List<Instruction>() {
@@ -266,12 +273,14 @@ namespace CSLisp.Core
 
         /// <summary> Performs the append operation on two lists, by creating a new cons
         /// list that copies elements from the first value, and its tail is the second value </summary>
-        private static Val AppendHelper (Val aval, Val bval) {
+        private static Val AppendHelper(Val aval, Val bval)
+        {
             Cons alist = aval.AsConsOrNull;
             Cons head = null, current = null, previous = null;
 
             // copy all nodes from a, set cdr of the last one to b
-            while (alist != null) {
+            while (alist != null)
+            {
                 current = new Cons(alist.first, Val.NIL);
                 if (head == null) { head = current; }
                 if (previous != null) { previous.rest = current; }
@@ -279,35 +288,43 @@ namespace CSLisp.Core
                 alist = alist.rest.AsConsOrNull;
             }
 
-            if (current != null) {
+            if (current != null)
+            {
                 // a != () => head points to the first new node
                 current.rest = bval;
                 return head;
-            } else {
+            }
+            else
+            {
                 // a == (), we should return b
                 return bval;
             }
         }
 
         /// <summary> Generates a new symbol </summary>
-        private static Val GensymHelper (Context ctx, string prefix) {
-            while (true) {
+        private static Val GensymHelper(Context ctx, string prefix)
+        {
+            while (true)
+            {
                 string gname = prefix + _gensymIndex;
                 _gensymIndex++;
                 Package current = ctx.packages.current;
-                if (current.Find(gname, false) == null) {
+                if (current.Find(gname, false) == null)
+                {
                     return new Val(current.Intern(gname));
                 }
             };
         }
 
         /// <summary> Maps a function over elements of the list, and returns a new list with the results </summary>
-        private static Cons MapHelper (Context ctx, Closure fn, Cons list) {
+        private static Cons MapHelper(Context ctx, Closure fn, Cons list)
+        {
             Cons head = null;
             Cons previous = null;
 
             // apply fn over all elements of the list, making a copy as we go
-            while (list != null) {
+            while (list != null)
+            {
                 Val input = list.first;
                 Val output = ctx.vm.Execute(fn, input);
                 Cons current = new Cons(output, Val.NIL);
@@ -321,69 +338,78 @@ namespace CSLisp.Core
         }
 
         ///// <summary> Performs a left fold on the array: +, 0, [1, 2, 3] => (((0 + 1) + 2) + 3) </summary>
-        private static Val FoldLeft (Func<Val, Val, Val> fn, Val baseElement, VarArgs args) {
+        private static Val FoldLeft(Func<Val, Val, Val> fn, Val baseElement, VarArgs args)
+        {
             var result = baseElement;
             var elements = args.ToNativeList();
-            for (int i = 0, len = elements.Count; i < len; i++) {
+            for (int i = 0, len = elements.Count; i < len; i++)
+            {
                 result = fn(result, elements[i]);
             }
             return result;
         }
 
         ///// <summary> Performs a right fold on the array: +, 0, [1, 2, 3] => (1 + (2 + (3 + 0))) </summary>
-        private static Val FoldRight (Func<Val, Val, Val> fn, Val baseElement, VarArgs args) {
+        private static Val FoldRight(Func<Val, Val, Val> fn, Val baseElement, VarArgs args)
+        {
             var result = baseElement;
             var elements = args.ToNativeList();
-            for (int i = elements.Count - 1; i >= 0; i--) {
+            for (int i = elements.Count - 1; i >= 0; i--)
+            {
                 result = fn(elements[i], result);
             }
             return result;
         }
 
-        private static Val ValAdd (Val a, Val b) {
+        private static Val ValAdd(Val a, Val b)
+        {
             if (a.IsInt && b.IsInt) { return new Val(a.AsInt + b.AsInt); }
             if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat + b.CastToFloat); }
             throw new LanguageError("Add applied to non-numbers");
         }
 
-        private static Val ValSub (Val a, Val b) {
+        private static Val ValSub(Val a, Val b)
+        {
             if (a.IsInt && b.IsInt) { return new Val(a.AsInt - b.AsInt); }
             if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat - b.CastToFloat); }
             throw new LanguageError("Add applied to non-numbers");
         }
 
-        private static Val ValMul (Val a, Val b) {
+        private static Val ValMul(Val a, Val b)
+        {
             if (a.IsInt && b.IsInt) { return new Val(a.AsInt * b.AsInt); }
             if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat * b.CastToFloat); }
             throw new LanguageError("Add applied to non-numbers");
         }
 
-        private static Val ValDiv (Val a, Val b) {
+        private static Val ValDiv(Val a, Val b)
+        {
             if (a.IsInt && b.IsInt) { return new Val(a.AsInt / b.AsInt); }
             if (a.IsNumber && b.IsNumber) { return new Val(a.CastToFloat / b.CastToFloat); }
             throw new LanguageError("Add applied to non-numbers");
         }
 
-        private static Val ValLT (Val a, Val b) => a.CastToFloat < b.CastToFloat;
+        private static Val ValLT(Val a, Val b) => a.CastToFloat < b.CastToFloat;
 
-        private static Val ValLTE (Val a, Val b) => a.CastToFloat <= b.CastToFloat;
+        private static Val ValLTE(Val a, Val b) => a.CastToFloat <= b.CastToFloat;
 
-        private static Val ValGT (Val a, Val b) => a.CastToFloat > b.CastToFloat;
+        private static Val ValGT(Val a, Val b) => a.CastToFloat > b.CastToFloat;
 
-        private static Val ValGTE (Val a, Val b) => a.CastToFloat >= b.CastToFloat;
+        private static Val ValGTE(Val a, Val b) => a.CastToFloat >= b.CastToFloat;
 
         //
         // helpers for .net interop
 
         /// <summary> Extract a name from either the symbol or the string value of a val </summary>
-        private static string GetStringOrSymbolName (Val v) => v.AsStringOrNull ?? v.AsSymbolOrNull?.name;
+        private static string GetStringOrSymbolName(Val v) => v.AsStringOrNull ?? v.AsSymbolOrNull?.name;
 
         /// <summary>
         /// Extract a .net type descriptor from the argument, which could be either the type itself
         /// wrapped in a val, or a fully-qualified name, either as a symbol or a string,
         /// or finally an object and we need to look up its type at runtime.
         /// </summary>
-        private static Type GetTypeFromNameOrObject (Val value) {
+        private static Type GetTypeFromNameOrObject(Val value)
+        {
             if (value.IsObject && value.AsObject is Type t) { return t; }
 
             var name = GetStringOrSymbolName(value);
@@ -396,7 +422,8 @@ namespace CSLisp.Core
         /// Given a list of args (during a new instance call), parse out the first one as the class name,
         /// and convert the rest into an object array suitable for passing through reflection.
         /// </summary>
-        private static (Type type, object[] varargs) ParseArgsForConstructorInterop (VarArgs args) {
+        private static (Type type, object[] varargs) ParseArgsForConstructorInterop(VarArgs args)
+        {
             Cons list = args.cons;
             Val first = list?.first ?? Val.NIL;
 
@@ -409,7 +436,8 @@ namespace CSLisp.Core
         /// Given a list of args (during a method search), parse out the first one as the name class,
         /// second as method name, and convert the rest into an object array suitable for passing through reflection.
         /// </summary>
-        private static (Type type, string member, object[] varargs) ParseArgsForMethodSearch (VarArgs args) {
+        private static (Type type, string member, object[] varargs) ParseArgsForMethodSearch(VarArgs args)
+        {
             Cons list = args.cons;
             Val first = list?.first ?? Val.NIL;
             Val second = list?.second ?? Val.NIL;
@@ -424,7 +452,8 @@ namespace CSLisp.Core
         /// Given a list of args (for a function call), parse out the first one as the type we're referring to,
         /// second as method name, and convert the rest into an object array suitable for passing through reflection.
         /// </summary>
-        private static (MethodInfo method, object instance, object[] varargs) ParseArgsForMethodCall (VarArgs args) {
+        private static (MethodInfo method, object instance, object[] varargs) ParseArgsForMethodCall(VarArgs args)
+        {
             Cons list = args.cons;
             Val first = list?.first ?? Val.NIL;
             Val second = list?.second ?? Val.NIL;
@@ -439,7 +468,8 @@ namespace CSLisp.Core
         /// Parse out the first argument as a type based on name or instance,
         /// and the second as a member that's either a field or a property field.
         /// </summary>
-        private static (Type type, string member) ParseArgsForMemberSearch (VarArgs args) {
+        private static (Type type, string member) ParseArgsForMemberSearch(VarArgs args)
+        {
             Cons list = args.cons;
             Val first = list?.first ?? Val.NIL;
             Val second = list?.second ?? Val.NIL;
@@ -454,7 +484,8 @@ namespace CSLisp.Core
         /// and parse the second arg as a member that's either a field or a property field.
         /// If the setter flag is set, it also parses out the third element as the new value.
         /// </summary>
-        private static (object instance, Type type, string member, Val third, Val fourth) ParseSetterArgs (VarArgs args, bool setter) {
+        private static (object instance, Type type, string member, Val third, Val fourth) ParseSetterArgs(VarArgs args, bool setter)
+        {
             Cons list = args.cons;
             Val first = list?.first ?? Val.NIL;
             Val second = list?.second ?? Val.NIL;
@@ -467,7 +498,7 @@ namespace CSLisp.Core
             return (instance, type, member, third, fourth);
         }
 
-        private static object[] TurnConsIntoBoxedArray (Val? cons) =>
+        private static object[] TurnConsIntoBoxedArray(Val? cons) =>
             cons?.AsConsOrNull?.ToNativeList().Select(v => v.AsBoxedValue).ToArray() ?? Array.Empty<object>();
 
         /// <summary> Collapses a native path (expressed as a Cons list) into a fully qualified name </summary>

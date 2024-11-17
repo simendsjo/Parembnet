@@ -29,18 +29,21 @@ namespace CSLisp.Core
         /// <summary> Helper flag, stops the REPL </summary>
         public bool done = false;
 
-        public State (Closure closure, Val[] args) {
+        public State(Closure closure, Val[] args)
+        {
             fn = closure;
             env = fn.env;
             foreach (Val arg in args) { stack.Add(arg); }
             argcount = args.Length;
         }
 
-        public void Push (Val v) => stack.Add(v);
+        public void Push(Val v) => stack.Add(v);
 
-        public Val Pop () {
+        public Val Pop()
+        {
             var count = stack.Count;
-            if (count > 0) {
+            if (count > 0)
+            {
                 var result = stack[count - 1];
                 stack.RemoveAt(count - 1);
                 return result;
@@ -49,16 +52,18 @@ namespace CSLisp.Core
             throw new LanguageError("Stack underflow!");
         }
 
-        public Val Peek () {
+        public Val Peek()
+        {
             var count = stack.Count;
-            if (count > 0) {
+            if (count > 0)
+            {
                 return stack[count - 1];
             }
 
             throw new LanguageError("Stack underflow!");
         }
 
-        internal static string PrintStack (State st) =>
+        internal static string PrintStack(State st) =>
             string.Format("{0,3}: [ {1} ]", st.stack.Count,
                 string.Join(" ", st.stack.Select(val => Val.DebugPrint(val))));
     }

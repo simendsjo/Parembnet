@@ -12,18 +12,18 @@ namespace CSLisp.Core
     {
         public int index;
 
-        public CodeHandle (int index) { this.index = index; }
+        public CodeHandle(int index) { this.index = index; }
 
         public bool IsValid => index > 0; // index at 0 is always null
 
-        public static bool Equals (CodeHandle a, CodeHandle b) => a.index == b.index;
-        public static bool operator == (CodeHandle a, CodeHandle b) => Equals(a, b);
-        public static bool operator != (CodeHandle a, CodeHandle b) => !Equals(a, b);
+        public static bool Equals(CodeHandle a, CodeHandle b) => a.index == b.index;
+        public static bool operator ==(CodeHandle a, CodeHandle b) => Equals(a, b);
+        public static bool operator !=(CodeHandle a, CodeHandle b) => !Equals(a, b);
 
-        public bool Equals (CodeHandle other) => Equals(this, other);
+        public bool Equals(CodeHandle other) => Equals(this, other);
 
-        public override bool Equals (object obj) => obj is CodeHandle handle && Equals(this, handle);
-        public override int GetHashCode () => index;
+        public override bool Equals(object obj) => obj is CodeHandle handle && Equals(this, handle);
+        public override int GetHashCode() => index;
     }
 
     /// <summary> Code block stores a collection of instructions and some additional debugging data </summary>
@@ -33,7 +33,8 @@ namespace CSLisp.Core
         public readonly List<Instruction> instructions;
         public readonly string debug;
 
-        public CodeBlock (CodeHandle handle, List<Instruction> instructions, string debug) {
+        public CodeBlock(CodeHandle handle, List<Instruction> instructions, string debug)
+        {
             this.handle = handle;
             this.instructions = instructions;
             this.debug = debug;
@@ -51,15 +52,18 @@ namespace CSLisp.Core
         public CodeHandle LastHandle => new CodeHandle(_blocks.Count - 1);
 
         /// <summary> Registers a new code block and returns its handle </summary>
-        public CodeHandle AddBlock (List<Instruction> instructions, string debug) {
+        public CodeHandle AddBlock(List<Instruction> instructions, string debug)
+        {
             var handle = new CodeHandle { index = _blocks.Count };
             _blocks.Add(new CodeBlock(handle, instructions, debug));
             return handle;
         }
 
         /// <summary> Deregisters the specified code block and replaces it with null. </summary>
-        public void RemoveBlock (CodeHandle handle) {
-            if (handle.index <= 0 || handle.index >= _blocks.Count) {
+        public void RemoveBlock(CodeHandle handle)
+        {
+            if (handle.index <= 0 || handle.index >= _blocks.Count)
+            {
                 throw new LanguageError("Invalid code block handle!");
             }
 
@@ -67,8 +71,10 @@ namespace CSLisp.Core
         }
 
         /// <summary> Retrieves a code block registered for a given handle </summary>
-        public CodeBlock Get (CodeHandle handle) {
-            if (handle.index <= 0 || handle.index >= _blocks.Count) {
+        public CodeBlock Get(CodeHandle handle)
+        {
+            if (handle.index <= 0 || handle.index >= _blocks.Count)
+            {
                 throw new LanguageError("Invalid code block handle!");
             }
 
@@ -76,18 +82,19 @@ namespace CSLisp.Core
         }
 
         /// <summary> Returns an iterator over all code blocks. Some may be null! </summary>
-        public IEnumerable<CodeBlock> GetAll () => _blocks;
+        public IEnumerable<CodeBlock> GetAll() => _blocks;
 
         /// <summary> Converts a compilation result to a string </summary>
-        public string DebugPrint (CompilationResults comp, int indentLevel = 1) =>
+        public string DebugPrint(CompilationResults comp, int indentLevel = 1) =>
             string.Join("\n", comp.recents.Select(h => DebugPrint(h, indentLevel)));
 
         /// <summary> Converts a set of instructions to a string </summary>
-        public string DebugPrint (Closure cl, int indentLevel = 1) =>
+        public string DebugPrint(Closure cl, int indentLevel = 1) =>
             DebugPrint(cl.code, indentLevel);
 
         /// <summary> Converts a set of instructions to a string </summary>
-        private string DebugPrint (CodeHandle handle, int indentLevel) {
+        private string DebugPrint(CodeHandle handle, int indentLevel)
+        {
             var block = Get(handle);
             StringBuilder sb = new StringBuilder();
 
@@ -95,7 +102,8 @@ namespace CSLisp.Core
             //sb.AppendLine($"CODE BLOCK # {block.handle.index} ; {block.debug}");
             sb.AppendLine($"CODE BLOCK ; {block.debug}");
 
-            for (int i = 0, count = block.instructions.Count; i < count; i++) {
+            for (int i = 0, count = block.instructions.Count; i < count; i++)
+            {
                 Instruction instruction = block.instructions[i];
 
                 // tab out and print current instruction
@@ -115,13 +123,16 @@ namespace CSLisp.Core
         }
 
         /// <summary> Converts all sets of instructions to a string </summary>
-        public string DebugPrintAll () {
+        public string DebugPrintAll()
+        {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("\n\n*** ALL CODE BLOCKS\n");
 
-            for (int i = 0; i < _blocks.Count; i++) {
+            for (int i = 0; i < _blocks.Count; i++)
+            {
                 CodeBlock block = _blocks[i];
-                if (block != null) {
+                if (block != null)
+                {
                     sb.AppendLine(DebugPrint(block.handle, 1));
                 }
             }

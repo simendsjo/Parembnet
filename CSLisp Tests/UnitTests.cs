@@ -16,7 +16,7 @@ namespace CSLisp
         public int MyIntProperty { get; set; }
 
         public string MyStringField = "hello";
-        public int MyFn (int x) => x + MyIntField;
+        public int MyFn(int x) => x + MyIntField;
     }
 
     namespace Inner
@@ -25,12 +25,13 @@ namespace CSLisp
         {
             public static int StaticField = 42;
 
-            public static int StaticProperty {
+            public static int StaticProperty
+            {
                 get => StaticField;
                 set => StaticField = value;
             }
 
-            public static int StaticFn (int x) => x + StaticField;
+            public static int StaticFn(int x) => x + StaticField;
         }
     }
 
@@ -60,8 +61,10 @@ namespace CSLisp
             public bool EnableInstructionLogging => true;
             public bool EnableStackLogging => true;
 
-            public void OpenLog (string name) {
-                switch (LOG_TARGET) {
+            public void OpenLog(string name)
+            {
+                switch (LOG_TARGET)
+                {
                     case LogType.TempFile:
                         string testDir = Path.Combine("..", "..", "..", "Test Results");
                         Directory.CreateDirectory(testDir);
@@ -80,7 +83,8 @@ namespace CSLisp
                 }
             }
 
-            public void Log (params object[] args) {
+            public void Log(params object[] args)
+            {
                 if (_writer == null) { return; } // drop on the floor
 
                 var strings = args.Select(obj => (obj == null) ? "null" : obj.ToString());
@@ -88,7 +92,8 @@ namespace CSLisp
                 _writer.WriteLine(message);
             }
 
-            public void CloseLog () {
+            public void CloseLog()
+            {
                 _writer.Flush();
                 _writer.Close();
                 _writer = null;
@@ -99,22 +104,26 @@ namespace CSLisp
         private readonly Logger _logger = new Logger();
 
         /// <summary> Simple logger wrapper </summary>
-        private void Log (params object[] args) {
-            if (_logger != null) {
+        private void Log(params object[] args)
+        {
+            if (_logger != null)
+            {
                 _logger.Log(args);
             }
         }
 
         /// <summary> Checks whether the result is equal to the expected value; if not, logs an info statement </summary>
-        private void Check (bool result) => Check(new Val(result), new Val(true));
+        private void Check(bool result) => Check(new Val(result), new Val(true));
 
         //private void Check (Val result) => Check(result, new Val(true));
-        private void Check (object result, object expected) => Check(new Val(result), new Val(expected));
+        private void Check(object result, object expected) => Check(new Val(result), new Val(expected));
 
-        private void Check (Val result, Val expected, System.Func<Val, Val, bool> test = null) {
+        private void Check(Val result, Val expected, System.Func<Val, Val, bool> test = null)
+        {
             Log("test: got", result, " - expected", expected);
             bool equal = (test != null) ? test(result, expected) : Val.Equals(result, expected);
-            if (!equal) {
+            if (!equal)
+            {
                 _failures++;
                 string msg = $"*** FAILED TEST: got {result} - expected {expected}";
                 Log(msg);
@@ -123,8 +132,10 @@ namespace CSLisp
         }
 
         [Test]
-        public void RunTests () {
-            void Run (System.Action fn) {
+        public void RunTests()
+        {
+            void Run(System.Action fn)
+            {
                 _logger.OpenLog(fn.GetMethodInfo().Name);
                 _failures = 0;
                 fn();
@@ -148,10 +159,11 @@ namespace CSLisp
             Run(PrintAllStandardLibraries);
         }
 
-        private void DumpCodeBlocks (Context ctx) => Log(ctx.code.DebugPrintAll());
+        private void DumpCodeBlocks(Context ctx) => Log(ctx.code.DebugPrintAll());
 
         /// <summary> Tests various internal classes </summary>
-        public void TestConsAndAtoms () {
+        public void TestConsAndAtoms()
+        {
             // test cons
             Check(Val.NIL.IsAtom);
             Check(new Val("foo").IsAtom);
@@ -204,7 +216,8 @@ namespace CSLisp
         }
 
         /// <summary> Test packages and symbols </summary>
-        public void TestPackagesAndSymbols () {
+        public void TestPackagesAndSymbols()
+        {
             Packages packages = new Packages();
             Package p = packages.global;   // global package
 
@@ -225,7 +238,7 @@ namespace CSLisp
 
             // test the packages list
 
-            Check(packages.global.name, (string) null); // get the global package
+            Check(packages.global.name, (string)null); // get the global package
             Check(Val.Print(packages.global.Intern("foo")), "foo"); // check symbol name
             Check(packages.keywords.name, "");      // get the keywords package
             Check(Val.Print(packages.keywords.Intern("foo")), ":foo");  // check symbol name
@@ -238,7 +251,8 @@ namespace CSLisp
             Check(!packages.Remove(p2));            // check removal (should only return true the first time)
         }
 
-        public void TestEnvironments () {
+        public void TestEnvironments()
+        {
             // test environments
 
             var p = new Package("temp");
@@ -266,7 +280,8 @@ namespace CSLisp
         }
 
         /// <summary> Tests the character stream </summary>
-        public void TestCharStream () {
+        public void TestCharStream()
+        {
             // first, test the stream wrapper
             InputStream stream = new InputStream();
             stream.Add("foo");
@@ -277,7 +292,7 @@ namespace CSLisp
             Check(stream.Peek(), 'o'); // don't remove
             Check(stream.Read(), 'o'); // remove
             Check(stream.Read(), 'o'); // remove last one
-            Check(stream.Read(), (char) 0);
+            Check(stream.Read(), (char)0);
             Check(stream.IsEmpty);
             Check(stream.Restore());   // make sure we can restore the old save
             Check(stream.Peek(), 'f'); // we're back at the beginning
@@ -285,7 +300,8 @@ namespace CSLisp
         }
 
         /// <summary> Tests the parser part of the system </summary>
-        public void TestParser () {
+        public void TestParser()
+        {
             Packages packages = new Packages();
             Parser p = new Parser(packages, _logger);
 
@@ -317,7 +333,8 @@ namespace CSLisp
         }
 
         /// <summary> Test helper - does equality comparison on the raw parse results </summary>
-        private void CheckParseRaw (Parser parser, string input, Val expected) {
+        private void CheckParseRaw(Parser parser, string input, Val expected)
+        {
             parser.AddString(input);
 
             List<Val> parsed = parser.ParseAll();
@@ -328,13 +345,15 @@ namespace CSLisp
         }
 
         /// <summary> Test helper - takes parse results, converts them to the canonical string form, and compares to outputs </summary>
-        private void CheckParse (Parser parser, string input, params string[] expecteds) {
+        private void CheckParse(Parser parser, string input, params string[] expecteds)
+        {
             parser.AddString(input);
 
             List<Val> results = parser.ParseAll();
             Check(results.Count == expecteds.Length);
 
-            for (int i = 0; i < results.Count; i++) {
+            for (int i = 0; i < results.Count; i++)
+            {
                 string result = Val.Print(results[i]);
                 string expected = expecteds[i];
                 Check(result, expected);
@@ -342,7 +361,8 @@ namespace CSLisp
         }
 
         /// <summary> Compiles some sample scripts and prints them out, without validation. </summary>
-        public void PrintSampleCompilations () {
+        public void PrintSampleCompilations()
+        {
             Context ctx = new Context(false, _logger);
 
             CompileAndPrint(ctx, "5");
@@ -379,19 +399,22 @@ namespace CSLisp
         }
 
         /// <summary> Compiles an s-expression and prints the resulting assembly </summary>
-        private void CompileAndPrint (Context ctx, string input) {
+        private void CompileAndPrint(Context ctx, string input)
+        {
             Log("COMPILE inputs: ", input);
             ctx.parser.AddString(input);
 
             var parseds = ctx.parser.ParseAll();
-            foreach (var parsed in parseds) {
+            foreach (var parsed in parseds)
+            {
                 var results = ctx.compiler.Compile(parsed);
                 Log(ctx.code.DebugPrint(results));
             }
         }
 
         /// <summary> Front-to-back test of the virtual machine </summary>
-        public void TestVMNoCoreLib () {
+        public void TestVMNoCoreLib()
+        {
             // first without the standard library
             Context ctx = new Context(false, _logger);
 
@@ -423,7 +446,8 @@ namespace CSLisp
         }
 
         /// <summary> Front-to-back test of the virtual machine </summary>
-        public void TestVMPrimitives () {
+        public void TestVMPrimitives()
+        {
             // first without the standard library
             Context ctx = new Context(false, _logger);
 
@@ -472,7 +496,8 @@ namespace CSLisp
             CompileAndRun(ctx, "(eval '(inc1 1))", "2");
         }
 
-        public void TestDotNetInterop () {
+        public void TestDotNetInterop()
+        {
             // load the standard library so we get access to (let ...) and macros in general
             Context ctx = new Context(true, _logger);
 
@@ -550,7 +575,8 @@ namespace CSLisp
             //DumpCodeBlocks(ctx);
         }
 
-        public void TestPackages () {
+        public void TestPackages()
+        {
             // without the standard library
             Context ctx = new Context(false, _logger);
 
@@ -574,7 +600,8 @@ namespace CSLisp
             //DumpCodeBlocks(ctx);
         }
 
-        public void TestStandardLibs () {
+        public void TestStandardLibs()
+        {
             // now initialize the standard library
             var ctx = new Context(true, _logger);
 
@@ -634,7 +661,8 @@ namespace CSLisp
             //DumpCodeBlocks(ctx);
         }
 
-        public void TestRecords () {
+        public void TestRecords()
+        {
             Context ctx = new Context(true, _logger);
 
             // make a new point record with fields x and y (x has a getter and setter, y has a getter only)
@@ -655,18 +683,21 @@ namespace CSLisp
         }
 
 
-        public void PrintAllStandardLibraries () {
+        public void PrintAllStandardLibraries()
+        {
             var ctx = new Context(true, _logger);
             DumpCodeBlocks(ctx);
         }
 
         /// <summary> Compiles an s-expression, runs the resulting code, and checks the output against the expected value </summary>
-        private void CompileAndRun (Context ctx, string input, params string[] expecteds) {
+        private void CompileAndRun(Context ctx, string input, params string[] expecteds)
+        {
             ctx.parser.AddString(input);
             Log("\n\n-------------------------------------------------------------------------");
             Log("\n\nCOMPILE AND RUN inputs: ", input);
 
-            for (int i = 0, count = expecteds.Length; i < count; i++) {
+            for (int i = 0, count = expecteds.Length; i < count; i++)
+            {
                 string expected = expecteds[i];
 
                 Val result = ctx.parser.ParseNext();

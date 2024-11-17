@@ -19,7 +19,8 @@ namespace CSLisp.Data
         /// <summary> Optional closure name, for debugging purposes only </summary>
         public readonly string name;
 
-        public Closure (CodeHandle code, Environment env, Cons args, string name) {
+        public Closure(CodeHandle code, Environment env, Cons args, string name)
+        {
             this.code = code;
             this.env = env;
             this.args = args;

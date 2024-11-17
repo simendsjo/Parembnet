@@ -14,7 +14,8 @@ namespace CSLisp.Data
         /// <summary> Second value of this cons cell </summary>
         public Val rest;
 
-        public Cons (Val first, Val rest) {
+        public Cons(Val first, Val rest)
+        {
             this.first = first;
             this.rest = rest;
         }
@@ -38,9 +39,11 @@ namespace CSLisp.Data
 
         /// <summary> Retrieves Nth cons cell in the list, 0-indexed, as an O(N) operation. 
         /// List must have enough elements, otherwise an error will be thrown. </summary>
-        public Cons GetNthCons (int n) {
+        public Cons GetNthCons(int n)
+        {
             Cons cons = this;
-            while (n-- > 0) {
+            while (n-- > 0)
+            {
                 cons = cons.rest.AsConsOrNull;
                 if (cons == null) { throw new LanguageError("List operation out of bounds"); }
             }
@@ -49,21 +52,22 @@ namespace CSLisp.Data
 
         /// <summary> Retrieves Nth element in the list, 0-indexed, as an O(N) operation. 
         /// List must have enough elements, otherwise an error will be thrown. </summary>
-        public Val GetNth (int n) => GetNthCons(n).first;
+        public Val GetNth(int n) => GetNthCons(n).first;
 
         /// <summary> Retrieves tail of the Nth cons cell in the list, 0-indexed, as an O(N) operation. 
         /// List must have enough elements, otherwise an error will be thrown. </summary>
-        public Val GetNthTail (int n) => GetNthCons(n).rest;
+        public Val GetNthTail(int n) => GetNthCons(n).rest;
 
         /// <summary> Helper function: converts a cons list into a native list </summary>
-        public List<Val> ToNativeList () => ToNativeList(new Val(this));
+        public List<Val> ToNativeList() => ToNativeList(new Val(this));
 
 
         /// <summary> 
 		/// Helper function: converts an array of arguments to a cons list.
 		/// Whether it's null-terminated or not depends on the existence of a "." in the penultimate position.
 		/// </summary>
-        public static Val MakeList (List<Val> values) {
+        public static Val MakeList(List<Val> values)
+        {
             int len = values.Count;
             bool dotted = (len >= 3 && values[len - 2].AsSymbolOrNull?.fullName == ".");
 
@@ -74,7 +78,8 @@ namespace CSLisp.Data
                 Val.NIL;
 
             int iterlen = dotted ? len - 3 : len - 2;
-            for (int i = iterlen; i >= 0; i--) {
+            for (int i = iterlen; i >= 0; i--)
+            {
                 result = new Cons(values[i], result);
             }
             return result;
@@ -83,13 +88,18 @@ namespace CSLisp.Data
         /// <summary> 
         /// Helper function: converts an enumeration of native values to a proper (nil-terminated) cons list
         /// </summary>
-        public static Val MakeListFromNative<T> (IEnumerable<T> values) {
+        public static Val MakeListFromNative<T>(IEnumerable<T> values)
+        {
             Cons first = null, last = null;
-            foreach (T value in values) {
+            foreach (T value in values)
+            {
                 var newcell = new Cons(new Val(value), Val.NIL);
-                if (first == null) {
+                if (first == null)
+                {
                     first = newcell;
-                } else {
+                }
+                else
+                {
                     last.rest = newcell;
                 }
                 last = newcell;
@@ -99,19 +109,22 @@ namespace CSLisp.Data
         }
 
         /// <summary> Helper function: converts a single value to a cons list. </summary>
-        public static Cons MakeList (Val first) => new Cons(first, Val.NIL);
+        public static Cons MakeList(Val first) => new Cons(first, Val.NIL);
 
         /// <summary> Helper function: converts two values to a cons list. </summary>
-        public static Cons MakeList (Val first, Val second) => new Cons(first, new Cons(second, Val.NIL));
+        public static Cons MakeList(Val first, Val second) => new Cons(first, new Cons(second, Val.NIL));
 
         /// <summary> Helper function: converts three values to a cons list. </summary>
-        public static Cons MakeList (Val first, Val second, Val third) => new Cons(first, new Cons(second, new Cons(third, Val.NIL)));
+        public static Cons MakeList(Val first, Val second, Val third) => new Cons(first, new Cons(second, new Cons(third, Val.NIL)));
 
         /// <summary> Helper function: converts a cons list into a native list </summary>
-        public static List<Val> ToNativeList (Val element) {
+        public static List<Val> ToNativeList(Val element)
+        {
             List<Val> results = new List<Val>();
-            while (element.IsNotNil) {
-                if (element.IsAtom) {
+            while (element.IsNotNil)
+            {
+                if (element.IsAtom)
+                {
                     throw new LanguageError("Only null-terminated lists of cons cells can be converted to arrays!");
                 }
                 Cons cons = element.AsCons;
@@ -122,20 +135,22 @@ namespace CSLisp.Data
         }
 
         /// <summary> Returns true if the value is a cons cell </summary>
-        public static bool IsCons (Val value) => value.IsCons;
+        public static bool IsCons(Val value) => value.IsCons;
 
         /// <summary> Returns true if the value is an atom, ie. not a cons cell </summary>
-        public static bool IsAtom (Val value) => !value.IsCons;
+        public static bool IsAtom(Val value) => !value.IsCons;
 
         /// <summary> Returns true if the value is nil </summary>
-        public static bool IsNil (Val value) => value.IsNil;
+        public static bool IsNil(Val value) => value.IsNil;
 
         /// <summary> Returns true if the value is a properly nil-terminated cons list </summary>
-        public static bool IsList (Val value) {
+        public static bool IsList(Val value)
+        {
             if (value.IsNil) { return true; }
 
             Cons cons = value.AsConsOrNull;
-            while (cons != null) {
+            while (cons != null)
+            {
                 if (cons.rest.IsNil) { return true; } // found our terminating NIL
                 cons = cons.rest.AsConsOrNull;
             }
@@ -143,12 +158,14 @@ namespace CSLisp.Data
         }
 
         /// <summary> Returns the number of cons cells in the list, starting at value. O(n) operation. </summary>
-        public static int Length (Val value) => Length(value.AsConsOrNull);
+        public static int Length(Val value) => Length(value.AsConsOrNull);
 
         /// <summary> Returns the number of cons cells in the list, starting at value. O(n) operation. </summary>
-        public static int Length (Cons cons) {
+        public static int Length(Cons cons)
+        {
             int result = 0;
-            while (cons != null) {
+            while (cons != null)
+            {
                 result++;
                 cons = cons.rest.AsConsOrNull;
             }

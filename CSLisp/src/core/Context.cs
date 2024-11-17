@@ -21,7 +21,7 @@ namespace CSLisp.Core
         bool EnableStackLogging { get; }
 
         /// <summary> Type signature for the actual debug logging function </summary>
-        void Log (params object[] args);
+        void Log(params object[] args);
     }
 
     /// <summary>
@@ -35,7 +35,8 @@ namespace CSLisp.Core
         public readonly Compiler compiler;
         public readonly Machine vm;
 
-        public Context (bool loadLibraries = true, ILogger logger = null) {
+        public Context(bool loadLibraries = true, ILogger logger = null)
+        {
             this.code = new Code();
             this.packages = new Packages();
             this.parser = new Parser(packages, logger);
@@ -44,7 +45,8 @@ namespace CSLisp.Core
 
             Primitives.InitializeCorePackage(this, packages.core);
 
-            if (loadLibraries) {
+            if (loadLibraries)
+            {
                 Libraries.LoadStandardLibraries(this);
             }
         }
@@ -59,22 +61,28 @@ namespace CSLisp.Core
         }
 
         /// <summary> Convenience wrapper that processes the input as a string, and returns an array of results. </summary>
-        public List<CompileAndExecuteResult> CompileAndExecute (string input) {
+        public List<CompileAndExecuteResult> CompileAndExecute(string input)
+        {
 
             var outputs = new List<CompileAndExecuteResult>();
 
             parser.AddString(input);
             var parseResults = parser.ParseAll();
 
-            foreach (Val result in parseResults) {
+            foreach (Val result in parseResults)
+            {
                 var cr = compiler.Compile(result);
 
                 Stopwatch s = Stopwatch.StartNew();
                 var output = vm.Execute(cr.closure);
                 s.Stop();
 
-                outputs.Add(new CompileAndExecuteResult {
-                    input = input, comp = cr, output = output, exectime = s.Elapsed
+                outputs.Add(new CompileAndExecuteResult
+                {
+                    input = input,
+                    comp = cr,
+                    output = output,
+                    exectime = s.Elapsed
                 });
             }
 

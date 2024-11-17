@@ -11,13 +11,15 @@ namespace CSLisp.Libs
     public class Libraries
     {
         /// <summary> All libraries as a list </summary>
-        private static List<byte[]> GetAllBuiltInLibraries () =>
+        private static List<byte[]> GetAllBuiltInLibraries() =>
             new List<byte[]>() { Resources.Core, Resources.Record, Resources.User };
 
         /// <summary> Loads all standard libraries into an initialized machine instance </summary>
-        public static void LoadStandardLibraries (Context ctx) {
+        public static void LoadStandardLibraries(Context ctx)
+        {
             var allLibs = GetAllBuiltInLibraries();
-            foreach (byte[] libBytes in allLibs) {
+            foreach (byte[] libBytes in allLibs)
+            {
                 using var stream = new MemoryStream(libBytes);
                 using var reader = new StreamReader(stream);
                 string libText = reader.ReadToEnd();
@@ -26,12 +28,15 @@ namespace CSLisp.Libs
         }
 
         /// <summary> Loads a single string into the execution context </summary>
-        private static void LoadLibrary (Context ctx, string lib) {
+        private static void LoadLibrary(Context ctx, string lib)
+        {
             ctx.parser.AddString(lib);
 
-            while (true) {
+            while (true)
+            {
                 Val result = ctx.parser.ParseNext();
-                if (Val.Equals(Parser.EOF, result)) {
+                if (Val.Equals(Parser.EOF, result))
+                {
                     break;
                 }
 

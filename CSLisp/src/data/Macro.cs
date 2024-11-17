@@ -14,7 +14,8 @@ namespace CSLisp.Data
         /// <summary> Body of the macro </summary>
 		public readonly Closure body;
 
-        public Macro (Symbol name, Cons args, Closure body) {
+        public Macro(Symbol name, Cons args, Closure body)
+        {
             this.name = name.name;
             this.args = args;
             this.body = body;

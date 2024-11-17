@@ -54,18 +54,18 @@ namespace CSLisp.Data
 
         public static readonly Val NIL = new Val(Type.Nil);
 
-        private Val (Type type) : this() { this.type = type; }
+        private Val(Type type) : this() { this.type = type; }
 
-        public Val (bool value) : this() { type = Type.Bool; vbool = value; }
-        public Val (int value) : this() { type = Type.Int; vint = value; }
-        public Val (float value) : this() { type = Type.Float; vfloat = value; }
-        public Val (string value) : this() { type = Type.String; vstring = value; }
-        public Val (Symbol value) : this() { type = Type.Symbol; vsymbol = value; }
-        public Val (Cons value) : this() { type = Type.Cons; vcons = value; }
-        public Val (Vector value) : this() { type = Type.Vector; vvector = value; }
-        public Val (Closure value) : this() { type = Type.Closure; vclosure = value; }
-        public Val (ReturnAddress value) : this() { type = Type.ReturnAddress; vreturn = value; }
-        public Val (object value) : this() { type = Type.Object; rawobject = value; }
+        public Val(bool value) : this() { type = Type.Bool; vbool = value; }
+        public Val(int value) : this() { type = Type.Int; vint = value; }
+        public Val(float value) : this() { type = Type.Float; vfloat = value; }
+        public Val(string value) : this() { type = Type.String; vstring = value; }
+        public Val(Symbol value) : this() { type = Type.Symbol; vsymbol = value; }
+        public Val(Cons value) : this() { type = Type.Cons; vcons = value; }
+        public Val(Vector value) : this() { type = Type.Vector; vvector = value; }
+        public Val(Closure value) : this() { type = Type.Closure; vclosure = value; }
+        public Val(ReturnAddress value) : this() { type = Type.ReturnAddress; vreturn = value; }
+        public Val(object value) : this() { type = Type.Object; rawobject = value; }
 
         public bool IsNil => type == Type.Nil;
         public bool IsNotNil => type != Type.Nil;
@@ -102,11 +102,12 @@ namespace CSLisp.Data
         public Closure AsClosureOrNull => type == Type.Closure ? vclosure : null;
         public object AsObjectOrNull => type == Type.Object ? rawobject : null;
 
-        public T GetObjectOrNull<T> () where T : class =>
+        public T GetObjectOrNull<T>() where T : class =>
             type == Type.Object && rawobject is T obj ? obj : null;
 
         public object AsBoxedValue =>
-            type switch {
+            type switch
+            {
                 Type.Nil => null,
                 Type.Bool => vbool,
                 Type.Int => vint,
@@ -121,8 +122,9 @@ namespace CSLisp.Data
                 _ => throw new LanguageError("Unexpected value type: " + type),
             };
 
-        public static Val TryUnbox (object boxed) =>
-            boxed switch {
+        public static Val TryUnbox(object boxed) =>
+            boxed switch
+            {
                 null => NIL,
                 bool bval => bval,
                 int ival => ival,
@@ -143,11 +145,13 @@ namespace CSLisp.Data
 
         private bool IsValueType => type == Type.Bool || type == Type.Int || type == Type.Float;
 
-        public static bool Equals (Val a, Val b) {
+        public static bool Equals(Val a, Val b)
+        {
             if (a.type != b.type) { return false; }
 
             // same type, if it's a string we need to do a string equals
-            if (a.type == Type.String) {
+            if (a.type == Type.String)
+            {
                 return string.Equals(a.vstring, b.vstring, StringComparison.InvariantCulture);
             }
 
@@ -158,31 +162,33 @@ namespace CSLisp.Data
             return ReferenceEquals(a.rawobject, b.rawobject);
         }
 
-        public bool Equals (Val other) => Equals(this, other);
+        public bool Equals(Val other) => Equals(this, other);
 
-        public static bool operator == (Val a, Val b) => Equals(a, b);
-        public static bool operator != (Val a, Val b) => !Equals(a, b);
+        public static bool operator ==(Val a, Val b) => Equals(a, b);
+        public static bool operator !=(Val a, Val b) => !Equals(a, b);
 
-        public static implicit operator Val (bool val) => new Val(val);
-        public static implicit operator Val (int val) => new Val(val);
-        public static implicit operator Val (float val) => new Val(val);
-        public static implicit operator Val (string val) => new Val(val);
-        public static implicit operator Val (Symbol val) => new Val(val);
-        public static implicit operator Val (Cons val) => new Val(val);
-        public static implicit operator Val (Vector val) => new Val(val);
-        public static implicit operator Val (Closure val) => new Val(val);
+        public static implicit operator Val(bool val) => new Val(val);
+        public static implicit operator Val(int val) => new Val(val);
+        public static implicit operator Val(float val) => new Val(val);
+        public static implicit operator Val(string val) => new Val(val);
+        public static implicit operator Val(Symbol val) => new Val(val);
+        public static implicit operator Val(Cons val) => new Val(val);
+        public static implicit operator Val(Vector val) => new Val(val);
+        public static implicit operator Val(Closure val) => new Val(val);
 
-        public override bool Equals (object obj) => (obj is Val val) && Equals(val, this);
-        public override int GetHashCode () => (int) type ^ (rawobject != null ? rawobject.GetHashCode() : ((int) rawvalue));
+        public override bool Equals(object obj) => (obj is Val val) && Equals(val, this);
+        public override int GetHashCode() => (int)type ^ (rawobject != null ? rawobject.GetHashCode() : ((int)rawvalue));
 
         private string DebugString => $"{Print(this, false)} [{type}]";
-        public override string ToString () => Print(this, true);
+        public override string ToString() => Print(this, true);
 
-        public static string DebugPrint (Val val) => Print(val, false);
-        public static string Print (Val val) => Print(val, true);
+        public static string DebugPrint(Val val) => Print(val, false);
+        public static string Print(Val val) => Print(val, true);
 
-        private static string Print (Val val, bool fullName) {
-            switch (val.type) {
+        private static string Print(Val val, bool fullName)
+        {
+            switch (val.type)
+            {
                 case Type.Nil:
                     return "()";
                 case Type.Bool:
@@ -197,7 +203,8 @@ namespace CSLisp.Data
                     return fullName ? val.vsymbol.fullName : val.vsymbol.name;
                 case Type.Cons:
                     return StringifyCons(val.vcons, fullName);
-                case Type.Vector: {
+                case Type.Vector:
+                    {
                         var elements = val.vvector.Print(" ");
                         return $"[Vector {elements}]";
                     }
@@ -205,7 +212,8 @@ namespace CSLisp.Data
                     return string.IsNullOrEmpty(val.vclosure.name) ? "[Closure]" : $"[Closure/{val.vclosure.name}]";
                 case Type.ReturnAddress:
                     return $"[{val.vreturn.debug}/{val.vreturn.pc}]";
-                case Type.Object: {
+                case Type.Object:
+                    {
                         var typedesc = val.rawobject == null ? "null" : $"{val.rawobject.GetType()} {val.rawobject}";
                         return $"[Native {typedesc}]";
                     }
@@ -215,20 +223,26 @@ namespace CSLisp.Data
         }
 
         /// <summary> Helper function for cons cells </summary>
-        private static string StringifyCons (Cons cell, bool fullName) {
+        private static string StringifyCons(Cons cell, bool fullName)
+        {
             StringBuilder sb = new StringBuilder();
             sb.Append('(');
 
             Val val = new Val(cell);
-            while (val.IsNotNil) {
+            while (val.IsNotNil)
+            {
                 Cons cons = val.AsConsOrNull;
-                if (cons != null) {
+                if (cons != null)
+                {
                     sb.Append(Print(cons.first, fullName));
-                    if (cons.rest.IsNotNil) {
+                    if (cons.rest.IsNotNil)
+                    {
                         sb.Append(' ');
                     }
                     val = cons.rest;
-                } else {
+                }
+                else
+                {
                     sb.Append(". ");
                     sb.Append(Print(val, fullName));
                     val = NIL;

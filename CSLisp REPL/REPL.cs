@@ -21,7 +21,8 @@ namespace CSLisp
             public string command, description;
             public Action action;
 
-            public Command (string command, string description, Action action) {
+            public Command(string command, string description, Action action)
+            {
                 this.command = command;
                 this.description = description;
                 this.action = action;
@@ -36,7 +37,8 @@ namespace CSLisp
             public bool EnableInstructionLogging => _logExecution;
             public bool EnableStackLogging => _logExecution;
 
-            public void Log (params object[] args) {
+            public void Log(params object[] args)
+            {
                 var strings = args.Select(obj => (obj == null) ? "null" : obj.ToString());
                 var message = string.Join(" ", strings);
                 Console.WriteLine(message);
@@ -62,7 +64,8 @@ namespace CSLisp
                 () => _timeNextExecution = true)
         };
 
-        public static void Run () {
+        public static void Run()
+        {
 
             Context ctx = new Context(logger: new Logger());
             Console.WriteLine(GetInfo(ctx));
@@ -72,8 +75,10 @@ namespace CSLisp
             Console.WriteLine("SELF TEST: (+ 1 2) => " + string.Join(" ", selfTest));
             Console.WriteLine("Type ,help for list of repl commands or ,exit to quit.\n");
 
-            while (_runRepl) {
-                if (_showPrompt) {
+            while (_runRepl)
+            {
+                if (_showPrompt)
+                {
                     Console.Write("> ");
                     _showPrompt = false;
                 }
@@ -81,8 +86,10 @@ namespace CSLisp
                 string line = Console.ReadLine();
                 var cmd = _commands.Find(c => line.StartsWith(c.command));
 
-                try {
-                    if (cmd != null) {
+                try
+                {
+                    if (cmd != null)
+                    {
                         line = line.Remove(0, cmd.command.Length).TrimStart();
                         cmd.action.Invoke();
                     }
@@ -96,40 +103,48 @@ namespace CSLisp
 
                     _showPrompt = cmd != null || results.Count > 0;
 
-                } catch (Error.LanguageError e) {
+                }
+                catch (Error.LanguageError e)
+                {
                     Console.Error.WriteLine("ERROR: " + e.Message);
                     _showPrompt = true;
 
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     Console.Error.WriteLine(ex);
                 }
             }
 
         }
 
-        private static void LogExecutionTime (List<Context.CompileAndExecuteResult> results, Stopwatch s) {
+        private static void LogExecutionTime(List<Context.CompileAndExecuteResult> results, Stopwatch s)
+        {
             if (s == null) { return; }
 
             _timeNextExecution = false;
 
-            foreach (var result in results) {
+            foreach (var result in results)
+            {
                 Console.WriteLine($"Execution took {result.exectime.TotalSeconds} seconds for: {result.input}");
             }
         }
 
-        private static void LogCompilation (Context ctx, List<Context.CompileAndExecuteResult> results) {
+        private static void LogCompilation(Context ctx, List<Context.CompileAndExecuteResult> results)
+        {
             if (!_logCompilation) { return; }
 
             results.ForEach(result => Console.WriteLine(ctx.code.DebugPrint(result.comp)));
         }
 
-        private static string GetInfo (Context ctx) {
+        private static string GetInfo(Context ctx)
+        {
             var manifestLocation = ctx.GetType().Assembly.Location;
             FileVersionInfo info = FileVersionInfo.GetVersionInfo(manifestLocation);
             return $"CSLisp REPL. {info.LegalCopyright}. Version {info.ProductVersion}.";
         }
 
-        private static void Main (string[] _) => Run();
+        private static void Main(string[] _) => Run();
     }
 }
 
@@ -157,12 +172,13 @@ namespace CSLisp
         {
             public static int StaticField = 42;
 
-            public static int StaticProperty {
+            public static int StaticProperty
+            {
                 get => StaticField;
                 set => StaticField = value;
             }
 
-            public static int StaticFn (int x) => x + 42;
+            public static int StaticFn(int x) => x + 42;
         }
     }
 }
