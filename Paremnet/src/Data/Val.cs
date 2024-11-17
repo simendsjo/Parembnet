@@ -29,6 +29,7 @@ public readonly struct Val : IEquatable<Val>
         Int16,
         UInt16,
         Int32,
+        UInt32,
         Single,
 
         // reference types
@@ -47,6 +48,7 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(0)] public readonly Int16 vint16;
     [FieldOffset(0)] public readonly UInt16 vuint16;
     [FieldOffset(0)] public readonly Int32 vint32;
+    [FieldOffset(0)] public readonly UInt32 vuint32;
     [FieldOffset(0)] public readonly Single vsingle;
 
     [FieldOffset(8)] public readonly object rawobject;
@@ -88,6 +90,12 @@ public readonly struct Val : IEquatable<Val>
     {
         type = Type.Int32;
         vint32 = value;
+    }
+
+    public Val(UInt32 value) : this()
+    {
+        type = Type.UInt32;
+        vuint32 = value;
     }
 
     public Val(Single value) : this()
@@ -146,12 +154,14 @@ public readonly struct Val : IEquatable<Val>
         type is Type.Int16
         or Type.UInt16
         or Type.Int32
+        or Type.UInt32
         or Type.Single;
 
     public bool IsBool => type == Type.Boolean;
     public bool IsUInt16 => type == Type.UInt16;
     public bool IsInt16 => type == Type.Int16;
     public bool IsInt32 => type == Type.Int32;
+    public bool IsUInt32 => type == Type.UInt32;
     public bool IsSingle => type == Type.Single;
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
@@ -161,10 +171,11 @@ public readonly struct Val : IEquatable<Val>
     public bool IsReturnAddress => type == Type.ReturnAddress;
     public bool IsObject => type == Type.Object;
 
-    public bool AsBoolean => type == Type.Boolean ? vboolean : throw new CompilerError("Value type was expected to be Boolean");
-    public int AsInt16 => type == Type.Int16 ? vint16 : throw new CompilerError("Value type was expected to be Int16");
-    public int AsUInt16 => type == Type.UInt16 ? vuint16 : throw new CompilerError("Value type was expected to be Int16");
-    public int AsInt32 => type == Type.Int32 ? vint32 : throw new CompilerError("Value type was expected to be Int32");
+    public Boolean AsBoolean => type == Type.Boolean ? vboolean : throw new CompilerError("Value type was expected to be Boolean");
+    public Int16 AsInt16 => type == Type.Int16 ? vint16 : throw new CompilerError("Value type was expected to be Int16");
+    public UInt16 AsUInt16 => type == Type.UInt16 ? vuint16 : throw new CompilerError("Value type was expected to be Int16");
+    public Int32 AsInt32 => type == Type.Int32 ? vint32 : throw new CompilerError("Value type was expected to be Int32");
+    public UInt32 AsUInt32 => type == Type.UInt32 ? vuint32 : throw new CompilerError("Value type was expected to be Int32");
     public string AsString => type == Type.String ? vstring : throw new CompilerError("Value type was expected to be string");
     public Symbol AsSymbol => type == Type.Symbol ? vsymbol : throw new CompilerError("Value type was expected to be symbol");
     public Cons AsCons => type == Type.Cons ? vcons : throw new CompilerError("Value type was expected to be cons");
