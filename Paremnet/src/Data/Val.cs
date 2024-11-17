@@ -25,13 +25,16 @@ public readonly struct Val : IEquatable<Val>
     {
         // value types
         Nil,
+
         Boolean,
+
         Int8,
         UInt8,
         Int16,
         UInt16,
         Int32,
         UInt32,
+
         Float32,
         Float64,
 
