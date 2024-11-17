@@ -12,19 +12,19 @@ public static class TypeUtils
     /// Maps from a fully qualified type name, to its corresponding .net type.
     /// This cache can be cleared as needed (eg. when reloading assemblies)
     /// </summary>
-    public static Dictionary<string, Type> NameToTypeCache { get; private set; }
+    public static Dictionary<string, Type> NameToTypeCache { get; }
 
     /// <summary>
     /// Maps from a type, to a filtered list of instance members of this type.
     /// This cache can be cleared as needed (eg. when reloading assemblies)
     /// </summary>
-    public static Dictionary<Type, List<MemberInfo>> InstanceMemberCache { get; private set; }
+    public static Dictionary<Type, List<MemberInfo>> InstanceMemberCache { get; }
 
     /// <summary>
     /// Maps from a type, to a filtered list of static members of this type.
     /// This cache can be cleared as needed (eg. when reloading assemblies)
     /// </summary>
-    public static Dictionary<Type, List<MemberInfo>> StaticMemberCache { get; private set; }
+    public static Dictionary<Type, List<MemberInfo>> StaticMemberCache { get; }
 
     static TypeUtils()
     {

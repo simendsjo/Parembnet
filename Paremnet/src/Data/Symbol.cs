@@ -16,7 +16,7 @@ public class Symbol(string name, Package pkg)
     public Package Pkg { get; private set; } = pkg;
 
     /// <summary> Full (package-prefixed) name of this symbol </summary>
-    public string FullName { get; private set; } = (pkg != null && pkg.Name != null) ? (pkg.Name + ":" + name) : name;
+    public string FullName { get; } = (pkg != null && pkg.Name != null) ? (pkg.Name + ":" + name) : name;
 
     /// <summary> If true, this symbol is visible outside of its package. This can be adjusted later. </summary>
     public bool Exported = false;

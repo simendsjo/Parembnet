@@ -126,10 +126,10 @@ public class Instruction(Opcode type, Val first, Val second, string debug = null
     ];
 
     /// <summary> Instruction type, one of the constants in this class </summary>
-    public Opcode Type { get; private set; } = type;
+    public Opcode Type { get; } = type;
 
     /// <summary> First instruction parameter (context-sensitive) </summary>
-    public Val First { get; private set; } = first;
+    public Val First { get; } = first;
 
     /// <summary> Second instruction parameter (context-sensitive) </summary>
     public Val Second { get; private set; } = second;
