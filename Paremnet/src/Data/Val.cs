@@ -34,9 +34,14 @@ public readonly struct Val : IEquatable<Val>
         UInt16,
         Int32,
         UInt32,
+        Int64,
+        UInt64,
+        Int128,
+        UInt128,
 
         Float32,
         Float64,
+        Float128,
 
         // reference types
         String,
@@ -57,8 +62,13 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(0)] public readonly UInt16 vuint16;
     [FieldOffset(0)] public readonly Int32 vint32;
     [FieldOffset(0)] public readonly UInt32 vuint32;
+    [FieldOffset(0)] public readonly Int64 vint64;
+    [FieldOffset(0)] public readonly UInt64 vuint64;
+    [FieldOffset(0)] public readonly Int128 vint128;
+    [FieldOffset(0)] public readonly UInt128 vuint128;
     [FieldOffset(0)] public readonly Single vfloat32;
     [FieldOffset(0)] public readonly double vfloat64;
+    [FieldOffset(0)] public readonly decimal vfloat128;
 
     [FieldOffset(16)] public readonly object rawobject;
     [FieldOffset(16)] public readonly string vstring;
@@ -119,16 +129,46 @@ public readonly struct Val : IEquatable<Val>
         vuint32 = value;
     }
 
-    public Val(Double value) : this()
+    public Val(Int64 value) : this()
     {
-        type = Type.Float64;
-        vfloat64 = value;
+        type = Type.Int64;
+        vint64 = value;
+    }
+
+    public Val(UInt64 value) : this()
+    {
+        type = Type.UInt64;
+        vuint64 = value;
+    }
+
+    public Val(Int128 value) : this()
+    {
+        type = Type.Int128;
+        vint128 = value;
+    }
+
+    public Val(UInt128 value) : this()
+    {
+        type = Type.UInt128;
+        vuint128 = value;
     }
 
     public Val(Single value) : this()
     {
         type = Type.Float32;
         vfloat32 = value;
+    }
+
+    public Val(Double value) : this()
+    {
+        type = Type.Float64;
+        vfloat64 = value;
+    }
+
+    public Val(Decimal value) : this()
+    {
+        type = Type.Float128;
+        vfloat128 = value;
     }
 
     public Val(string value) : this()
@@ -180,9 +220,15 @@ public readonly struct Val : IEquatable<Val>
     public static implicit operator Val(Int16 val) => new(val);
     public static implicit operator Val(UInt16 val) => new(val);
     public static implicit operator Val(Int32 val) => new(val);
+    public static implicit operator Val(UInt32 val) => new(val);
+    public static implicit operator Val(Int64 val) => new(val);
+    public static implicit operator Val(UInt64 val) => new(val);
+    public static implicit operator Val(Int128 val) => new(val);
+    public static implicit operator Val(UInt128 val) => new(val);
 
     public static implicit operator Val(Single val) => new(val);
     public static implicit operator Val(Double val) => new(val);
+    public static implicit operator Val(Decimal val) => new(val);
 
     public static implicit operator Val(string val) => new(val);
     public static implicit operator Val(Symbol val) => new(val);
@@ -204,9 +250,14 @@ public readonly struct Val : IEquatable<Val>
     public bool IsUInt16 => type == Type.UInt16;
     public bool IsInt32 => type == Type.Int32;
     public bool IsUInt32 => type == Type.UInt32;
+    public bool IsInt64 => type == Type.Int64;
+    public bool IsUInt64 => type == Type.UInt64;
+    public bool IsInt128 => type == Type.Int128;
+    public bool IsUInt128 => type == Type.UInt128;
 
     public bool IsFloat32 => type == Type.Float32;
     public bool IsFloat64 => type == Type.Float64;
+    public bool IsFloat128 => type == Type.Float128;
 
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
@@ -217,12 +268,22 @@ public readonly struct Val : IEquatable<Val>
     public bool IsObject => type == Type.Object;
 
     public Boolean AsBoolean => type == Type.Boolean ? vboolean : throw new CompilerError("Value type was expected to be Boolean");
+
     public sbyte AsInt8 => type == Type.Int8 ? vint8 : throw new CompilerError("Value type was expected to be Int8");
     public byte AsUInt8 => type == Type.UInt8 ? vuint8 : throw new CompilerError("Value type was expected to be Int8");
     public Int16 AsInt16 => type == Type.Int16 ? vint16 : throw new CompilerError("Value type was expected to be Int16");
     public UInt16 AsUInt16 => type == Type.UInt16 ? vuint16 : throw new CompilerError("Value type was expected to be Int16");
     public Int32 AsInt32 => type == Type.Int32 ? vint32 : throw new CompilerError("Value type was expected to be Int32");
     public UInt32 AsUInt32 => type == Type.UInt32 ? vuint32 : throw new CompilerError("Value type was expected to be Int32");
+    public Int64 AsInt64 => type == Type.Int64 ? vint64 : throw new CompilerError("Value type was expected to be Int64");
+    public UInt64 AsUInt64 => type == Type.UInt64 ? vuint64 : throw new CompilerError("Value type was expected to be Int64");
+    public Int128 AsInt128 => type == Type.Int128 ? vint128 : throw new CompilerError("Value type was expected to be Int128");
+    public UInt128 AsUInt128 => type == Type.UInt128 ? vuint128 : throw new CompilerError("Value type was expected to be Int128");
+
+    public Single AsFloat32 => type == Type.Float32 ? vfloat32 : throw new CompilerError("Value type was expected to be Float32");
+    public Double AsFloat64 => type == Type.Float64 ? vfloat64 : throw new CompilerError("Value type was expected to be Float64");
+    public Decimal AsFloat128 => type == Type.Float128 ? vfloat128 : throw new CompilerError("Value type was expected to be Float128");
+
     public string AsString => type == Type.String ? vstring : throw new CompilerError("Value type was expected to be string");
     public Symbol AsSymbol => type == Type.Symbol ? vsymbol : throw new CompilerError("Value type was expected to be symbol");
     public Cons AsCons => type == Type.Cons ? vcons : throw new CompilerError("Value type was expected to be cons");
@@ -251,8 +312,14 @@ public readonly struct Val : IEquatable<Val>
             Type.Int16 => vint16,
             Type.UInt16 => vuint16,
             Type.Int32 => vint32,
+            Type.UInt32 => vuint32,
+            Type.Int64 => vint64,
+            Type.UInt64 => vuint64,
+            Type.Int128 => vint128,
+            Type.UInt128 => vuint128,
             Type.Float32 => vfloat32,
             Type.Float64 => vfloat64,
+            Type.Float128 => vfloat128,
             Type.String => vstring,
             Type.Symbol => vsymbol,
             Type.Cons => vcons,
@@ -273,8 +340,12 @@ public readonly struct Val : IEquatable<Val>
             Int16 int16 => int16,
             UInt16 uint16 => uint16,
             Int32 int32 => int32,
+            UInt32 uint32 => uint32,
+            UInt64 uint64 => uint64,
+            UInt128 uint128 => uint128,
             Single float32 => float32,
             Double float64 => float64,
+            Decimal float128 => float128,
             string str => str,
             Symbol symbol => symbol,
             Cons cons => cons,
@@ -288,15 +359,17 @@ public readonly struct Val : IEquatable<Val>
     public float CastToSingle =>
         type switch
         {
+            Type.Int8 => vint8,
+            Type.UInt8 => vuint8,
             Type.Int16 => vint16,
             Type.UInt16 => vuint16,
             Type.Int32 => vint32,
+            Type.UInt32 => vuint32,
             Type.Float32 => vfloat32,
-            Type.Float64 => throw new CompilerError("Cannot cast Float64 to Float32"),
-            _ => throw new CompilerError("Float32 cast applied to not a number")
+            _ => throw new CompilerError($"Cannot cast {type} to Float32")
         };
 
-    private bool IsValueType => type is >= Type.Boolean and <= Type.Float64;
+    private bool IsValueType => type is >= Type.Boolean and <= Type.Float128;
 
     public static bool Equals(Val a, Val b)
     {
@@ -347,10 +420,22 @@ public readonly struct Val : IEquatable<Val>
                 return val.vuint16.ToString(CultureInfo.InvariantCulture);
             case Type.Int32:
                 return val.vint32.ToString(CultureInfo.InvariantCulture);
+            case Type.UInt32:
+                return val.vuint32.ToString(CultureInfo.InvariantCulture);
+            case Type.Int64:
+                return val.vint64.ToString(CultureInfo.InvariantCulture);
+            case Type.UInt64:
+                return val.vuint64.ToString(CultureInfo.InvariantCulture);
+            case Type.Int128:
+                return val.vint128.ToString(CultureInfo.InvariantCulture);
+            case Type.UInt128:
+                return val.vuint128.ToString(CultureInfo.InvariantCulture);
             case Type.Float32:
                 return val.vfloat32.ToString(CultureInfo.InvariantCulture);
             case Type.Float64:
                 return val.vfloat64.ToString(CultureInfo.InvariantCulture);
+            case Type.Float128:
+                return val.vfloat128.ToString(CultureInfo.InvariantCulture);
             case Type.String:
                 return "\"" + val.vstring + "\"";
             case Type.Symbol:
