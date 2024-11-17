@@ -16,6 +16,11 @@ public enum Opcode
     Illegal = 0,
 
     /// <summary>
+    /// No Operation. The instruction will just be skipped.
+    /// </summary>
+    NoOp,
+
+    /// <summary>
     /// Just a label, doesn't do anything, only used during compilation
     /// </summary>
     Label,
