@@ -182,7 +182,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsInt16 => type == Type.Int16;
     public bool IsInt32 => type == Type.Int32;
     public bool IsUInt32 => type == Type.UInt32;
-    public bool IsSingle => type == Type.Float32;
+    public bool IsFloat32 => type == Type.Float32;
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
     public bool IsCons => type == Type.Cons;
