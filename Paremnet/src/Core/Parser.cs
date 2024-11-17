@@ -249,15 +249,9 @@ public class Parser(Packages packages, ILogger logger)
     {
         try
         {
-            bool hasPeriod = val.Contains(".");
-            if (hasPeriod)
-            {
-                return new Val(float.Parse(val, CultureInfo.InvariantCulture));
-            }
-            else
-            {
-                return new Val(int.Parse(val, CultureInfo.InvariantCulture));
-            }
+            return val.Contains('.')
+                ? new Val(float.Parse(val, CultureInfo.InvariantCulture))
+                : new Val(int.Parse(val, CultureInfo.InvariantCulture));
         }
         catch (Exception)
         {
