@@ -121,7 +121,7 @@ namespace Paremnet
         private void Check(Val result, Val expected, System.Func<Val, Val, bool> test = null)
         {
             Log("test: got", result, " - expected", expected);
-            bool equal = (test != null) ? test(result, expected) : Val.Equals(result, expected);
+            bool equal = test?.Invoke(result, expected) ?? Val.Equals(result, expected);
             if (!equal)
             {
                 _failures++;
