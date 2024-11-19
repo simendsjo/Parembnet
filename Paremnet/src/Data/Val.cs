@@ -44,6 +44,7 @@ public readonly struct Val : IEquatable<Val>
         Float128,
 
         // reference types
+        Type,
         String,
         Symbol,
         Cons,
@@ -71,6 +72,7 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(0)] public readonly decimal vfloat128;
 
     [FieldOffset(16)] public readonly object rawobject;
+    [FieldOffset(16)] public readonly System.Type vtype;
     [FieldOffset(16)] public readonly string vstring;
     [FieldOffset(16)] public readonly Symbol vsymbol;
     [FieldOffset(16)] public readonly Cons vcons;
@@ -81,6 +83,35 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(24)] public readonly Type type;
 
     public static readonly Val NIL = new(Type.Nil);
+
+    public System.Type CliType =>
+        type switch
+        {
+            Type.Boolean => typeof(System.Boolean),
+            Type.Nil => typeof(Val),
+            Type.Int8 => typeof(System.SByte),
+            Type.UInt8 => typeof(System.Byte),
+            Type.Int16 => typeof(System.Int16),
+            Type.UInt16 => typeof(System.UInt16),
+            Type.Int32 => typeof(System.Int32),
+            Type.UInt32 => typeof(System.UInt32),
+            Type.Int64 => typeof(System.Int64),
+            Type.UInt64 => typeof(System.UInt64),
+            Type.Int128 => typeof(System.Int128),
+            Type.UInt128 => typeof(System.UInt128),
+            Type.Float32 => typeof(System.Single),
+            Type.Float64 => typeof(System.Double),
+            Type.Float128 => typeof(System.Decimal),
+            Type.Type => typeof(System.Type),
+            Type.String => typeof(System.String),
+            Type.Symbol => typeof(Symbol),
+            Type.Cons => typeof(Cons),
+            Type.Vector => typeof(Vector),
+            Type.Closure => typeof(Closure),
+            Type.ReturnAddress => typeof(ReturnAddress),
+            Type.Object => rawobject.GetType(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
     private Val(Type type) : this()
     {
@@ -171,6 +202,12 @@ public readonly struct Val : IEquatable<Val>
         vfloat128 = value;
     }
 
+    public Val(System.Type value) : this()
+    {
+        type = Type.Type;
+        vtype = value;
+    }
+
     public Val(string value) : this()
     {
         type = Type.String;
@@ -230,6 +267,7 @@ public readonly struct Val : IEquatable<Val>
     public static implicit operator Val(Double val) => new(val);
     public static implicit operator Val(Decimal val) => new(val);
 
+    public static implicit operator Val(System.Type val) => new(val);
     public static implicit operator Val(string val) => new(val);
     public static implicit operator Val(Symbol val) => new(val);
     public static implicit operator Val(Cons val) => new(val);
@@ -259,6 +297,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsFloat64 => type == Type.Float64;
     public bool IsFloat128 => type == Type.Float128;
 
+    public bool IsType => type == Type.Type;
     public bool IsString => type == Type.String;
     public bool IsSymbol => type == Type.Symbol;
     public bool IsCons => type == Type.Cons;
@@ -284,6 +323,7 @@ public readonly struct Val : IEquatable<Val>
     public Double AsFloat64 => type == Type.Float64 ? vfloat64 : throw new CompilerError("Value type was expected to be Float64");
     public Decimal AsFloat128 => type == Type.Float128 ? vfloat128 : throw new CompilerError("Value type was expected to be Float128");
 
+    public System.Type AsType => type == Type.Type ? vtype : throw new CompilerError("Value type was expected to be Type");
     public string AsString => type == Type.String ? vstring : throw new CompilerError("Value type was expected to be string");
     public Symbol AsSymbol => type == Type.Symbol ? vsymbol : throw new CompilerError("Value type was expected to be symbol");
     public Cons AsCons => type == Type.Cons ? vcons : throw new CompilerError("Value type was expected to be cons");
@@ -320,6 +360,7 @@ public readonly struct Val : IEquatable<Val>
             Type.Float32 => vfloat32,
             Type.Float64 => vfloat64,
             Type.Float128 => vfloat128,
+            Type.Type => vtype,
             Type.String => vstring,
             Type.Symbol => vsymbol,
             Type.Cons => vcons,
@@ -346,6 +387,7 @@ public readonly struct Val : IEquatable<Val>
             Single float32 => float32,
             Double float64 => float64,
             Decimal float128 => float128,
+            System.Type type => type,
             string str => str,
             Symbol symbol => symbol,
             Cons cons => cons,
@@ -436,6 +478,8 @@ public readonly struct Val : IEquatable<Val>
                 return val.vfloat64.ToString(CultureInfo.InvariantCulture);
             case Type.Float128:
                 return val.vfloat128.ToString(CultureInfo.InvariantCulture);
+            case Type.Type:
+                return val.vtype.ToString();
             case Type.String:
                 return "\"" + val.vstring + "\"";
             case Type.Symbol:

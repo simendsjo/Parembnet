@@ -15,6 +15,9 @@ public class Primitives
 
     private static readonly List<Primitive> AllPrimitivesVector =
     [
+        new("get-type", 1, new Function((Context ctx, Val value) =>
+            value.CliType)),
+
         new("+", 2, new Function((Context ctx, Val a, Val b) => ValAdd(a, b))),
         new("-", 2, new Function((Context ctx, Val a, Val b) => ValSub(a, b))),
         new("*", 2, new Function((Context ctx, Val a, Val b) => ValMul(a, b))),

@@ -504,6 +504,11 @@ namespace Paremnet
 
             // test dot net interop
 
+            // get-type
+            CompileAndRun(ctx, "(get-type 0)", typeof(System.Int32).ToString());
+            CompileAndRun(ctx, "(get-type 0.0)", typeof(System.Single).ToString());
+            CompileAndRun(ctx, "(get-type \"\")", typeof(System.String).ToString());
+
             // constructors
             CompileAndRun(ctx, "(.new (.. 'System.Random))", "[Native System.Random System.Random]");
             CompileAndRun(ctx, "(.new (.. 'System.Random) 0)", "[Native System.Random System.Random]");
