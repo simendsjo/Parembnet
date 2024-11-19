@@ -3,6 +3,7 @@ using Paremnet.Error;
 using Paremnet.Util;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 
@@ -105,6 +106,13 @@ public class Parser(Packages packages, ILogger logger)
             case ')':
                 // well that was unexpected
                 throw new ParserError("Unexpected closed parenthesis!");
+            case '{':
+                // this function will take care of the map, including the closing bracket
+                result = ParseMap(stream, backquote);
+                break;
+            case '}':
+                // well that was unexpected
+                throw new ParserError("Unexpected closed curly bracket!");
             case '\"':
                 // this function will take care of the string, including the closing quote
                 result = ParseString(stream);
@@ -178,7 +186,7 @@ public class Parser(Packages packages, ILogger logger)
         }
     }
 
-    private readonly List<char> _specialElements = ['(', ')', '\"', '\'', '`'];
+    private readonly List<char> _specialElements = ['(', ')', '\"', '\'', '`', '{', '}'];
 
     /// <summary> Special elements are like whitespace - they interrupt tokenizing </summary>
     private bool IsSpecialElement(char elt, bool insideBackquote) => _specialElements.Contains(elt) || (insideBackquote && elt == ',');
@@ -342,6 +350,26 @@ public class Parser(Packages packages, ILogger logger)
         ConsumeWhitespace(stream);
 
         return Cons.MakeList(results);
+    }
+
+    private Val ParseMap(InputStream stream, bool backquote)
+    {
+        var result = ImmutableDictionary.CreateBuilder<Val, Val>();
+        stream.Read(); // consume opening paren
+        ConsumeWhitespace(stream);
+
+        char ch;
+        while ((ch = stream.Peek()) != '}' && ch != (char)0)
+        {
+            Val key = Parse(stream, backquote);
+            Val val = Parse(stream, backquote);
+            result.Add(key, val);
+        }
+
+        stream.Read(); // consume the closing bracket
+        ConsumeWhitespace(stream);
+
+        return result.ToImmutable();
     }
 
     /// <summary>

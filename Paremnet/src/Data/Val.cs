@@ -1,6 +1,8 @@
 ﻿using Paremnet.Core;
 using Paremnet.Error;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -49,6 +51,7 @@ public readonly struct Val : IEquatable<Val>
         Symbol,
         Cons,
         Vector,
+        Map,
         Closure,
         ReturnAddress,
         Object
@@ -77,6 +80,7 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(16)] public readonly Symbol vsymbol;
     [FieldOffset(16)] public readonly Cons vcons;
     [FieldOffset(16)] public readonly Vector vvector;
+    [FieldOffset(16)] public readonly ImmutableDictionary<Val, Val> vmap;
     [FieldOffset(16)] public readonly Closure vclosure;
     [FieldOffset(16)] public readonly ReturnAddress vreturn;
 
@@ -107,11 +111,20 @@ public readonly struct Val : IEquatable<Val>
             Type.Symbol => typeof(Symbol),
             Type.Cons => typeof(Cons),
             Type.Vector => typeof(Vector),
+            Type.Map => typeof(ImmutableDictionary<Val, Val>),
             Type.Closure => typeof(Closure),
             Type.ReturnAddress => typeof(ReturnAddress),
             Type.Object => rawobject.GetType(),
             _ => throw new ArgumentOutOfRangeException()
         };
+
+    private Val(Int128 rawvalue, object rawobject, Type type, ImmutableDictionary<Val, Val> metadata)
+    {
+        this.rawvalue = rawvalue;
+        this.rawobject = rawobject;
+        this.type = type;
+        this.metadata = metadata;
+    }
 
     private Val(Type type) : this()
     {
@@ -232,6 +245,12 @@ public readonly struct Val : IEquatable<Val>
         vvector = value;
     }
 
+    public Val(ImmutableDictionary<Val, Val> value) : this()
+    {
+        type = Type.Map;
+        vmap = value;
+    }
+
     public Val(Closure value) : this()
     {
         type = Type.Closure;
@@ -272,6 +291,7 @@ public readonly struct Val : IEquatable<Val>
     public static implicit operator Val(Symbol val) => new(val);
     public static implicit operator Val(Cons val) => new(val);
     public static implicit operator Val(Vector val) => new(val);
+    public static implicit operator Val(ImmutableDictionary<Val, Val> val) => new(val);
     public static implicit operator Val(Closure val) => new(val);
 
     public bool IsNil => type == Type.Nil;
@@ -302,6 +322,7 @@ public readonly struct Val : IEquatable<Val>
     public bool IsSymbol => type == Type.Symbol;
     public bool IsCons => type == Type.Cons;
     public bool IsVector => type == Type.Vector;
+    public bool IsMap => type == Type.Map;
     public bool IsClosure => type == Type.Closure;
     public bool IsReturnAddress => type == Type.ReturnAddress;
     public bool IsObject => type == Type.Object;
@@ -328,6 +349,7 @@ public readonly struct Val : IEquatable<Val>
     public Symbol AsSymbol => type == Type.Symbol ? vsymbol : throw new CompilerError("Value type was expected to be symbol");
     public Cons AsCons => type == Type.Cons ? vcons : throw new CompilerError("Value type was expected to be cons");
     public Vector AsVector => type == Type.Vector ? vvector : throw new CompilerError("Value type was expected to be vector");
+    public ImmutableDictionary<Val, Val> AsMap => type == Type.Map ? vmap : throw new CompilerError("Value type was expected to be Map");
     public Closure AsClosure => type == Type.Closure ? vclosure : throw new CompilerError("Value type was expected to be closure");
     public ReturnAddress AsReturnAddress => type == Type.ReturnAddress ? vreturn : throw new CompilerError("Value type was expected to be ret addr");
     public object AsObject => type == Type.Object ? rawobject : throw new CompilerError("Value type was expected to be object");
@@ -365,6 +387,7 @@ public readonly struct Val : IEquatable<Val>
             Type.Symbol => vsymbol,
             Type.Cons => vcons,
             Type.Vector => vvector,
+            Type.Map => vmap,
             Type.Closure => vclosure,
             Type.ReturnAddress => vreturn,
             Type.Object => rawobject,
@@ -392,6 +415,7 @@ public readonly struct Val : IEquatable<Val>
             Symbol symbol => symbol,
             Cons cons => cons,
             Vector vec => vec,
+            ImmutableDictionary<Val, Val> map => map,
             Closure closure => closure,
             _ => new Val(boxed),
         };
@@ -425,6 +449,40 @@ public readonly struct Val : IEquatable<Val>
 
         // if it's a value type, simply compare the value data
         if (a.IsValueType) { return a.rawvalue == b.rawvalue; }
+
+        // value type equality for maps
+        if (a.type == Type.Map)
+        {
+            if (a.vmap.Count != b.vmap.Count)
+            {
+                return false;
+            }
+
+            var ae = a.vmap.GetEnumerator();
+            var be = b.vmap.GetEnumerator();
+            while(true)
+            {
+                var an = ae.MoveNext();
+                var bn = be.MoveNext();
+
+                // One empty, but not the other
+                if (an != bn)
+                {
+                    return false;
+                }
+
+                // Both empty
+                if (an == false)
+                {
+                    return true;
+                }
+
+                if (!Equals(ae.Current, be.Current))
+                {
+                    return false;
+                }
+            }
+        }
 
         // otherwise if it's a reference type, compare object reference
         return ReferenceEquals(a.rawobject, b.rawobject);
@@ -490,6 +548,30 @@ public readonly struct Val : IEquatable<Val>
                 {
                     string elements = val.vvector.Print(" ");
                     return $"[Vector {elements}]";
+                }
+            case Type.Map:
+                {
+                    StringBuilder sb = new();
+                    sb.Append('{');
+                    var e = val.vmap.GetEnumerator();
+                    if (e.MoveNext())
+                    {
+                        KeyValuePair<Val, Val> kv = e.Current;
+                        sb.Append(Print(kv.Key));
+                        sb.Append(' ');
+                        sb.Append(Print(kv.Value));
+
+                        while(e.MoveNext())
+                        {
+                            kv = e.Current;
+                            sb.Append(' ');
+                            sb.Append(Print(kv.Key));
+                            sb.Append(' ');
+                            sb.Append(Print(kv.Value));
+                        }
+                    }
+                    sb.Append('}');
+                    return sb.ToString();
                 }
             case Type.Closure:
                 return string.IsNullOrEmpty(val.vclosure.Name) ? "[Closure]" : $"[Closure/{val.vclosure.Name}]";

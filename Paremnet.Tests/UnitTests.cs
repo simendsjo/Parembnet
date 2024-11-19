@@ -3,6 +3,7 @@ using Paremnet.Data;
 using Paremnet.Util;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -325,6 +326,23 @@ namespace Paremnet
             CheckParse(p, "'(foo) '((a b) c) '()", "(quote (foo))", "(quote ((a b) c))", "(quote ())");
             CheckParse(p, "(a b ; c d)\n   e f)", "(a b e f)");
 
+            CheckParse(p, "{}", "{}");
+            CheckParse(p, "{0 1}", "{0 1}");
+            CheckParse(p, "{0.1 1.2}", "{0.1 1.2}");
+            CheckParse(p, """{"a" "b"}""", """{"a" "b"}""");
+            // TODO: Split Print and Write, and special casing for quoting to match input
+            CheckParse(p, "{'a 'b}", "{(quote a) (quote b)}");
+            {
+                var actual = ParseRaw(p, "{0 1 1 2 3 4}");
+                var expected = new Val(new Dictionary<Val, Val>
+                {
+                    {0, 1},
+                    {1, 2},
+                    {3, 4},
+                }.ToImmutableDictionary());
+                Check(actual, expected);
+            }
+
             // now check backquotes
             CheckParse(p, "foo 'foo `foo `,foo", "foo", "(quote foo)", "(quote foo)", "foo");
             CheckParse(p, "`(foo)", "(list (quote foo))");
@@ -333,8 +351,7 @@ namespace Paremnet
             CheckParse(p, "`(,@foo)", "(append foo)");
         }
 
-        /// <summary> Test helper - does equality comparison on the raw parse results </summary>
-        private void CheckParseRaw(Parser parser, string input, Val expected)
+        private Val ParseRaw(Parser parser, string input)
         {
             parser.AddString(input);
 
@@ -342,6 +359,13 @@ namespace Paremnet
             Check(parsed.Count == 1);
 
             Val result = parsed[0];
+            return result;
+        }
+
+        /// <summary> Test helper - does equality comparison on the raw parse results </summary>
+        private void CheckParseRaw(Parser parser, string input, Val expected)
+        {
+            Val result = ParseRaw(parser, input);
             Check(result, expected);
         }
 
