@@ -85,8 +85,10 @@ public readonly struct Val : IEquatable<Val>
     [FieldOffset(16)] public readonly ReturnAddress vreturn;
 
     [FieldOffset(24)] public readonly Type type;
+    [FieldOffset(32)] public readonly ImmutableDictionary<Val, Val> metadata = ImmutableDictionary<Val, Val>.Empty;
 
     public static readonly Val NIL = new(Type.Nil);
+    public static readonly EqualityComparer<Val> ValComparer = EqualityComparer<Val>.Create((a, b) => a.Equals(b), x => x.GetHashCode());
 
     public System.Type CliType =>
         type switch
@@ -123,7 +125,7 @@ public readonly struct Val : IEquatable<Val>
         this.rawvalue = rawvalue;
         this.rawobject = rawobject;
         this.type = type;
-        this.metadata = metadata;
+        this.metadata = metadata.WithComparers(ValComparer, ValComparer);
     }
 
     private Val(Type type) : this()
@@ -500,7 +502,16 @@ public readonly struct Val : IEquatable<Val>
     public static bool operator !=(Val a, Val b) => !Equals(a, b);
 
     public override bool Equals(object obj) => (obj is Val val) && Equals(val, this);
-    public override int GetHashCode() => (int)type ^ (rawobject != null ? rawobject.GetHashCode() : ((int)rawvalue));
+
+    public int GetHashCode(Val obj)
+    {
+        HashCode hashCode = new HashCode();
+        hashCode.Add((int)obj.type);
+        hashCode.Add(obj.rawvalue);
+        hashCode.Add(obj.rawobject);
+        hashCode.Add(obj.metadata);
+        return hashCode.ToHashCode();
+    }
 
     private string DebugString => $"{Print(this, false)} [{type}]";
     public override string ToString() => Print(this, true);
@@ -622,5 +633,23 @@ public readonly struct Val : IEquatable<Val>
 
         sb.Append(')');
         return sb.ToString();
+    }
+
+    public Val WithMetadata(ImmutableDictionary<Val, Val> metadata)
+    {
+        return new Val(this.rawvalue, this.rawobject, this.type, metadata);
+    }
+
+    public Val Coerce()
+    {
+        var type = metadata[new Val(new Symbol("type", new Package(Packages.NameKeywords)))];
+        return Coerce(type.vtype);
+    }
+
+    public Val Coerce(System.Type toType)
+    {
+        var converted = Convert.ChangeType(AsBoxedValue, toType);
+        var newValue = TryUnbox(converted);
+        return newValue.WithMetadata(metadata);
     }
 }

@@ -319,6 +319,13 @@ namespace Paremnet
             CheckParseRaw(p, "()", Val.NIL);
             CheckParseRaw(p, "\"foo \\\" \"", "foo \" ");
 
+            {
+                Val actual = ParseRaw(p, "^System.Byte 1");
+                Check((byte)1, actual.vuint8);
+                var key = new Val(new Symbol("type", new Package(Packages.NameKeywords)));
+                Check(typeof(System.Byte), actual.metadata[key]);
+            }
+
             // now test by comparing their printed form
             CheckParse(p, "(a b c)", "(a b c)");
             CheckParse(p, " (   1.0 2.1   -3  #t   #f   ( ) a  b  c )  ", "(1 2.1 -3 #t #f () a b c)");

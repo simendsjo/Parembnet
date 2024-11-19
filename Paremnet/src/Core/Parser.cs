@@ -95,6 +95,28 @@ public class Parser(Packages packages, ILogger logger)
         char c = stream.Peek();
         switch (c)
         {
+            // TODO: https://clojure.org/reference/reader#metadata
+            case '^':
+                stream.Read(); // Skip ^
+                var meta = Parse(stream, backquote);
+                if(meta.IsSymbol)
+                {
+                    var name = meta.AsSymbol.Name;
+                    var ti = Type.GetType(name);
+                    meta = new Val(new Dictionary<Val, Val>
+                    {
+                        { new Val(new Symbol("type", new Package(Packages.NameKeywords))), ti }
+                    }.ToImmutableDictionary());
+                }
+                else if (meta.type != Val.Type.Map)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                var value = Parse(stream, backquote);
+                var withMeta = value.WithMetadata(meta.vmap);
+                var coerced = withMeta.Coerce();
+                return coerced;
             case ';':
                 ConsumeToEndOfLine(stream);
                 result = Parse(stream, backquote);
