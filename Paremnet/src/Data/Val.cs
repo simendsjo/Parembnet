@@ -450,6 +450,12 @@ public readonly struct Val : IEquatable<Val>
         // if it's a value type, simply compare the value data
         if (a.IsValueType) { return a.rawvalue == b.rawvalue; }
 
+        if (a.type == Type.Symbol)
+        {
+            return object.Equals(a.vsymbol.Pkg.Name, b.vsymbol.Pkg.Name)
+                && a.vsymbol.Name.Equals(b.vsymbol.Name, StringComparison.InvariantCulture);
+        }
+
         // value type equality for maps
         if (a.type == Type.Map)
         {
