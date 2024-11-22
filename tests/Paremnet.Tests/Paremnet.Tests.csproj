@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Paremnet\Paremnet.csproj" />
+    <ProjectReference Include="../../source/Paremnet/Paremnet.csproj" />
   </ItemGroup>
 
 </Project>
