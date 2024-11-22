@@ -261,7 +261,7 @@ in terms of fields, field accessors, constructor, and predicate.
 Just a few examples of the bytecode produced by the compiler. More can be found 
 by running unit tests and inspecting their outputs - they are _quite_ verbose.
 
-Also, see [bytecode design.txt](bytecode%20design.txt) for more info.
+Also, see [bytecode design.txt](docs/bytecode%20design.txt) for more info.
 
 ```
 Inputs:  (+ 1 2)
