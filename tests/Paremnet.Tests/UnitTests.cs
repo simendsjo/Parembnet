@@ -1,12 +1,12 @@
 using Paremnet.Core;
 using Paremnet.Data;
 using Paremnet.Util;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Xunit;
 
 namespace Paremnet
 {
@@ -132,7 +132,7 @@ namespace Paremnet
             }
         }
 
-        [Test]
+        [Fact]
         public void RunTests()
         {
             Run(TestConsAndAtoms);
