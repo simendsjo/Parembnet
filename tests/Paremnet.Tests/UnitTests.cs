@@ -565,36 +565,34 @@ namespace Paremnet
         }
 
         /// <summary> Front-to-back test of the virtual machine </summary>
-        [Fact]
-        public void TestVmNoCoreLib()
+        [Theory]
+        [InlineData("5", "5")]
+        [InlineData("#t", "#t")]
+        [InlineData("\"foo\"", "\"foo\"")]
+        [InlineData("3", "(begin 1 2 3)")]
+        [InlineData("()", "xyz")]
+        [InlineData("5", "(set! x 5)")]
+        [InlineData("2", "(begin (set! x 2) x)")]
+        [InlineData("5", "(begin (set! x #t) (if x 5 6))")]
+        [InlineData("6", "(begin (set! x #f) (if x 5 6))")]
+        [InlineData("5", "(begin (if* 5 6))")]
+        [InlineData("6", "(begin (if* (if 5 #f) 6))")]
+        [InlineData("5", "(begin (if* (+ 1 2) 4) 5)")]
+        [InlineData("5", "(begin (if* (if 5 #f) 4) 5)")]
+        [InlineData("5", "((lambda (a) a) 5)")]
+        [InlineData("(6 7 8)", "((lambda (a . b) b) 5 6 7 8)")]
+        [InlineData("6", "((lambda (a) (set! a 6) a) 1)")]
+        [InlineData("foo", "((lambda (x . rest) (if x 'foo rest)) #t 'a 'b 'c)")]
+        [InlineData("(a b c)", "((lambda (x . rest) (if x 'foo rest)) #f 'a 'b 'c)")]
+        [InlineData("5", "(begin (set! x (lambda (a b c) (if a b c))) (x #t 5 6))")]
+        [InlineData("5", "(begin (set! x 0) (while (< x 5) (set! x (+ x 1)) x))")]
+        [InlineData("5", "(begin (set! x 0) (while (< x 5) (set! x (+ x 1))) x)")]
+        public void TestVmNoCoreLib(string expected, string input)
         {
             // first without the standard library
             Context ctx = new(false, _logger);
 
-            // test reserved keywords
-            CompileAndRun(ctx, "5", "5");
-            CompileAndRun(ctx, "#t", "#t");
-            CompileAndRun(ctx, "\"foo\"", "\"foo\"");
-            CompileAndRun(ctx, "(begin 1 2 3)", "3");
-            CompileAndRun(ctx, "xyz", "()");
-            CompileAndRun(ctx, "xyz", "()");
-            CompileAndRun(ctx, "(set! x 5)", "5");
-            CompileAndRun(ctx, "(begin (set! x 2) x)", "2");
-            CompileAndRun(ctx, "(begin (set! x #t) (if x 5 6))", "5");
-            CompileAndRun(ctx, "(begin (set! x #f) (if x 5 6))", "6");
-            CompileAndRun(ctx, "(begin (if* 5 6))", "5");
-            CompileAndRun(ctx, "(begin (if* (if 5 #f) 6))", "6");
-            CompileAndRun(ctx, "(begin (if* (+ 1 2) 4) 5)", "5");
-            CompileAndRun(ctx, "(begin (if* (if 5 #f) 4) 5)", "5");
-            CompileAndRun(ctx, "((lambda (a) a) 5)", "5");
-            CompileAndRun(ctx, "((lambda (a . b) b) 5 6 7 8)", "(6 7 8)");
-            CompileAndRun(ctx, "((lambda (a) (set! a 6) a) 1)", "6");
-            CompileAndRun(ctx, "((lambda (x . rest) (if x 'foo rest)) #t 'a 'b 'c)", "foo");
-            CompileAndRun(ctx, "((lambda (x . rest) (if x 'foo rest)) #f 'a 'b 'c)", "(a b c)");
-            CompileAndRun(ctx, "(begin (set! x (lambda (a b c) (if a b c))) (x #t 5 6))", "5");
-            CompileAndRun(ctx, "(begin (set! x 0) (while (< x 5) (set! x (+ x 1)) x))", "5");
-            CompileAndRun(ctx, "(begin (set! x 0) (while (< x 5) (set! x (+ x 1))) x)", "5");
-
+            CompileAndRun(ctx, input, expected);
             //DumpCodeBlocks(ctx);
         }
 
