@@ -113,41 +113,9 @@ namespace Paremnet
             }
         }
 
-        /// <summary> Checks whether the result is equal to the expected value; if not, logs an info statement </summary>
-        private void Check(bool result) => Check(new Val(result), new Val(true));
-
-        //private void Check (Val result) => Check(result, new Val(true));
-        private void Check(object result, object expected) => Check(new Val(result), new Val(expected));
-
-        private void Check(Val result, Val expected, System.Func<Val, Val, bool> test = null)
-        {
-            Log("test: got", result, " - expected", expected);
-            bool equal = test?.Invoke(result, expected) ?? Val.Equals(result, expected);
-            if (!equal)
-            {
-                _failures++;
-                string msg = $"*** FAILED TEST: got {result} - expected {expected}";
-                Log(msg);
-                Assert.Fail(msg);
-            }
-        }
-
         [Fact]
         public void RunTests()
         {
-            Run(TestConsAndAtoms);
-            Run(TestPackagesAndSymbols);
-            Run(TestEnvironments);
-            Run(TestCharStream);
-            Run(TestParser);
-            Run(PrintSampleCompilations);
-            Run(TestVmNoCoreLib);
-            Run(TestVmPrimitives);
-            Run(TestDotNetInterop);
-            Run(TestPackages);
-            Run(TestStandardLibs);
-            Run(TestRecords);
-
             Run(PrintAllStandardLibraries);
             return;
 
@@ -163,96 +131,252 @@ namespace Paremnet
 
         private void DumpCodeBlocks(Context ctx) => Log(ctx.Code.DebugPrintAll());
 
-        /// <summary> Tests various internal classes </summary>
+        [Fact]
+        public void Nil()
+        {
+            Assert.True(Val.NIL.IsAtom);
+            Assert.False(Val.NIL.IsCons);
+            Assert.True(Val.NIL.IsNil);
+            Assert.Equal(Val.NIL, Val.NIL);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(System.SByte.MinValue)]
+        [InlineData(System.SByte.MaxValue)]
+        public void Int8(System.SByte value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(System.Byte.MinValue)]
+        [InlineData(System.Byte.MaxValue)]
+        public void UInt8(System.Byte value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(-1)]
+        [InlineData(System.Int16.MinValue)]
+        [InlineData(System.Int16.MaxValue)]
+        public void Int16(System.Int16 value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(System.UInt16.MinValue)]
+        [InlineData(System.UInt16.MaxValue)]
+        public void UInt16(System.UInt16 value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(-1)]
+        [InlineData(System.Int32.MinValue)]
+        [InlineData(System.Int32.MaxValue)]
+        public void Int32(System.Int32 value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(System.UInt32.MinValue)]
+        [InlineData(System.UInt32.MaxValue)]
+        public void UInt32(System.UInt32 value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(-1)]
+        [InlineData(System.Int64.MinValue)]
+        [InlineData(System.Int64.MaxValue)]
+        public void Int64(System.Int64 value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(System.UInt64.MinValue)]
+        [InlineData(System.UInt64.MaxValue)]
+        public void UInt64(System.UInt64 value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(-1)]
+        // [InlineData(System.Int128.MinValue)]
+        // [InlineData(System.Int128.MaxValue)]
+        public void Int128(System.Int128 value)
+        {
+            Val a = value, b = value;
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        // [InlineData(System.UInt128.MinValue)]
+        // [InlineData(System.UInt128.MaxValue)]
+        public void UInt128(System.UInt128 value)
+        {
+            Val a = new(value), b = new(value);
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.True(a.IsAtom);
+        }
+
+        [Fact]
         public void TestConsAndAtoms()
         {
-            // test cons
-            Check(Val.NIL.IsAtom);
-            Check(new Val("foo").IsAtom);
-            Check(new Val(5).IsAtom);
-            Check(new Val(new Cons(new Val(1), new Val(2))).IsCons);
+            { // TODO: Empty list
+            }
+
+            { // Proper list
+                Val c = new Cons(1, Val.NIL);
+                Assert.True(c.IsCons);
+                Assert.Equal(1, Cons.Length(c));
+            }
+
+            { // Cell
+                Val c = new Cons(1, 2);
+                Assert.True(c.IsCons);
+                // FIXME: This is not a list and shouldn't return a length
+                //Assert.Throws<System.Exception>(() => Cons.Length(c));
+            }
+
+            Assert.True(new Val(new Cons(new Val(1), new Val(2))).IsCons);
 
             {
                 Cons list1 = new("foo", new Cons("bar", Val.NIL));
-                Check(Cons.IsCons(list1));
-                Check(Cons.IsList(list1));
-                Check(Cons.Length(list1), 2);
-                Check(list1.First, "foo");
-                Check(list1.Second, "bar");
-                Check(list1.AfterSecond, Val.NIL);
-                Check(list1.First.IsAtom); // "foo"
-                Check(list1.Rest.IsCons); // ("bar")
-                Check(list1.Second.IsAtom); // "bar"
-                Check(list1.AfterSecond.IsAtom); // nil
-                Check(list1.AfterSecond.IsNil); // null
-                Check(Val.Print(list1), "(\"foo\" \"bar\")");
+                Assert.True(Cons.IsCons(list1));
+                Assert.True(Cons.IsList(list1));
+                Assert.Equal(2, Cons.Length(list1));
+                Assert.Equal("foo", list1.First);
+                Assert.Equal("bar", list1.Second);
+                Assert.Equal(Val.NIL, list1.AfterSecond);
+                Assert.True(list1.First.IsAtom); // "foo"
+                Assert.True(list1.Rest.IsCons); // ("bar")
+                Assert.True(list1.Second.IsAtom); // "bar"
+                Assert.True(list1.AfterSecond.IsAtom); // nil
+                Assert.True(list1.AfterSecond.IsNil); // null
+                Assert.Equal("(\"foo\" \"bar\")", Val.Print(list1));
             }
 
             {
                 Cons list2 = Cons.MakeList("foo", "bar");
-                Check(Cons.IsCons(list2));
-                Check(Cons.IsList(list2));
-                Check(Cons.Length(list2), 2);
-                Check(list2.First, "foo");
-                Check(list2.Second, "bar");
-                Check(list2.AfterSecond, Val.NIL);
-                Check(list2.First.IsAtom); // "foo"
-                Check(list2.Rest.IsCons); // ("bar")
-                Check(list2.Second.IsAtom); // "bar"
-                Check(list2.AfterSecond.IsAtom); // null
-                Check(list2.AfterSecond.IsNil); // null
-                Check(Val.Print(list2), "(\"foo\" \"bar\")");
+                Assert.True(Cons.IsCons(list2));
+                Assert.True(Cons.IsList(list2));
+                Assert.Equal(2, Cons.Length(list2));
+                Assert.Equal("foo", list2.First);
+                Assert.Equal("bar", list2.Second);
+                Assert.Equal(Val.NIL, list2.AfterSecond);
+                Assert.True(list2.First.IsAtom); // "foo"
+                Assert.True(list2.Rest.IsCons); // ("bar")
+                Assert.True(list2.Second.IsAtom); // "bar"
+                Assert.True(list2.AfterSecond.IsAtom); // null
+                Assert.True(list2.AfterSecond.IsNil); // null
+                Assert.Equal("(\"foo\" \"bar\")", Val.Print(list2));
             }
 
             {
                 Cons nonlist = new("foo", "bar");
-                Check(Cons.IsCons(nonlist));
-                Check(!Cons.IsList(nonlist));
-                Check(nonlist.First, "foo");
-                Check(nonlist.Rest, "bar");
-                Check(nonlist.First.IsAtom); // "foo"
-                Check(nonlist.Rest.IsAtom); // "bar"
-                Check(nonlist.Rest.IsNotNil);
-                Check(Val.Print(nonlist), "(\"foo\" . \"bar\")");
+                Assert.True(Cons.IsCons(nonlist));
+                Assert.False(Cons.IsList(nonlist));
+                Assert.Equal("foo", nonlist.First);
+                Assert.Equal("bar", nonlist.Rest);
+                Assert.True(nonlist.First.IsAtom); // "foo"
+                Assert.True(nonlist.Rest.IsAtom); // "bar"
+                Assert.True(nonlist.Rest.IsNotNil);
+                Assert.Equal("(\"foo\" . \"bar\")", Val.Print(nonlist));
             }
         }
 
-        /// <summary> Test packages and symbols </summary>
+        [Fact]
         public void TestPackagesAndSymbols()
         {
             Packages packages = new();
             Package p = packages.Global;   // global package
 
             Symbol foo = p.Intern("foo");
-            Check(foo.Name, "foo");
-            Check(foo.Pkg, p);
-            Check(foo.FullName, "foo");
-            Check(p.Intern("foo") == foo); // make sure interning returns the same instance
-            Check(p.Unintern(foo.Name));        // first one removes successfully
-            Check(!p.Unintern(foo.Name));      // but second time there is nothing to remove
-            Check(p.Intern("foo") != foo); // since we uninterned, second interning will return a different one
+            Assert.Equal("foo", foo.Name);
+            Assert.Equal(p, foo.Pkg);
+            Assert.Equal("foo", foo.FullName);
+            Assert.True(p.Intern("foo") == foo); // make sure interning returns the same instance
+            Assert.True(p.Unintern(foo.Name));        // first one removes successfully
+            Assert.False(p.Unintern(foo.Name));      // but second time there is nothing to remove
+            Assert.True(p.Intern("foo") != foo); // since we uninterned, second interning will return a different one
 
             Package p2 = new("fancy"); // some fancy package
             Symbol foo2 = p2.Intern("foo");
-            Check(foo2.Name, "foo");
-            Check(foo2.Pkg, p2);
-            Check(foo2.FullName, "fancy:foo");
+            Assert.Equal("foo", foo2.Name);
+            Assert.Equal(p2, foo2.Pkg);
+            Assert.Equal("fancy:foo", foo2.FullName);
 
             // test the packages list
 
-            Check(packages.Global.Name, (string)null); // get the global package
-            Check(Val.Print(packages.Global.Intern("foo")), "foo"); // check symbol name
-            Check(packages.Keywords.Name, "");      // get the keywords package
-            Check(Val.Print(packages.Keywords.Intern("foo")), ":foo");  // check symbol name
+            Assert.Equal((string)null, packages.Global.Name); // get the global package
+            Assert.Equal("foo", Val.Print(packages.Global.Intern("foo"))); // check symbol name
+            Assert.Equal("", packages.Keywords.Name);      // get the keywords package
+            Assert.Equal(":foo", Val.Print(packages.Keywords.Intern("foo")));  // check symbol name
 
-            Check(packages.Find("fancy"), null);    // make sure the fancy package was not added yet
-            Check(packages.Add(p2), p2);            // add our fancy custom package
-            Check(packages.Intern("fancy"), p2);    // get the fancy package - should be the same one
-            Check(Val.Print(packages.Intern("fancy").Intern("foo")), "fancy:foo");  // check symbol name
-            Check(packages.Remove(p2));             // check removal (should only return true the first time)
-            Check(!packages.Remove(p2));            // check removal (should only return true the first time)
+            Assert.Equal((Package)null, packages.Find("fancy"));    // make sure the fancy package was not added yet
+            Assert.Equal(p2, packages.Add(p2));            // add our fancy custom package
+            Assert.Equal(packages.Intern("fancy"), p2);    // get the fancy package - should be the same one
+            Assert.Equal("fancy:foo", Val.Print(packages.Intern("fancy").Intern("foo")));  // check symbol name
+            Assert.True(packages.Remove(p2));             // check removal (should only return true the first time)
+            Assert.True(!packages.Remove(p2));            // check removal (should only return true the first time)
         }
 
+        [Fact]
         public void TestEnvironments()
         {
             // test environments
@@ -266,64 +390,66 @@ namespace Paremnet
             Environment e0 = Environment.Make(Cons.MakeList(p.Intern("env0symbol0"), p.Intern("env0symbol1")), e1);
             // e0.setAt(0, p.intern("env0symbol0"));
             // e0.setAt(1, p.intern("env0symbol1"));
-            Check(Environment.GetVariable(p.Intern("env2symbol0"), e0).FrameIndex, 2); // get frame coord
-            Check(Environment.GetVariable(p.Intern("env2symbol0"), e0).SymbolIndex, 0); // get symbol coord
-            Check(Environment.GetVariable(p.Intern("env1symbol1"), e0).FrameIndex, 1); // get frame coord
-            Check(Environment.GetVariable(p.Intern("env1symbol1"), e0).SymbolIndex, 1); // get symbol coord
-            Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).FrameIndex, 0); // get frame coord
-            Check(Environment.GetVariable(p.Intern("env0symbol0"), e0).SymbolIndex, 0); // get symbol coord
+            Assert.Equal(2, Environment.GetVariable(p.Intern("env2symbol0"), e0).FrameIndex); // get frame coord
+            Assert.Equal(0, Environment.GetVariable(p.Intern("env2symbol0"), e0).SymbolIndex); // get symbol coord
+            Assert.Equal(1, Environment.GetVariable(p.Intern("env1symbol1"), e0).FrameIndex); // get frame coord
+            Assert.Equal(1, Environment.GetVariable(p.Intern("env1symbol1"), e0).SymbolIndex); // get symbol coord
+            Assert.Equal(0, Environment.GetVariable(p.Intern("env0symbol0"), e0).FrameIndex); // get frame coord
+            Assert.Equal(0, Environment.GetVariable(p.Intern("env0symbol0"), e0).SymbolIndex); // get symbol coord
 
             VarPos e2S0Loc = Environment.GetVariable(p.Intern("env2symbol0"), e0);
-            Check(Environment.GetSymbolAt(e2S0Loc, e0), p.Intern("env2symbol0"));
+            Assert.Equal(p.Intern("env2symbol0"), Environment.GetSymbolAt(e2S0Loc, e0));
             Environment.SetSymbolAt(e2S0Loc, p.Intern("NEW_SYMBOL"), e0);
-            Check(Environment.GetSymbolAt(e2S0Loc, e0), p.Intern("NEW_SYMBOL"));
-            Check(Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).FrameIndex, 2); // get frame coord
-            Check(Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).SymbolIndex, 0); // get symbol coord
+            Assert.Equal(p.Intern("NEW_SYMBOL"), Environment.GetSymbolAt(e2S0Loc, e0));
+            Assert.Equal(2, Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).FrameIndex); // get frame coord
+            Assert.Equal(0, Environment.GetVariable(p.Intern("NEW_SYMBOL"), e0).SymbolIndex); // get symbol coord
         }
 
         /// <summary> Tests the character stream </summary>
+        [Fact]
         public void TestCharStream()
         {
             // first, test the stream wrapper
             InputStream stream = new();
             stream.Add("foo");
             stream.Save();
-            Check(!stream.IsEmpty);
-            Check(stream.Peek(), 'f'); // don't remove
-            Check(stream.Read(), 'f'); // remove
-            Check(stream.Peek(), 'o'); // don't remove
-            Check(stream.Read(), 'o'); // remove
-            Check(stream.Read(), 'o'); // remove last one
-            Check(stream.Read(), (char)0);
-            Check(stream.IsEmpty);
-            Check(stream.Restore());   // make sure we can restore the old save
-            Check(stream.Peek(), 'f'); // we're back at the beginning
-            Check(!stream.Restore()); // there's nothing left to restore
+            Assert.False(stream.IsEmpty);
+            Assert.Equal('f', stream.Peek()); // don't remove
+            Assert.Equal('f', stream.Read()); // remove
+            Assert.Equal('o', stream.Peek()); // don't remove
+            Assert.Equal('o', stream.Read()); // remove
+            Assert.Equal('o', stream.Read()); // remove last one
+            Assert.Equal((char)0, stream.Read());
+            Assert.True(stream.IsEmpty);
+            Assert.True(stream.Restore());   // make sure we can restore the old save
+            Assert.Equal('f', stream.Peek()); // we're back at the beginning
+            Assert.False(stream.Restore()); // there's nothing left to restore
         }
 
         /// <summary> Tests the parser part of the system </summary>
+        [Fact]
         public void TestParser()
         {
             Packages packages = new();
             Parser p = new(packages, _logger);
 
             // test parsing simple atoms, check their internal form
-            CheckParseRaw(p, "1", 1);
-            CheckParseRaw(p, "+1.1", 1.1f);
-            CheckParseRaw(p, "-2.0", -2f);
-            CheckParseRaw(p, "-2", -2);
-            CheckParseRaw(p, "#t", true);
-            CheckParseRaw(p, "#f", false);
-            CheckParseRaw(p, "#hashwhatever", false);
-            CheckParseRaw(p, "a", packages.Global.Intern("a"));
-            CheckParseRaw(p, "()", Val.NIL);
-            CheckParseRaw(p, "\"foo \\\" \"", "foo \" ");
+            Assert.Equal(1, ParseRaw(p, "1"));
+            Assert.Equal(1.1f, ParseRaw(p, "+1.1"));
+            Assert.Equal(-2f, ParseRaw(p, "-2.0"));
+            Assert.Equal(-2, ParseRaw(p, "-2"));
+            Assert.Equal(true, ParseRaw(p, "#t"));
+            Assert.Equal(false, ParseRaw(p, "#f"));
+            Assert.Equal(false, ParseRaw(p, "#hashwhatever"));
+            Assert.Equal(packages.Global.Intern("a"), ParseRaw(p, "a"));
+            Assert.Equal(Val.NIL, ParseRaw(p, "()"));
+            Assert.Equal("foo \" ", ParseRaw(p, "\"foo \\\" \""));
 
             {
                 Val actual = ParseRaw(p, "^System.Byte 1");
-                Check((byte)1, actual.vuint8);
+                Assert.Equal((byte)1, actual.vuint8);
                 var key = new Val(new Symbol("type", new Package(Packages.NameKeywords)));
-                Check(typeof(System.Byte), actual.metadata[key]);
+                Assert.Equal(actual.metadata[key], typeof(System.Byte));
             }
 
             // now test by comparing their printed form
@@ -347,7 +473,7 @@ namespace Paremnet
                     {1, 2},
                     {3, 4},
                 }.ToImmutableDictionary());
-                Check(actual, expected);
+                Assert.Equal(expected, actual);
             }
 
             // now check backquotes
@@ -363,17 +489,10 @@ namespace Paremnet
             parser.AddString(input);
 
             List<Val> parsed = parser.ParseAll();
-            Check(parsed.Count == 1);
+            Assert.Equal(1, parsed.Count);
 
             Val result = parsed[0];
             return result;
-        }
-
-        /// <summary> Test helper - does equality comparison on the raw parse results </summary>
-        private void CheckParseRaw(Parser parser, string input, Val expected)
-        {
-            Val result = ParseRaw(parser, input);
-            Check(result, expected);
         }
 
         /// <summary> Test helper - takes parse results, converts them to the canonical string form, and compares to outputs </summary>
@@ -382,17 +501,18 @@ namespace Paremnet
             parser.AddString(input);
 
             List<Val> results = parser.ParseAll();
-            Check(results.Count == expecteds.Length);
+            Assert.Equal(expecteds.Length, results.Count);
 
             for (int i = 0; i < results.Count; i++)
             {
                 string result = Val.Print(results[i]);
                 string expected = expecteds[i];
-                Check(result, expected);
+                Assert.Equal(expected, result);
             }
         }
 
         /// <summary> Compiles some sample scripts and prints them out, without validation. </summary>
+        [Fact]
         public void PrintSampleCompilations()
         {
             Context ctx = new(false, _logger);
@@ -445,6 +565,7 @@ namespace Paremnet
         }
 
         /// <summary> Front-to-back test of the virtual machine </summary>
+        [Fact]
         public void TestVmNoCoreLib()
         {
             // first without the standard library
@@ -478,6 +599,7 @@ namespace Paremnet
         }
 
         /// <summary> Front-to-back test of the virtual machine </summary>
+        [Fact]
         public void TestVmPrimitives()
         {
             // first without the standard library
@@ -528,6 +650,7 @@ namespace Paremnet
             CompileAndRun(ctx, "(eval '(inc1 1))", "2");
         }
 
+        [Fact]
         public void TestDotNetInterop()
         {
             // load the standard library so we get access to (let ...) and macros in general
@@ -612,6 +735,7 @@ namespace Paremnet
             //DumpCodeBlocks(ctx);
         }
 
+        [Fact]
         public void TestPackages()
         {
             // without the standard library
@@ -637,6 +761,7 @@ namespace Paremnet
             //DumpCodeBlocks(ctx);
         }
 
+        [Fact]
         public void TestStandardLibs()
         {
             // now initialize the standard library
@@ -698,6 +823,7 @@ namespace Paremnet
             //DumpCodeBlocks(ctx);
         }
 
+        [Fact]
         public void TestRecords()
         {
             Context ctx = new(true, _logger);
@@ -747,7 +873,7 @@ namespace Paremnet
                 Log("Running...");
                 Val output = ctx.Vm.Execute(comp.Closure);
                 string formatted = Val.Print(output);
-                Check(new Val(formatted), new Val(expected));
+                Assert.Equal(new Val(expected), new Val(formatted));
             }
         }
     }
